@@ -35,7 +35,7 @@ namespace lambda {
  
   // So, in the case the return type deduction should fail, it should not
   // fail directly, but rather result in a valid but wrong return type,
-  // causing a compile time error, if the function is really called.
+  // causing a compile time error only if the function is really called.
 
 namespace detail {
 
@@ -67,6 +67,13 @@ struct return_type {
   typedef Arg type;
 };
 
+
+  // different arities:
+template <class Act, class A1> class return_type_1; // 1-ary actions
+template <class Act, class A1, class A2> class return_type_2; // 2-ary
+template <class Act, class Args> class return_type_N; // >3- ary
+
+
 // Unary actions (result from unary operators)
 // do not have a default return type.
 template<class Act, class A> struct return_type_1 { 
@@ -74,30 +81,50 @@ template<class Act, class A> struct return_type_1 {
      detail::return_type_deduction_failure<return_type_1> type;
 };
 
-  // read the comments for return_type_2_0
-template <class Act, class A> struct return_type_1_0 {
 
-typedef typename boost::remove_reference<A>::type A1;
 
-  typedef typename 
-    detail::IF_type<
-      boost::is_function<A1>::value,
-      boost::add_reference<A1>,
-      boost::add_const<A1>
-    >::type A2;
+  // read the comments for return_type_2_protect
+
+namespace detail {
+
+template <class A>
+class protect_conversion {
+  
+  // T -> const T
+  // T& -> T&
+  // const T& -> const T
+  // function& -> function&
+  // const array& -> const array&
+  // lambda functors are not stored as references
+  // function reference types are function reference types 
+  typedef typename boost::remove_reference<A>::type A1;
+
+  typedef typename detail::IF<
+    boost::is_reference<A>::value 
+    && !boost::is_const<A1>::value
+    && !is_lambda_functor<A1>::value,
+    A,  
+    const_copy_argument<A1>::type // handles funtion and array type correctly
+  >::RET type;
+};
+
+} // end detail
+
+template <class Act, class A> struct return_type_1_protect {
 
 typedef typename 
   detail::IF<
-  is_lambda_functor<A>::value, 
+    is_lambda_functor<A>::value,
     lambda_functor<
       lambda_functor_args< 
         action<1, Act>, 
-        tuple<A2>, 
+        tuple<typename detail::protect_conversion<A>::type>,
         dig_arity<A>::value
       >
     >,
     typename return_type_1<Act, A>::type
   >::RET type;
+
 };
 
 // binary actions ---------------------------------------------------
@@ -108,36 +135,41 @@ typedef typename
   // (if protect) has  been used.
   // Thus, if one of the parameter types is a lambda functor, the result
   // is a lambda functor as well. 
-  // We need to make a conservative choise here, all arguments in the 
-  // resulting lambda functor will be stored as const copies. The true
-  // result type may have non-const reference arguments, but it is either
-  // impossible or very hard to find out that. And references here might 
-  // be unsafe (references to temporaries that do not exist).
+  // We need to make a conservative choise here.
+  // The resulting lambda functor stores all const reference arguments as
+  // const copies. References to non-const are stored as such.
+  // So if the source of the argument is an const open argument, a bound
+  // argument stroed as a const reference, or a function returning a 
+  // const reference, that information is lost. There is no way of 
+  // telling apart 'real const references' from just 'LL internal
+  // const references' (or it would be really hard)
 
   // The return type is a subclass of lambda_functor, which has a converting 
   // copy constructor. It can copy any lambda functor, that has the same 
   // action type and code, and a copy compatible argument tuple.
 
-template <class Act, class A, class B> struct return_type_2_0 {
 
-  typedef typename boost::remove_reference<A>::type A1;
-  typedef typename boost::remove_reference<B>::type B1;
 
-  // adding const to a function type fails, these tests are to 
-  // avoid that. Note that only the true branch is instantiated with this IF
-  typedef typename 
-    detail::IF_type<
-      boost::is_function<A1>::value,
-      boost::add_reference<A1>,
-      boost::add_const<A1>
-    >::type A2;
+template <class Act, class A, class B> struct return_type_2_protect {
 
-  typedef typename 
-    detail::IF_type<
-      boost::is_function<B1>::value,
-      boost::add_reference<B1>,
-      boost::add_const<B1>
-    >::type B2;
+//    typedef typename boost::remove_reference<A>::type A1;
+//    typedef typename boost::remove_reference<B>::type B1;
+
+//    // adding const to a function type fails, these tests are to 
+//    // avoid that. Note that only the true branch is instantiated with this IF
+//    typedef typename 
+//      detail::IF_type<
+//        !is_lambda_functor<A1>::value && (boost::is_function<A1>::value || !(boost::is_const<A1>::value)),
+//        boost::add_reference<A1>,
+//        boost::add_const<A1>
+//      >::type A2;
+
+//    typedef typename 
+//      detail::IF_type<
+//        !is_lambda_functor<B1>::value && (    boost::is_function<B1>::value || !(boost::is_const<B1>::value)), 
+//        boost::add_reference<B1>,
+//        boost::add_const<B1>
+//      >::type B2;
 
 
 typedef typename 
@@ -146,7 +178,8 @@ typedef typename
     lambda_functor<
       lambda_functor_args< 
         action<2, Act>, 
-        tuple<A2, B2>, 
+        tuple<typename detail::protect_conversion<A>::type, 
+              typename detail::protect_conversion<B>::type>, 
         combine_arities<A, B>::value
       >
     >,
@@ -154,61 +187,17 @@ typedef typename
   >::RET type;
 };
 
-  // Was needed for a while, not now, since no return type deduction depends
-  // on more than two arguments
-
-//  template <class Act, class A, class B, class C> struct return_type_3_0 {
-
-//    typedef typename boost::remove_reference<A>::type A1;
-//    typedef typename boost::remove_reference<B>::type B1;
-//    typedef typename boost::remove_reference<C>::type C1;
-
-//    // adding const to a function type fails, these tests are to 
-//    // avoid that. Note that only the true branch is instantiated with this IF
-//    typedef typename 
-//      detail::IF_type<
-//        boost::is_function<A1>::value,
-//        boost::add_reference<A1>,
-//        boost::add_const<A1>
-//      >::type A2;
-
-//    typedef typename 
-//      detail::IF_type<
-//        boost::is_function<B1>::value,
-//        boost::add_reference<B1>,
-//        boost::add_const<B1>
-//      >::type B2;
-
-//    typedef typename 
-//      detail::IF_type<
-//        boost::is_function<C1>::value,
-//        boost::add_reference<C1>,
-//        boost::add_const<C1>
-//      >::type C2;
 
 
-//  typedef typename 
-//    detail::IF<
-//      is_lambda_functor<A>::value || is_lambda_functor<B>::value ||
-//      is_lambda_functor<C>::value,
-//      lambda_functor<
-//        lambda_functor_args< 
-//          action<3, Act>, 
-//          tuple<A2, B2, C2>, 
-//          combine_arities<A, B, C>::value
-//        >
-//      >,
-//      typename return_type_1<Act, A>::type
-//    >::RET type;
+
+//  // unary function action (it is binary action)
+//  // If a function object overloads operator(), the return type could depend
+//  // on the argument types. This is not taken into consideration.
+//  template<class A, class B, class Ret> 
+//  struct return_type_2<function_action<2, Ret>, A, B> {
+//    typedef typename return_type_1<function_action<1, Ret>, A>::type type;
 //  };
 
-// unary function action (it is binary action)
-// If a function object overloads operator(), the return type could depend
-// on the argument types. This is not taken into consideration.
-template<class A, class B, class Ret> 
-struct return_type_2<function_action<2, Ret>, A, B> {
-  typedef typename return_type_1<function_action<1, Ret>, A>::type type;
-};
 
 // reduce to lambda_functor_args
 // to be on the safe side, constness and references are stripped away,
@@ -275,19 +264,65 @@ struct return_type<placeholder<EXCEPTION>, Open> {
 // on the argument types. This is not taken into consideration.
 
   // use the return type given in the bind invocation as bind<Ret>(...)
-template<int I, class A, class Ret> 
-struct return_type_1<function_action<I, Ret>, A > { 
+template<class A, class Ret> 
+struct return_type_1<function_action<1, Ret>, A > { 
+  typedef Ret type;
+};
+template<class A, class B, class Ret> 
+struct return_type_2<function_action<2, Ret>, A, B > { 
+  typedef Ret type;
+};
+template<int I, class Args, class Ret> 
+struct return_type_N<function_action<I, Ret>, Args> { 
   typedef Ret type;
 };
 
   // Ret is detail::unspecified, so try to deduce return type
-template<int I, class A> 
-struct return_type_1<function_action<I, detail::unspecified>, A > { 
-  typedef typename function_adaptor_sub<
-                     typename detail::remove_reference_and_cv<A>::type
-                   >::type type;
+template<class A> 
+struct return_type_1<function_action<1, detail::unspecified>, A > { 
+  typedef typename function_adaptor_with_actuals<typename tuple<A>::inherited>::type type;
+};
+template<class A, class B> 
+struct return_type_2<function_action<2, detail::unspecified>, A, B > { 
+  typedef typename function_adaptor_with_actuals<tuple<A, B>::inherited>::type type;
+};
+template<int I, class Args> 
+struct return_type_N<function_action<I, detail::unspecified>, Args > { 
+  typedef typename function_adaptor_with_actuals<Args>::type type;
 };
 
+
+namespace detail {
+
+template <class T, class Open>
+struct map_to_return_types {
+  typedef typename return_type< 
+    typename boost::tuples::access_traits<typename T::head_type>::const_type,
+    Open
+  >::type ret_type;
+
+  // const and reference is added, so that specializations for return_type_1
+  // become easier (we can rely on the Args always being references, so the
+  // number of specializations doesn't explode.
+  // Note! If T is already a reference to nonconst, it will remain that way
+  // To return type deduction, const T& is the same as rvalue T 
+
+  typedef typename boost::add_reference<
+    typename boost::add_const<ret_type>::type
+  >::type ref_to_const_ret_type;
+
+  typedef boost::tuples::cons<
+    ref_to_const_ret_type,
+    typename map_to_return_types<typename T::tail_type, Open>::type
+  > type;
+};
+
+template <class Open>
+struct map_to_return_types<boost::tuples::null_type, Open> {
+  typedef boost::tuples::null_type type;
+};
+  
+} // end detail
 
 // general unary and binary actions
 template<class Act, class Args, int Code, class Open>
@@ -309,7 +344,12 @@ struct return_type<lambda_functor_args<action<1, Act>, Args, Code>, Open> {
 
 public:
 
- typedef typename return_type_1_0<Act, refc_A_type>::type type;
+  typedef typename 
+  detail::IF_type<
+    detail::is_protectable_action<Act>::value, 
+    return_type_1_protect<Act, refc_A_type>,
+    return_type_1<Act, refc_A_type>
+  >::type type;
 
 };
 
@@ -334,38 +374,103 @@ class return_type<lambda_functor_args<action<2, Act>, Args, Code>, Open> {
   >::type refc_B_type;
 
 public:
-  typedef typename return_type_2_0<Act, refc_A_type, refc_B_type>::type type;
+ typedef typename 
+ detail::IF_type<
+   detail::is_protectable_action<Act>::value, 
+   return_type_2_protect<Act, refc_A_type, refc_B_type>,
+   return_type_2<Act, refc_A_type, refc_B_type>
+ >::type type;
+
 };
 
-  // Was needed for a while, not now, since no return type deduction depends
-  // on more than two arguments
+  // This is the general case. Will match any action with arity >= 3
+template<int I, class Act, class Args, int Code, class Open>
+class return_type<lambda_functor_args<action<I, Act>, Args, Code>, Open> {
+  typedef typename detail::map_to_return_types<Args, Open>::type actual_args; 
+public:
+  typedef typename return_type_N<Act, actual_args>::type type;
+};
 
 //  template<class Act, class Args, int Code, class Open>
-//  struct return_type<lambda_functor_args<action<3, Act>, Args, Code>, Open> {
-//    typedef 
-//       typename return_type_3_0<
-//         Act, 
-//         typename return_type<
-//            typename detail::tuple_element_as_reference<0, Args>::type, 
-//            Open
-//         >::type, 
-//         typename return_type<
-//            typename detail::tuple_element_as_reference<1, Args>::type, 
-//            Open
-//         >::type,
-//         typename return_type<
-//            typename detail::tuple_element_as_reference<2, Args>::type, 
-//            Open
-//         >::type
-//       >::type
-//    type;
+//  class return_type<lambda_functor_args<action<3, Act>, Args, Code>, Open> {
+
+//    typedef typename return_type<
+//      typename detail::tuple_element_as_reference<0, Args>::type, 
+//      Open
+//    >::type A_type;
+
+//    typedef typename return_type<
+//      typename detail::tuple_element_as_reference<1, Args>::type, 
+//      Open
+//    >::type B_type;
+
+//    typedef typename return_type<
+//      typename detail::tuple_element_as_reference<2, Args>::type, 
+//      Open
+//    >::type C_type;
+
+//    typedef typename boost::add_reference<
+//      typename boost::add_const<A_type>::type
+//    >::type refc_A_type;
+//    typedef typename boost::add_reference<
+//      typename boost::add_const<B_type>::type
+//    >::type refc_B_type;
+//    typedef typename boost::add_reference<
+//      typename boost::add_const<C_type>::type
+//    >::type refc_C_type;
+
+//  public:
+//    // no 3- or higher ary protectable actions exist, no need to check
+//    typedef typename return_type_3<Act, refc_A_type, refc_B_type, refc_C_type>::type type;
 //  };
+
+//    // 4 args or more (must be a function action)
+//  template<int I, class Act, class Args, int Code, class Open>
+//  class return_type<lambda_functor_args<action<I, Act>, Args, Code>, Open> {
+
+//    typedef typename return_type<
+//      typename detail::tuple_element_as_reference<0, Args>::type, 
+//      Open
+//    >::type A_type;
+
+//    typedef typename return_type<
+//      typename detail::tuple_element_as_reference<1, Args>::type, 
+//      Open
+//    >::type B_type;
+
+//    typedef typename return_type<
+//      typename detail::tuple_element_as_reference<2, Args>::type, 
+//      Open
+//    >::type C_type;
+
+//    typedef typename return_type<
+//      typename detail::tuple_element_as_reference<3, Args>::type, 
+//      Open
+//    >::type D_type;
+
+//    typedef typename boost::add_reference<
+//      typename boost::add_const<A_type>::type
+//    >::type refc_A_type;
+//    typedef typename boost::add_reference<
+//      typename boost::add_const<B_type>::type
+//    >::type refc_B_type;
+//    typedef typename boost::add_reference<
+//      typename boost::add_const<C_type>::type
+//    >::type refc_C_type;
+//    typedef typename boost::add_reference<
+//      typename boost::add_const<D_type>::type
+//    >::type refc_D_type;
+
+//  public:
+//    typedef typename return_type_4<Act, refc_A_type, refc_B_type, refc_C_type, refc_D_type>::type type;
+//  };
+
 
 
 // special case for comma action:
 // As the return type needs to be exactly the type of the rightmost argument, 
 // we cannot add a const and reference (we need to preserve rvalueness)
-// note, that return_type_2_0 is still called, so user can overload
+// note, that return_type_2_protect is still called, so user can overload
 // return_type_2 for user defined types.
 
 template<class Args, int Code, class Open>
@@ -383,7 +488,7 @@ class return_type<lambda_functor_args<action<2, other_action<comma_action> >, Ar
 
 public:
   typedef typename 
-    return_type_2_0<other_action<comma_action>, A_type, B_type>::type type;
+    return_type_2_protect<other_action<comma_action>, A_type, B_type>::type type;
 };
    
 // protect action:
@@ -432,31 +537,31 @@ struct return_type<lambda_functor_args<action<4, curry_action<2> >, Args, Code>,
 
 
    
-// 3 arguments or more ---------------------------------------------
-// this must be a function_action. Note that the previous unary and binary 
-// specalisations take care of nullary and unary function adaptors, that is,
-// unary and binary actions.
-// Since function_actions determine the return type based on the function
-// object only, we can ignore the arguments and reuse return_type_1.
+//  // 3 arguments or more ---------------------------------------------
+//  // this must be a function_action. Note that the previous unary and binary 
+//  // specalisations take care of nullary and unary function adaptors, that is,
+//  // unary and binary actions.
+//  // Since function_actions determine the return type based on the function
+//  // object only, we can ignore the arguments and reuse return_type_1.
 
-template <int I, class Act, class Args, int Code, class Open>
-class return_type<lambda_functor_args<action<I, Act>, Args, Code>, Open> {
+//  template <int I, class Act, class Args, int Code, class Open>
+//  class return_type<lambda_functor_args<action<I, Act>, Args, Code>, Open> {
 
-  typedef typename return_type<
-    typename detail::tuple_element_as_reference<0, Args>::type, 
-    Open
-  >::type A_type;
+//    typedef typename return_type<
+//      typename detail::tuple_element_as_reference<0, Args>::type, 
+//      Open
+//    >::type A_type;
 
-  // reference is added, so that specializations for return_type_1
-  // become easier. 
-  typedef typename boost::add_reference<
-    typename boost::add_const<A_type>::type
-  >::type refc_A_type;
+//    // reference is added, so that specializations for return_type_1
+//    // become easier. 
+//    typedef typename boost::add_reference<
+//      typename boost::add_const<A_type>::type
+//    >::type refc_A_type;
 
-public:
+//  public:
 
- typedef typename return_type_1_0<Act, refc_A_type>::type type;
-};
+//   typedef typename return_type_1_protect<Act, refc_A_type>::type type;
+//  };
 
 // The explicit return type action case, it is unary
 template<class RET, class Args, int Code, class Open>
@@ -481,6 +586,13 @@ struct return_type<lambda_functor_args<action<1, return_void_action<Act> >,
 
 template<class Act, class Args, int Code, class Open>
 struct return_type<lambda_functor_args<action<2, return_void_action<Act> >, 
+                   Args, Code>, Open >
+{ 
+  typedef void type; 
+};
+
+template<class Act, class Args, int Code, class Open>
+struct return_type<lambda_functor_args<action<3, return_void_action<Act> >, 
                    Args, Code>, Open >
 { 
   typedef void type; 

@@ -176,7 +176,7 @@ public:
 // functor for one application, unlambda for good.
 
 template <class Arg>
-class non_lambda_functor {
+class non_lambda_functor : public has_sig {
   lambda_functor<Arg> lf; // a lambda functor
 public:
 
@@ -184,32 +184,42 @@ public:
   // The result type must be deducible without knowing the arguments
 
   // TODO: check that passing unspecified as open args fails 
-  typedef typename 
-    return_type<Arg, 
-                open_args<detail::unspecified, 
-                          detail::unspecified, 
-                          detail::unspecified> >::type 
-      result_type;
+//    typedef typename 					
+//      return_type<Arg, 					
+//                  open_args<detail::unspecified, 		
+//                            detail::unspecified, 		
+//                            detail::unspecified> >::type 	
+//        result_type;
+
+
+  template <class SigArgs> struct sig {
+    typedef typename 
+      lambda_functor<Arg>::template sig<SigArgs>::type type;
+  };
 
   non_lambda_functor(const lambda_functor<Arg>& a) : lf(a) {}
 
-  result_type operator()() const {
-    return lf.template ret_call<result_type>(); 
+  sig<tuple<lambda_functor<Arg> > >::type  
+  operator()() const {
+    return lf.template ret_call<typename sig<tuple<lambda_functor<Arg> > >::type>(); 
   }
 
   template<class A>
-  result_type operator()(A& a) const {
-    return lf.template ret_call<result_type>(a); 
+  sig<tuple<lambda_functor<Arg>, A&> >::type 
+  operator()(A& a) const {
+    return lf.template ret_call<typename sig<tuple<lambda_functor<Arg>, A&> >::type >(a); 
   }
 
   template<class A, class B>
-  result_type operator()(A& a, B& b) const {
-    return lf.template ret_call<result_type>(a, b); 
+  sig<tuple<lambda_functor<Arg>, A&, B&> >::type 
+  operator()(A& a, B& b) const {
+    return lf.template ret_call<typename sig<tuple<lambda_functor<Arg>, A&, B&> >::type >(a, b); 
   }
 
   template<class A, class B, class C>
-  result_type operator()(A& a, B& b, C& c) const {
-    return lf.template ret_call<result_type>(a, b, c); 
+  sig<tuple<lambda_functor<Arg>, A&, B&, C&> >::type 
+  operator()(A& a, B& b, C& c) const {
+    return lf.template ret_call<typename sig<tuple<lambda_functor<Arg>, A&, B&, C&> >::type>(a, b, c); 
   }
 };
 

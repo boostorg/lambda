@@ -45,6 +45,12 @@ template <class T> struct dig_arity;
    
 namespace detail {
 
+
+template <int Arity, int Step> struct reduce_arity
+{
+  BOOST_STATIC_CONSTANT(int, value = Arity >> Step);
+};
+
 // The implementation template, do not instantiate this directly
 template <class Arg> struct dig_arity_ {
   static const int value = NONE;

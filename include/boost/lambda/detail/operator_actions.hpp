@@ -19,6 +19,7 @@
 namespace boost { 
 namespace lambda {
 
+
 // -- artihmetic ----------------------
 
 class plus_action {};
@@ -89,7 +90,7 @@ template <class Action> class post_increment_decrement_action;
 #endif
 
 #define BOOST_LAMBDA_BINARY_ACTION(OPER_SYMBOL, GROUP, OPER_NAME) \
-template<> class GROUP < OPER_NAME> {\
+template<> class GROUP < OPER_NAME> : public protectable {\
   public: \
   template<class RET, class A, class B>\
   static RET apply(A& a, B& b) { \
@@ -135,7 +136,7 @@ BOOST_LAMBDA_BINARY_ACTION(^=,bitwise_assignment_action,xor_action)
 BOOST_LAMBDA_BINARY_ACTION(=,other_action, assignment_action)
 // subscript is done directly because BOOST_LAMBDA_BINARY_ACTION currently doesn't handle it.
 
-template<> class other_action<subscript_action> {
+template<> class other_action<subscript_action> : public protectable {
 public:
   template<class RET, class A, class B>
   static RET apply(A& a, B& b) { return a[b]; }
@@ -157,7 +158,7 @@ public:
 #endif
 
 #define BOOST_LAMBDA_PREFIX_UNARY_ACTION(OPER_SYMBOL, GROUP, OPER_NAME) \
-template<> class GROUP <OPER_NAME> {\
+template<> class GROUP <OPER_NAME> : public protectable {\
 public: \
   template<class RET, class A>\
   static RET apply(A& a) { return OPER_SYMBOL a; }\
@@ -181,7 +182,7 @@ BOOST_LAMBDA_PREFIX_UNARY_ACTION( , other_action, identity_action)
 #endif
 
 #define BOOST_LAMBDA_POSTFIX_UNARY_ACTION(OPER_SYMBOL, GROUP, OPER_NAME) \
-template<> class GROUP <OPER_NAME> {\
+template<> class GROUP <OPER_NAME> : public protectable {\
 public: \
   template<class RET, class A>\
   static RET apply(A& a) { return a OPER_SYMBOL; }\

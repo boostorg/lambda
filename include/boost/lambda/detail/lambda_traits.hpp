@@ -228,6 +228,10 @@ struct parameter_traits_<const volatile boost::reference_wrapper<T>, Any >{
   typedef T& type;
 };
 
+template<class Any>
+struct parameter_traits_<void, Any> {
+  typedef void type;
+};
 } // end namespace detail
 
 
@@ -270,6 +274,10 @@ struct const_copy_argument<T&> {
   typedef typename detail::generate_error<T&>::references_not_allowed type; 
 };
 
+template<>
+struct const_copy_argument<void> {
+  typedef void type;
+};
 
    
 // The default is non-const reference -------------------------
@@ -308,6 +316,11 @@ struct reference_argument<const volatile lambda_functor<Arg> > {
   typedef lambda_functor<Arg> type;
 };
 
+template<>
+struct reference_argument<void> {
+  typedef void type;
+};
+
 namespace detail {
    
 // Array to pointer conversion
@@ -337,7 +350,7 @@ struct array_to_pointer <T (&) [N]> {
 
 // ---------------------------------------------------------------------------
 // The call_traits for bind
-// Honours the reference_wrapper class.
+// Respects the reference_wrapper class.
 
 // These templates are used outside of bind functions as well.
 // the bind_tuple_mapper provides a shorter notation for default
@@ -414,6 +427,11 @@ struct bind_traits<const reference_wrapper<T> >{
   typedef T& type;
 };
 
+template<>
+struct bind_traits<void> {
+  typedef void type;
+};
+
 
 
 template <
@@ -435,6 +453,17 @@ struct bind_tuple_mapper {
           typename bind_traits<T8>::type,
           typename bind_traits<T9>::type> type;
 };
+
+// bind_traits, except map const T& -> const T
+  // this is needed e.g. in currying. Const reference arguments can
+  // refer to temporaries, so it is not safe to store them as references.
+  template <class T> struct remove_const_reference {
+    typedef typename bind_traits<T>::type type;
+  };
+
+  template <class T> struct remove_const_reference<const T&> {
+    typedef const T type;
+  };
 
 
 // maps the bind argument types to the resulting lambda functor type

@@ -22,9 +22,8 @@ namespace boost {
 namespace lambda {
 
 
-template<int Arity, class Act> struct action;
 
-   
+template<int Arity, class Act> struct action;
 
 // these need to be defined here, since the corresponding lambda 
 // functions are members of lambda_functor classes
@@ -171,6 +170,27 @@ public:
            (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
   }
 };
+
+  // actions, for which the existence of protect is checked in return type 
+  // deduction.
+class protectable {};
+
+namespace detail {
+template<class T> struct is_protectable_action {
+  BOOST_STATIC_CONSTANT(bool, value = (boost::is_base_and_derived<protectable, T>::value)); 
+};
+
+template<> struct is_protectable_action<other_action<assignment_action> > {
+    BOOST_STATIC_CONSTANT(bool, value = true);
+  };
+template<> struct is_protectable_action<other_action<comma_action> > {
+    BOOST_STATIC_CONSTANT(bool, value = true);
+  };
+
+} // end detail
+
+
+
 
 } // namespace lambda
 } // namespace boost

@@ -513,28 +513,71 @@ struct function_adaptor<Result (*)(Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg
   // we want to instantiate function adaptor from different places.
   // sometimes Func does not have the result_type defined. It is therefore 
   // queried in a separate subclass. 
-  // Thus the super class can 
+  // Thus the super class can be
   // instantiated even with a Func that does no have result_type
+
+
+struct has_sig {};
 
 namespace detail {
 
-template <class T> struct get_result_type { 
-  typedef typename T::result_type type; 
+template <class F> struct get_result_type {
+  typedef typename F::result_type  type; 
 };
+
+template <class Args> class get_sig_result_type {
+  typedef typename Args::head_type Func; 
+  typedef typename detail::remove_reference_and_cv<Func>::type plainF;
+public:
+  // To sig we pass a cons list, where the head is the function object type
+  // itself (potentially cv-qualified, but not a reference type)
+  // and the tail contains the types of the actual arguments to be passed
+  // to the function object. The arguments are reference types
+  typedef typename plainF::template sig<Args>::type type;
+};
+
+
+// check for a member typedef return_type or an member class template sig
+template <class Args> class get_functor_result_type { 
+  typedef typename Args::head_type Func; 
+  typedef typename boost::remove_cv<Func>::type plain_F;
+public:
+  // if the function object inherits from has_sig, we check for sig
+  // otherwise for result_type typedef
+  typedef  
+    detail::IF_type<
+      boost::is_base_and_derived<has_sig, plain_F>::value,
+      detail::get_sig_result_type<Args>,
+      detail::get_result_type<Func>
+    >::type type;
+};
+
 
 } // end detail
 
-template <class Func> class function_adaptor_sub : 
-  public function_adaptor<Func> {
 
-  typedef typename function_adaptor<Func>::type type1;
+template <class Args> 
+class function_adaptor_with_actuals //: public 
+//  function_adaptor<typename detail::remove_reference_and_cv<
+//    typename Args::head_type
+//  >::type>
+{
+  typedef typename Args::head_type Func;
+  typedef typename boost::remove_reference<Func>::type non_ref_Func;
+  typedef typename boost::remove_cv<non_ref_Func>::type plain_Func; 
+  typedef typename function_adaptor<plain_Func>::type type1;
+
 public: 
 
   typedef typename 
     detail::IF_type<
       boost::is_same<type1, detail::unspecified>::value,
-      detail::get_result_type<Func>, // it's ok to try this
-      function_adaptor<Func>
+      detail::get_functor_result_type<
+        boost::tuples::cons<non_ref_Func, typename Args::tail_type>
+      >, // it's ok to try this (an arbitrary func. object)
+      function_adaptor<plain_Func> 
+         // Here we know Func's ret type 
+         // (func is a member function or function pointer/reference) 
     >::type type;
   
 };
@@ -544,5 +587,6 @@ public:
 } // namespace boost
 
 #endif
+
 
 
