@@ -88,37 +88,6 @@ template<class T> struct remove_reference_and_cv {
 };
 
 
-// -- constify_rvalues ----------------------------------------------------
-
-// class type rvalues can be cv qualified, whereas
-// built-in type rvalues (int, float, T*) cannot.
-
-// This template constifies all class rvalues, and removes qualifiers
-// from non-class rvalues
-// Volatile qualifier is dropped in all rvalues.
-
-// Rationale:
-// The result 
-// should be bindable to a reference (when binding temporaries, the
-// refrence must be to a non-volatile const type, See 8.5.3. (5))
-// and the type of this reference is determined by the result of this
-// template. 
-
-// Non-class rvalues are constified later (in lambda_functor_base)
-
-template<class T> struct constify_rvalues {
-
- typedef typename boost::remove_cv<T>::type plain_T;
-  
- typedef typename 
-   detail::IF<
-     is_class<plain_T>::value,
-     const plain_T,
-     plain_T
-  >::RET type;
-};
-// void is cv-stripped as well, but that is ok
-// reference types stay as they are 
    
 // returns a reference to the element of tuple T
 // If the element is stored as a copy, the reference is to
@@ -164,7 +133,7 @@ namespace detail {
 
 // -- parameter_traits_ ---------------------------------------------
 
-// An internal parameter type traits class that honours 
+// An internal parameter type traits class that respects
 // the reference_wrapper class.
 
 // The conversions performed are:
