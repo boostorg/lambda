@@ -23,7 +23,7 @@ namespace lambda {
 
 
 
-template<int Arity, class Act> struct action;
+template<int Arity, class Act> class action;
 
 // these need to be defined here, since the corresponding lambda 
 // functions are members of lambda_functor classes
