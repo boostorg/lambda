@@ -348,16 +348,38 @@ struct array_to_pointer <T (&) [N]> {
 // from template<class T> foo(T& t) : bind_traits<T>::type
 
 // Conversions:
-// T -> T,
+// T -> const T,
 // cv T -> cv T, 
 // T& -> T& 
 // reference_wrapper<T> -> T&
 // const reference_wrapper<T> -> T&
 // array -> const ref array
 
+// make bound arguments const, this is a deliberate design choice, the
+// purpose is to prevent side effects to bound arguments that are stored
+// as copies
 template<class T>
 struct bind_traits {
-  typedef T type; 
+  typedef const T type; 
+};
+
+template<class T>
+struct bind_traits<T&> {
+  typedef T& type; 
+};
+
+// null_types are an exception, we always want to store them as non const
+// so that other templates can assume that null_type is always without const
+template<>
+struct bind_traits<null_type> {
+  typedef null_type type;
+};
+
+// the bind_tuple_mapper, bind_type_generators may 
+// introduce const to null_type
+template<>
+struct bind_traits<const null_type> {
+  typedef null_type type;
 };
 
 // Arrays can't be stored as plain types; convert them to references.
@@ -392,12 +414,6 @@ struct bind_traits<const reference_wrapper<T> >{
   typedef T& type;
 };
 
-// the bind_tuple_mapper, bind_type_generators may 
-// cause const null_type values to appear in tuples
-template<>
-struct bind_traits<const null_type> {
-  typedef null_type type;
-};
 
 
 template <
@@ -460,7 +476,7 @@ public:
 } // detail
    
 template <class T> inline const T&  make_const(const T& t) { return t; }
-.
+
 
 } // end of namespace lambda
 } // end of namespace boost
