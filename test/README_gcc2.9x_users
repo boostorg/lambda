@@ -1,14 +1,6 @@
-gcc with version numbers < 3 
-cannot compile these files:
+gcc 2.96 
+cannot compile 
 
 exception_test.cpp (internal compiler error)
 
-bind_tests_simple_function_references.cpp 
-(the compiler cannot handle function references in bind expressions.
-Eg: 
-
-int foo();
-...
-bind(foo) // won't work
-bind(&foo) // works
 
