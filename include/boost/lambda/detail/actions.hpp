@@ -49,6 +49,9 @@ template <int I> class curry_action {};
 
 template <class Action> class return_void_action;
 
+  // must be defined here, comma is a special case
+struct comma_action {};
+
 namespace detail {
   class unspecified {};
 }
