@@ -40,19 +40,19 @@ template <int Code> struct selector {
 // The cases cover all other placeholders 
 template <> struct selector<NONE> {
   template<class RET, class Op, class A, class B, class C>
-  static RET select(Op& op, A& a, B& b, C& c) {   
+  static RET select(Op& op, A&, B&, C&) {   
     return op.template ret_call<RET>(); 
   }
 };
 template <> struct selector<FIRST> {
   template<class RET, class Op, class A, class B, class C>
-  static RET select(Op& op, A& a, B& b, C& c) { 
+  static RET select(Op& op, A& a, B&, C&) { 
     return op.template ret_call<RET>(a);
   }
 };
 template <> struct selector<SECOND> {
   template<class RET, class Op, class A, class B, class C>
-  static RET select(Op& op, A& a, B& b, C& c) { 
+  static RET select(Op& op, A& a, B& b, C&) { 
     return op.template ret_call<RET>(a, b); 
   }
 };
