@@ -88,6 +88,7 @@ public:
   // default constructor (do nothing)
   // bug in gcc 2.95.2 for const template objects.
 
+  
 BOOST_LAMBDA_LAMBDA_FUNCTOR_ASSIGNMENT
 BOOST_LAMBDA_LAMBDA_FUNCTOR_SUBSCRIPT
 
@@ -186,10 +187,34 @@ public:
        >::type>(a, b, const_null_type()); 
   }
 
+  // currying call: creates another lambda functor
+  template<class A>
+  lambda_functor<
+    lambda_functor_args<
+      action<3, curry_action<1> >,
+      detail::bind_tuple_mapper<lambda_functor, const A>::type,
+      FIRST
+    > 
+  >
+  operator()(A& a) const 
+  {
+  return 
+  lambda_functor<
+    lambda_functor_args<
+      action<3, curry_action<1> >,
+      detail::bind_tuple_mapper<lambda_functor, const A>::type,
+      FIRST
+    > 
+  > ( typename 
+        detail::bind_tuple_mapper<lambda_functor, const A>::type(*this, a)
+    );
+  }
+
   template<class RET, class A, class B>
   RET ret_call(A& a, B& b) const { 
      return inherited::template call<RET>(a, b, const_null_type()); 
   }
+
 
   BOOST_LAMBDA_LAMBDA_FUNCTOR_ASSIGNMENT
   BOOST_LAMBDA_LAMBDA_FUNCTOR_SUBSCRIPT
@@ -218,6 +243,55 @@ public:
   RET ret_call(A& a, B& b, C& c) const { 
      return inherited::template call<RET>(a, b, c); 
   }
+
+  // currying call, one argument still missing
+  template<class A, class B>
+  lambda_functor<
+    lambda_functor_args<
+      action<4, curry_action<2> >,
+      detail::bind_tuple_mapper<lambda_functor, const A, const B>::type,
+      FIRST
+    > 
+  >
+  operator()(A& a, B& b) const 
+  {
+    return 
+    lambda_functor<
+      lambda_functor_args<
+        action<4, curry_action<2> >,
+        detail::bind_tuple_mapper<lambda_functor, const A, const B>::type,
+        FIRST
+      > 
+    >
+    ( typename 
+        detail::bind_tuple_mapper<lambda_functor, const A, const B>::type
+          (*this, a, b)
+    );
+  }
+
+  // currying call, two arguments still missing
+  template<class A>
+  lambda_functor<
+    lambda_functor_args<
+      action<4, curry_action<1> >,
+      detail::bind_tuple_mapper<lambda_functor, const A>::type,
+      SECOND
+    > 
+  >
+  operator()(A& a) const 
+  {
+  return 
+  lambda_functor<
+    lambda_functor_args<
+      action<4, curry_action<1> >,
+      detail::bind_tuple_mapper<lambda_functor, const A>::type,
+      SECOND
+    > 
+  > ( typename 
+        detail::bind_tuple_mapper<lambda_functor, const A>::type(*this, a)
+    );
+  }
+
 
   BOOST_LAMBDA_LAMBDA_FUNCTOR_ASSIGNMENT
   BOOST_LAMBDA_LAMBDA_FUNCTOR_SUBSCRIPT
@@ -250,6 +324,82 @@ public:
   }
 
 };
+
+// This subclass adds lambda functors the ability to be copied,
+// if the functors are 'copy compatible'
+// This ability is needed, if lambda functor evaluation results in 
+// a lambda functor (e.g. with protect).
+template <class Act, class Args, int Code> 
+struct lambda_functor_sub<lambda_functor_args<Act, Args, Code> > 
+  : public lambda_functor<lambda_functor_args<Act, Args, Code> > {
+
+  // as long as action and arity are the same, lambda functors are convertible
+  // if the argument tuples are.
+  template <class Args2> lambda_functor_sub
+    (const lambda_functor<lambda_functor_args<Act, Args2, Code> >& f)
+      : lambda_functor<lambda_functor_args<Act, Args, Code> >(f.args) {}
+};
+
+// any lambda functor can turned into const_incorrect_lambda_functor
+// The opreator() takes arguments as consts and then casts constness
+// away. So this breaks const correctness!!! but is a necessary workaround
+// in some cases due to language limitations.
+// Note, that this is not a lambda_functor anymore, so it can not be used
+// as a sub lambda expression.
+template <class Arg> 
+struct const_incorrect_lambda_functor 
+  : private lambda_functor<Arg> {
+public:
+  BOOST_STATIC_ASSERT(dig_arity<Arg>::value <= THIRD); 
+  // only allowed for normal lambda functions, not EXCEPTION ones
+
+  typedef lambda_functor<Arg> inherited;
+ 
+  explicit const_incorrect_lambda_functor(const lambda_functor<Arg>& lf) 
+    : inherited(lf.args) {}
+    
+
+  // This is provided just for completeness; no arguments, no constness
+  // problems. 
+  typename return_type<inherited, 
+             open_args<null_type, null_type, null_type> >::type 
+  operator()() const
+  { 
+     return inherited::template ret_call<
+       typename return_type<
+                  inherited, 
+                  open_args<null_type, null_type, null_type> 
+                >::type>(); 
+  }
+
+  template<class A>
+  typename return_type<inherited, open_args<A&, null_type, null_type> >::type 
+  operator()(const A& a) const
+  { 
+     return inherited::template ret_call<
+       typename return_type<inherited, open_args<A&, null_type, null_type> 
+     >::type>(const_cast<A&>(a)); 
+  }
+  template<class A, class B>
+  typename return_type<inherited, open_args<A&, B&, null_type> >::type 
+  operator()(const A& a, const B& b) const
+  { 
+     return inherited::template ret_call<
+       typename return_type<inherited, open_args<A&, B&, null_type> 
+     >::type>(const_cast<A&>(a), const_cast<B&>(b)); 
+  }
+  template<class A, class B, class C>
+  typename return_type<inherited, open_args<A&, B&, C&> >::type 
+  operator()(const A& a, const B& b, const C& c) const
+  { 
+     return inherited::template ret_call<
+       typename return_type<inherited, open_args<A&, B&, C&> 
+     >::type>(const_cast<A&>(a), const_cast<B&>(b), const_cast<C&>(c)); 
+  }
+
+
+};
+
 
 // -- free variables types -------------------------------------------------- 
    

@@ -424,6 +424,7 @@ struct return_type<
 template<class Args>
 class 
 lambda_functor_base<action<4, return_void_action<forloop_action> >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -442,6 +443,7 @@ public:
 template<class Args>
 class 
 lambda_functor_base<action<3, return_void_action<forloop_action> >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -459,6 +461,7 @@ public:
 template<class Args>
 class 
 lambda_functor_base<action<2, return_void_action<whileloop_action> >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -475,6 +478,7 @@ public:
 template<class Args> 
 class 
 lambda_functor_base<action<1, return_void_action<whileloop_action> >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -490,6 +494,7 @@ public:
 template<class Args>
 class 
 lambda_functor_base<action<2, return_void_action<dowhileloop_action> >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -506,6 +511,7 @@ public:
 template<class Args>
 class 
 lambda_functor_base<action<1, return_void_action<dowhileloop_action> >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -521,6 +527,7 @@ public:
 template<class Args>
 class 
 lambda_functor_base<action<2, return_void_action<ifthen_action> >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -535,6 +542,7 @@ public:
 template<class Args>
 class 
 lambda_functor_base<action<3, return_void_action<ifthenelse_action> >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -552,6 +560,7 @@ public:
 template<class Args>
 class 
 lambda_functor_base<action<3, other_action<ifthenelsereturn_action> >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}

@@ -43,6 +43,9 @@ template <int I, class Act> class action;
 template <class BinderArgs> 
 struct lambda_functor;
 
+template <class BinderArgs> 
+struct lambda_functor_sub;
+
 template <class Action, 
           class Args, 
           int ArityCode>

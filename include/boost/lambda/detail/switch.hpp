@@ -149,6 +149,7 @@ lambda_functor_base<
   Args
 > 
 {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -334,7 +335,8 @@ lambda_functor_base<							\
   >,									\
   Args									\
 >									\
-{									\
+{	\
+public:								\
   Args args;								\
 public:									\
   explicit lambda_functor_base(const Args& a) : args(a) {}		\
@@ -370,6 +372,7 @@ lambda_functor_base<							\
   Args									\
 >									\
 {									\
+public: \
   Args args;								\
 public:									\
   explicit lambda_functor_base(const Args& a) : args(a) {}		\

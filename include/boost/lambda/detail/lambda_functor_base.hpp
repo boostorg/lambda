@@ -57,6 +57,7 @@ struct nth_return_type {
 template<class RET, class Args>
 class lambda_functor_base<action<1, explicit_return_type_action<RET> >, Args> 
 {
+public:
   Args args;
 public:
 
@@ -77,6 +78,7 @@ public:
 template<class Args>
 class lambda_functor_base<action<1, protect_action >, Args>
 {
+public:
   Args args;
 public:
 
@@ -90,6 +92,65 @@ public:
 };
 
 
+// The work of curry action is not defined in action class apply, 
+// but rather directly in lambda_functor_base::call
+// The argument substitution would be messed up otherwise.
+
+// the curry_action 2-ary lambda_functor, one curried arg -------------------
+template<class Args>
+class lambda_functor_base<action<3, curry_action<1> >, Args>
+{
+public:
+  Args args;
+public:
+
+  explicit lambda_functor_base(const Args& a) : args(a) {}
+
+  template<class RET, class A, class B, class C>
+  RET call(A& a, B& b, C& c) const 
+  {
+     return boost::tuples::get<0>(args).template ret_call<RET>(
+       boost::tuples::get<1>(args), a);
+  }
+};
+
+// the curry_action case, 3-ary lambda functor, one curried arg --------------
+template<class Args>
+class lambda_functor_base<action<4, curry_action<1> >, Args>
+{
+public:
+  Args args;
+public:
+
+  explicit lambda_functor_base(const Args& a) : args(a) {}
+
+  template<class RET, class A, class B, class C>
+  RET call(A& a, B& b, C& c) const 
+  {
+     return boost::tuples::get<0>(args).template ret_call<RET>(
+       boost::tuples::get<1>(args), a, b);
+  }
+};
+
+// the curry_action case, 3-ary lambda functor, two curried args -------------
+template<class Args>
+class lambda_functor_base<action<4, curry_action<2> >, Args>
+{
+public:
+  Args args;
+public:
+
+  explicit lambda_functor_base(const Args& a) : args(a) {}
+
+  template<class RET, class A, class B, class C>
+  RET call(A& a, B& b, C& c) const 
+  {
+     return boost::tuples::get<0>(args).template ret_call<RET>(
+       boost::tuples::get<1>(args), boost::tuples::get<2>(args), a);
+  }
+};
+
+
 #if defined BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART
 #error "Multiple defines of BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_FIRST_PART"
 #endif
@@ -98,6 +159,7 @@ public:
 template<class Act, class Args>\
 class lambda_functor_base<action<ARITY, Act>, Args> \
 {\
+public:\
   Args args;\
 public:\
 \

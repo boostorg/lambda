@@ -29,6 +29,7 @@ namespace lambda {
 // Specialization for comma.
 template<class Args>
 class lambda_functor_base<action<2, other_action<comma_action> >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -43,6 +44,7 @@ public:
 // Specialization for logical and (to preserve shortcircuiting)
 template<class Args>
 class lambda_functor_base<action<2, logical_action<and_action> >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -57,6 +59,7 @@ public:
 // Specialization for logical or (to preserve shortcircuiting)
 template<class Args>
 class lambda_functor_base<action<2, logical_action< or_action> >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}

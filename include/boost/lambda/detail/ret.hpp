@@ -45,6 +45,10 @@ ret(const lambda_functor<Arg>& a1)
 
 // protect ------------------
 
+  // protecting others than lambda functors has no effect
+template <class T>
+inline const T& protect(const T& t) { return t; }
+
 template<class Arg>
 inline const 
 lambda_functor<
@@ -66,7 +70,6 @@ protect(const lambda_functor<Arg>& a1)
     (tuple<lambda_functor<Arg> >(a1));
 }
    
-
 // -- identity -------------------------
 // identity templates
 template<class Arg>
@@ -143,8 +146,78 @@ public:
      > type;
 };
 
+
+// -------------------------------------------------------------------
+
+// Hides the lambda functorness of a lambda functor. 
+// After this, the functor is immune to argument substitution, etc.
+// This can be used, e.g. to make it safe to pass lambda functors as 
+// arguments to functions, which might use them as target functions
+
+// note, unlambda and protect are different things. Protect hides the lambda
+// functor for one application, unlambda for good.
+
+template <class Arg>
+class non_lambda_functor {
+  lambda_functor<Arg> lf; // a lambda functor
+public:
+
+  // This functor defines the result_type typedef.
+  // The result type must be deducible without knowing the arguments
+
+  // TODO: check that passing unspecified as open args fails 
+  typedef typename 
+    return_type<Arg, 
+                open_args<detail::unspecified, 
+                          detail::unspecified, 
+                          detail::unspecified> >::type 
+      result_type;
+
+  non_lambda_functor(const lambda_functor<Arg>& a) : lf(a) {}
+
+  result_type operator()() const {
+    return lf.template ret_call<result_type>(); 
+  }
+
+  template<class A>
+  result_type operator()(A& a) const {
+    return lf.template ret_call<result_type>(a); 
+  }
+
+  template<class A, class B>
+  result_type operator()(A& a, B& b) const {
+    return lf.template ret_call<result_type>(a, b); 
+  }
+
+  template<class A, class B, class C>
+  result_type operator()(A& a, B& b, C& c) const {
+    return lf.template ret_call<result_type>(a, b, c); 
+  }
+};
+
+template <class Arg>
+inline const Arg& unlambda(const Arg& a) { return a; }
+
+template <class Arg>
+inline const non_lambda_functor<Arg> unlambda(const lambda_functor<Arg>& a)
+{
+  return non_lambda_functor<Arg>(a);
+};
+
+  // Due to a language restriction, lambda functors cannot be made to
+  // accept non-const rvalue arguments. Usually iterators do not return 
+  // temporaries, but sometimes they do. That's why a workaround is provided.
+  // Note, that this potentially breaks const correctness, so be careful!
+
+template <class Arg>
+inline const const_incorrect_lambda_functor<Arg> 
+break_const(const lambda_functor<Arg>& lf)
+{
+  return const_incorrect_lambda_functor<Arg>(lf);
+}  
    
 } // namespace lambda 
 } // namespace boost
 
 #endif
+
