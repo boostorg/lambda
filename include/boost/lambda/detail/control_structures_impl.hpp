@@ -257,8 +257,9 @@ struct return_type_2_ifthenelsereturn;
 // if A can be converted to B and vice versa -> ambiguous
 template<int Phase, class A, class B>
 struct return_type_2_ifthenelsereturn<Phase, true, true, false, A, B> {
-  typedef typename 
-    detail::generate_error<A>::ambiguous_type_in_conditional_expression type;
+  typedef 
+    detail::return_type_deduction_failure<return_type_2_ifthenelsereturn> type;
+  // ambiguous type in conditional expression
 };
 // if A can be converted to B and vice versa and are of same type
 template<int Phase, class A, class B>
@@ -303,9 +304,9 @@ struct return_type_2_ifthenelsereturn<1, false, false, false, A, B> {
 // PHASE 6:2
 template<class A, class B>
 struct return_type_2_ifthenelsereturn<2, false, false, false, A, B> {
-  typedef typename 
-    detail::generate_error<A>::types_do_not_match_in_conditional_expression 
-      type;
+  typedef 
+    detail::return_type_deduction_failure<return_type_2_ifthenelsereturn> type;
+  // types_do_not_match_in_conditional_expression 
 };
 
 
