@@ -69,9 +69,9 @@ struct return_type {
 
 
   // different arities:
-template <class Act, class A1> class return_type_1; // 1-ary actions
-template <class Act, class A1, class A2> class return_type_2; // 2-ary
-template <class Act, class Args> class return_type_N; // >3- ary
+template <class Act, class A1> struct return_type_1; // 1-ary actions
+template <class Act, class A1, class A2> struct return_type_2; // 2-ary
+template <class Act, class Args> struct return_type_N; // >3- ary
 
 
 // Unary actions (result from unary operators)
@@ -356,8 +356,8 @@ public:
 };
 
 template<class Act, class Args, int Code, class Open>
-class return_type<lambda_functor_args<action<2, Act>, Args, Code>, Open> {
-
+struct return_type<lambda_functor_args<action<2, Act>, Args, Code>, Open> {
+private:
   typedef typename return_type<
     typename detail::tuple_element_as_reference<0, Args>::type, 
     Open
@@ -387,86 +387,12 @@ public:
 
   // This is the general case. Will match any action with arity >= 3
 template<int I, class Act, class Args, int Code, class Open>
-class return_type<lambda_functor_args<action<I, Act>, Args, Code>, Open> {
+struct return_type<lambda_functor_args<action<I, Act>, Args, Code>, Open> {
+private:
   typedef typename detail::map_to_return_types<Args, Open>::type actual_args; 
 public:
   typedef typename return_type_N<Act, actual_args>::type type;
 };
-
-//  template<class Act, class Args, int Code, class Open>
-//  class return_type<lambda_functor_args<action<3, Act>, Args, Code>, Open> {
-
-//    typedef typename return_type<
-//      typename detail::tuple_element_as_reference<0, Args>::type, 
-//      Open
-//    >::type A_type;
-
-//    typedef typename return_type<
-//      typename detail::tuple_element_as_reference<1, Args>::type, 
-//      Open
-//    >::type B_type;
-
-//    typedef typename return_type<
-//      typename detail::tuple_element_as_reference<2, Args>::type, 
-//      Open
-//    >::type C_type;
-
-//    typedef typename boost::add_reference<
-//      typename boost::add_const<A_type>::type
-//    >::type refc_A_type;
-//    typedef typename boost::add_reference<
-//      typename boost::add_const<B_type>::type
-//    >::type refc_B_type;
-//    typedef typename boost::add_reference<
-//      typename boost::add_const<C_type>::type
-//    >::type refc_C_type;
-
-//  public:
-//    // no 3- or higher ary protectable actions exist, no need to check
-//    typedef typename return_type_3<Act, refc_A_type, refc_B_type, refc_C_type>::type type;
-//  };
-
-//    // 4 args or more (must be a function action)
-//  template<int I, class Act, class Args, int Code, class Open>
-//  class return_type<lambda_functor_args<action<I, Act>, Args, Code>, Open> {
-
-//    typedef typename return_type<
-//      typename detail::tuple_element_as_reference<0, Args>::type, 
-//      Open
-//    >::type A_type;
-
-//    typedef typename return_type<
-//      typename detail::tuple_element_as_reference<1, Args>::type, 
-//      Open
-//    >::type B_type;
-
-//    typedef typename return_type<
-//      typename detail::tuple_element_as_reference<2, Args>::type, 
-//      Open
-//    >::type C_type;
-
-//    typedef typename return_type<
-//      typename detail::tuple_element_as_reference<3, Args>::type, 
-//      Open
-//    >::type D_type;
-
-//    typedef typename boost::add_reference<
-//      typename boost::add_const<A_type>::type
-//    >::type refc_A_type;
-//    typedef typename boost::add_reference<
-//      typename boost::add_const<B_type>::type
-//    >::type refc_B_type;
-//    typedef typename boost::add_reference<
-//      typename boost::add_const<C_type>::type
-//    >::type refc_C_type;
-//    typedef typename boost::add_reference<
-//      typename boost::add_const<D_type>::type
-//    >::type refc_D_type;
-
-//  public:
-//    typedef typename return_type_4<Act, refc_A_type, refc_B_type, refc_C_type, refc_D_type>::type type;
-//  };
-
 
 
 // special case for comma action:
@@ -476,8 +402,8 @@ public:
 // return_type_2 for user defined types.
 
 template<class Args, int Code, class Open>
-class return_type<lambda_functor_args<action<2, other_action<comma_action> >, Args, Code>, Open> {
-
+struct return_type<lambda_functor_args<action<2, other_action<comma_action> >, Args, Code>, Open> {
+private:
   typedef typename return_type<
     typename detail::tuple_element_as_reference<0, Args>::type, 
     Open
@@ -536,34 +462,6 @@ struct return_type<lambda_functor_args<action<4, curry_action<2> >, Args, Code>,
 };
 
 
-
-
-   
-//  // 3 arguments or more ---------------------------------------------
-//  // this must be a function_action. Note that the previous unary and binary 
-//  // specalisations take care of nullary and unary function adaptors, that is,
-//  // unary and binary actions.
-//  // Since function_actions determine the return type based on the function
-//  // object only, we can ignore the arguments and reuse return_type_1.
-
-//  template <int I, class Act, class Args, int Code, class Open>
-//  class return_type<lambda_functor_args<action<I, Act>, Args, Code>, Open> {
-
-//    typedef typename return_type<
-//      typename detail::tuple_element_as_reference<0, Args>::type, 
-//      Open
-//    >::type A_type;
-
-//    // reference is added, so that specializations for return_type_1
-//    // become easier. 
-//    typedef typename boost::add_reference<
-//      typename boost::add_const<A_type>::type
-//    >::type refc_A_type;
-
-//  public:
-
-//   typedef typename return_type_1_protect<Act, refc_A_type>::type type;
-//  };
 
 // The explicit return type action case, it is unary
 template<class RET, class Args, int Code, class Open>
