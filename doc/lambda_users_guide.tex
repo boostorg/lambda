@@ -7,8 +7,8 @@
 
 \usepackage{ae}
 
-\newcommand{\snip}[1]{\texttt{#1}} % a code snippet
-\newcommand{\snipnbr}[1]{\mbox{\texttt{#1}}} % a code snippet
+%\newcommand{\snip}[1]{\texttt{#1}} % a code snippet
+\newcommand{\snip}[1]{\mbox{\texttt{#1}}} % a code snippet
 \newcommand{\snipit}[1]{\snip{\textit{#1}}} % a code snippet
 
 \newcommand{\shiftleft}{$<\hspace{-0.5mm}<$}
@@ -50,10 +50,8 @@
 \title{%
 \Large\bf{This is an incomplete {\Huge DRAFT}, some parts of the text are not yet included. Read at own risk.}\\[1cm]
 \rule{11cm}{0.8mm}\\[1cm]
-The Boost Lambda Library \\[0.1cm]
-version ??? \\[1cm]
-\large{A C++ Template Library \\[0.3cm] 
-User's Guide and Reference Manual}}
+The Boost Lambda Library \\[1cm]
+\large{User's Guide}}
 \author{Jaakko J\"arvi \\
 %Turku Centre for Computer Science\\
 %Lemmink\"aisenkatu 14 A, FIN-20520 Turku\\
@@ -65,7 +63,8 @@ User's Guide and Reference Manual}}
 
 \subsection*{Copyright}
 
-Copyright (C) 1999--2001 Jaakko J\"arvi (jaakko.jarvi@cs.utu.fi, jajarvi@indiana.edu)
+Copyright (C) 1999--2001 Jaakko J\"arvi \\
+(jaakko.jarvi@cs.utu.fi, jajarvi@indiana.edu)
 
 \vspace{1ex}
 \noindent The Boost Lambda Library is free software; Permission to copy and use this software is granted, provided this copyright notice appears in all copies. 
@@ -99,17 +98,26 @@ Jeremy Siek, Peter Higley, Peter Dimov, ...
 
 \section{Introduction}
 
-
 The Boost Lambda Library (BLL in the sequel) is a C++ template library, which implements a form of {\em lambda abstraction} for C++.
 The primary motivation for the work is to provide flexible and convenient means to define unnamed function objects for STL algorithms.
+
 A line of code says more than a thousand words; the following line outputs the elements of some STL container \snip{a} separated by spaces:
 
 \begin{alltt}
 for_each(a.begin(), a.end(), std::cout << _1 << ' ');
 \end{alltt}
 
-The BLL is about letting you define small function objects like
-\snipnbr{std::cout << \_1 << ' '}, and passing them as arguments to STL algorithms. \snip{\_1} is an empty argument slot to be filled by the element of \snip{a} within each iteration.
+\noindent The expression \verb|std::cout << _1 << ' '| defines a unary function object. 
+The variable \snip{\_1} is the parameter of the function, a {\em placeholder} for the actual argument. 
+Within each iteration of \snip{for\_each}, the function is called with with an element of \snip{a} as the actual argument.
+This actual argument is substituted for the placeholder, and the function is evaluated.
+
+The BLL is about letting you define small unnamed function objects, such as the one above, directly on the call site of an STL algorithm.
+
+%The goal of the library is allow any C++ code fragment to be turned into an unnamed function, or lambda function. 
+%There are some inherent restrictions in the C++ language, that prevent this.
+%...
+
 
 %\noindent The library contains no binary library files, all template definitions are in a set of header files.
 %The library code is standard C++.
@@ -118,28 +126,7 @@ The BLL is about letting you define small function objects like
 
 The BLL is part of the C++ Boost Library collection, \url{http://www.boost.org}.
 
-%It is also available at the C++ Boost site: {\em http://www.boost.org}.
-
 \subsection{Installing the library}
-
-%\ifthenelse{\equal{\target}{boost}}{
-% boost:
-%The library consists of a set of \texttt{.hpp} files. 
-%Place all these files into a subdirectory named \texttt{ll}. 
-%
-%}{
-
-%Installation is easy, just unpack the downloaded package:
-
-%\begin{verbatim}
-%> gunzip lambda_library.x.y.z.tar.gz
-%> tar xvfz lambda_library.x.y.z.tar
-%\end{verbatim}
-
-%The extracted files will be placed into a subdirectory named \texttt{ll}.
-%}
-%
-
 
 The library consists of include files only. 
 The \snip{boost} include directory must be on the include path.
@@ -211,7 +198,7 @@ transform(a.begin(), a.end(), ostream_iterator<int>(cout),
           bind1st(plus<int>(), 1));
 \end{alltt}
 
-\noindent The expression \snip{bind1st(plus<int>(), 1))} is an unnamed function: \snip{plus<int>()} is a binary function object which computes the sum of two integers, \snip{bind1st} invokes this function object partially binding the first argument to \snip{1}.
+\noindent The expression \snip{bind1st(plus<int>(), 1))} is an unnamed function: the subexpression \snip{plus<int>()} is a binary function object which computes the sum of two integers, \snip{bind1st} invokes this function object partially binding the first argument to \snip{1}.
 
 This simple case demonstrates that with the standard tools the definition of unnamed functions is cumbersome.
 Complex expressions involving functors, adaptors, binders and function composition operations tend to be difficult to comprehend.
@@ -231,20 +218,18 @@ for_each(a.begin(), a.end(), cout << (1 + _1));
 \end{alltt}
 }
 
-\item{Most of the restrictions in argument binding are removed, arbitrary arguments of practically any C++ function can be bound}
+\item{Most of the restrictions in argument binding are removed, arbitrary arguments of practically any C++ function can be bound.}
 
-\item{Separate function composition operations are not needed, function composition is supported with the same binding and lambda expression syntax}
+\item{Separate function composition operations are not needed, function composition is supported with the same binding and lambda expression syntax.}
 
 \end{itemize}
 
 \subsection{Introduction to lambda expressions}
 
 Lambda expression are common in functional programming languages. Their syntax varies between languages (and between different forms of lambda calculus), but the basic form of a lambda expressions is:
-
-\(
-\lambda x_1 \cdots x_n . e
-\)
-
+\begin{trivlist}% trivlist is used just to get similar spacing to equation environment, but without centering 
+\item $\lambda x_1 \cdots x_n . e$ 
+\end{trivlist}
 \noindent A lambda expression defines an unnamed function. A lambda exrpession consists of
 \begin{itemize}
 \item  the parameters of this function: $x_1 \cdots x_n$.
@@ -252,13 +237,14 @@ Lambda expression are common in functional programming languages. Their syntax v
 \end{itemize}
 
 \noindent A simple example of a lambda expression is 
+\begin{trivlist}
+\item \( \lambda x y.x+y \)
+\end{trivlist}
 
-\( \lambda x y.x+y \)
-
-In function application, the actual arguments are substituted for the parameters in the lambda expression. For example, the application: 
-\( (\lambda x y.x+y)\ 1\ 2 \)
-
-\noindent results in $1 + 2$.
+In function application, the actual arguments are substituted for the parameters in the lambda expression. For example: 
+\begin{trivlist}
+\item \( (\lambda x y.x+y)\ 1\ 2 \Rightarrow 1 + 2 \)
+\end{trivlist}
 
 In the C++ version of lambda expressions the $\lambda x_1 \ldots x_n$ part is missing and the formal parameters have predefined names.
 There are three such predefined formal parameters, called {\em placeheholders}: \snip{\_1}, \snip{\_2} and \snip{\_3}. 
@@ -269,163 +255,159 @@ is
 \begin{alltt}
 _1 + _2
 \end{alltt}
-Function application is analogous: the C++ expression \snipnbr{(\_1 + \_2)(1, 2)} corresponds to   
-\snip{$(\lambda x y.x+y)\ 1\ 2$}.
 Hence, there is no syntactic keyword for C++ lambda expressions. The use of a placeholder as an operand implies that the operator invocation is a lambda expression.
 However, this is true only for operator invocations.
-
-There is a special construct for creating a lambda expression from a function call. For example, consider the lambda expression:
-\begin{code}
-$\lambda x y.foo(x,y)$
-\end{code}
-The C++ counterpart for this expression is:
+Lambda expressions containing function calls, control constructs, casts etc. require special syntactic constructs. 
+Most importantly, function calls need to be wrapped inside a \snip{bind} function. 
+As an example, consider the lambda expression:
+\begin{trivlist}
+\item $\lambda x y.foo(x,y)$
+\end{trivlist}
+Rather than \snip{foo(\_1, \_2)}, the C++ counterpart for this expression is:
 \begin{alltt}
 bind(foo, _1, _2)
 \end{alltt}
-(Rather than \snipnbr{foo(\_1, \_2)}.)
 We refer to this type of C++ lambda expressions as {\em bind expressions}. 
+
+A lambda expression defines a C++ function object, hence function application syntax is like calling any other function object:
+the C++ expression \snip{(\_1 + \_2)(1, 2)} corresponds to   
+\snip{$(\lambda x y.x+y)\ 1\ 2$}\footnote{Actually, this is not a valid C++ lambda expression. The reason for this is explained in section\ref{make_const}.}.
+
 
 \paragraph*{Partial function application}
 
 A bind expression is in effect a {\em partial function application}.
 In partial function application, some of the arguments of a function are bound to fixed values. 
 The result is another function, with possibly fewer arguments. 
-When called with the unbound arguments, this new function invokes the original {\em target function} with the merged argument list of bound and unbound arguments.
+When called with the unbound arguments, this new function invokes the original function with the merged argument list of bound and unbound arguments.
 
 The underlying implementation of the BLL unifies the two types of lambda expressions (bind expressions and lambda expressions consisting of operator calls).
 If operators are regarded as functions, it is easy to see that lambda expressions using operators are partial function applications as well. 
-E.g. the lambda expression \snip{free1 + 1} can be seen as syntactic sugar for the pseudo code \snip{bind(operator+, free1, 1)}.
+E.g. the lambda expression \snip{\_1 + 1} can be seen as syntactic sugar for the pseudo code \snip{bind(operator+, \_1, 1)}.
 
 \paragraph*{Terminology}
 
 A lambda expression defines a function. A C++ lambda expression concretely constructs a function object, {\em a functor}, when evaluated. We use the name {\em lambda functor} to refer to such a function object. Hence, in the terminology adpoted here, the result of evaluating a lambda expression is a lambda functor.
 
-\subsection{Examples of lambda expressions}
 
-\subsubsection{Bind expressions}
 
-Consider the following example:
-\begin{code}
-double gaussian(double x, double mean, double deviation);\\
-vector$<$double$>$ y, z; double m, d;
-\valipisteet 
-transform(y.begin(), y.end(), z.begin(), bind(gaussian, free1, m, d))
-\end{code}
-Let \snip{gaussian} be a function computing values from the Gaussian distribution.
-The \snip{bind} expression creates a unary function object which calls \snip{gaussian} every time it is invoked.
-Parameters \snip{mean} and \snip{deviation} are bound to \snip{m} and \snip{d}, whereas \snip{x} is left open.
-Obviously, the \snip{transform} invocation computes the value of the Gaussian function with mean \snip{m} and standard deviation \snip{d} for each point in \snip{y} and places the results in \snip{z}.
-
-\subsubsection{Lambda expressions with operators}
-
-Lambda expressions with operators are analogous to bind expressions:
-\begin{code}
-vector$<$double$>$ y, z; double m, v;
-\valipisteet 
-transform(y.begin(), y.end(), z.begin(), free1 + m);
-\end{code}
-The expression \snip{free1 + m} creates a unary function object which calls the addition operator every time the function object is invoked. The second parameter of the addition operator is bound to \snip{m}, whereas the first parameter is left open.
-Hence, the \snip{transform} invocation adds \snip{m} to every element of \snip{y} and places the results in \snip{z}.
-
-\subsubsection{Lambda expressions with operators and functions}
-
-The result of a lambda expression can be used as an argument in another lambda expression. This enables function composition. For example:
-\begin{code}
-// print some values from a Gaussian distribution\\
-for\_each(y.begin(), y.end(), cout \shiftleft\ bind(gaussian, free1, m, d));\\
-\\
-// normalise the values of y first\\
-for\_each(y.begin(), y.end(), cout \shiftleft\ bind(gaussian, (free1-m)/d, 0, 1));\\
-\\
-// compute $|\sin y|$ for each element in y\\
-transform(y.begin(), y.end(), z.begin(), bind(abs, bind(sin, free1)));
-\end{code}
-
-\subsection{Parameter and return types of lambda functions\label{parameters_and_return_types}}
+\subsection{Parameter and return types of lambda functors\label{parameters_and_return_types}}
 
 The placeholders arguments do not have a fixed type. 
-During the invocation of a lambda function, the actual arguments are substituted for the placeholders. 
-The basic rule is that a lambda function can be called with arguments of any types, as long as the the lambda expression with substitutions performed is a valid C++ expression. 
-For example, the expression \snip{free1 + free2} creates a binary lambda function. 
-It can be called with two objects of  any types \snip{A} and \snip{B} for which \snip{operator+(A,B)} is defined (and for which BLL knows the return type of the operator, see below).
+During the invocation of a lambda functor, the actual arguments are substituted for the placeholders. 
+The basic rule is that a lambda function can be called with arguments of any types, as long as the lambda expression with substitutions performed is a valid C++ expression. 
+For example, the expression \snip{\_1 + \_2} creates a binary lambda functor. 
+It can be called with two objects of any types \snip{A} and \snip{B} for which \snip{operator+(A,B)} is defined (and for which BLL knows the return type of the operator, see below).
 
 C++ lacks a mechanism to query a type of an expression. 
 However, this precise mechanism is crucial for the implementation of C++ lambda expressions.
-Consequently, BLL includes a somewhat complex type deduction system which uses a set of traits classes for deducing the result type of lambda functions.
+Consequently, BLL includes a somewhat complex type deduction system which uses a set of traits classes for deducing the resulting type of lambda functions.
 It handles expressions where the operands are of built-in types and many of the expressions with operands of standard library types.
-Many of the user defined types are covered as well, particularly if your user defined operators obey normal conventions in defining the return types. 
+Many of the user defined types are covered as well, particularly if the user defined operators obey normal conventions in defining the return types. 
 
+%TODO: move  this forward, and just refer to it.
 However, there are cases when the return type cannot be deduced. For example, suppose you have defined:
-\begin{code}
+\begin{alltt}
 C operator+(A, B);
-\end{code}
+\end{alltt}
 The following lambda function invocation fails, since the return type cannot be deduced:
-\begin{code}
-A a; B b; (free1 + free2)(a, b);
-\end{code}
+\begin{alltt}
+A a; B b; (_1 + _2)(a, b);
+\end{alltt}
 
 There are two alternative solutions to this. 
-The first is to extend the BLL type deduction system to cover your own types, see section~\ref{extending_return_type_system}. 
+The first is to extend the BLL type deduction system to cover your own types (see section~\ref{extending_return_type_system}). 
 The second is to use a special {\em ret} lambda expression which defines the return type in place:
-\begin{code}
-A a; B b; ret$<$C$>$(free1 + free2)(a, b);
-\end{code}
-%If \snip{C} is a plain non-reference type, it is advisable to define the return type as \snip{const}. The reason for this is explained in section~\ref{extending_return_type_system}.
+\begin{alltt}
+A a; B b; ret<C>(\_1 + \_2)(a, b);
+\end{alltt}
+
+For bind expressions, the return type can be defined as a template argument of the bind function as well: 
+\begin{alltt}
+bind<int>(foo, _1, _2);
+\end{alltt}
+A rare case, where the \snip{ret<{\em type}>} syntax does not work, but
+\snip{bind<{\em type}>} does, is explained in section~\ref{bind_vs_ret}.
 
 \paragraph*{About actual arguments to lambda functions}
 
-A general restriction for the actual arguments is that they cannot be nonconst temporaries. 
+A general restriction for the actual arguments is that they cannot be nonconst rvalues. 
 For example:
-\begin{code}
-(free1 + free2)(1, 2); // error \\
-int i = 1; int j = 2; \\
-(free1 + free2)(i, j); // ok\\
-(free1 + free2)(make\_const(1), make\_const(2)); // ok
-\end{code}
-The \snip{make\_const} is a helper function casting a nonconst variable to const.
+\begin{alltt}
+int i = 1; int j = 2; 
+(_1 + _2)(i, j); // ok
 
-This restriction is not very serious, since the lambda functions are usually called inside STL-algorithms. 
-The arguments originate from dereferencing iterators, which do not result in temporaries for standard iterator types.
-The dereferencing operator of a user defined iterator type may of course return a temporary. 
-It is advised that in such a case the return type is defined to be \snip{const}.
+(_1 + _2)(1, 2); // error (!)
+\end{alltt}
 
+\noindent This restriction is not as bad as it may look. 
+Since the lambda functions are most often called inside STL-algorithms, 
+the arguments originate from dereferencing iterators.
+The dereferencing operators usually do not return rvalues.
+And for the cases where the restriction is encountered, there are workarounds:
+\begin{enumerate} 
+\item If the rvalue is of a class type, the return type of the function that creates the rvalue should be defined as const. Due to an unfortunate language restriction this does not work for built-in types, as built-in rvalues cannot be const qualified. 
+
+\item 
+If the lambda function call is accessible, the \snip{make\_const} function can be used to {\em constify} the rvalue. E.g.:
+\begin{alltt}
+int i = 1; int j = 2; 
+(_1 + _2)(make\_const(1), make\_const(2)); // ok
+\end{alltt}
+
+\item
+If neither of the above is possible, the lambda expression can be wrapped in a \snip{break\_const} function. 
+{\bf Note!} This solution can break const correctness.
+It takes its arguments as const, and casts away constness prior to the call to the original lambda functor.
+For example:
+\begin{alltt}
+break_const(_1 + _2)(1, 2); // ok
+\end{alltt}
+The result of \snip{break\_const} is not a lambda functor, so it cannot be used as a subexpression of a lambda expression.
+\begin{alltt}
+break_const(_1 + _2) + _3; // fails.
+\end{alltt}
+However, this kind of code should never be necessary, since calls to sub lambda functors are made inside the BLL, and are not affected by the non-const rvalue problem.
+
+\end{enumerate}
 
 \paragraph*{Storing bound arguments in lambda functions}
 
 The lambda function stores the bound arguments in a tuple object. 
-By default, temporary copies of the arguments are stored. 
-This means that the value of a bound argument is fixed at the time of the creation of the lambda function and is thus constant during the lifetime of the lambda function object.
+By default, temporary const copies of the arguments are stored. 
+This means that the value of a bound argument is fixed at the time of the creation of the lambda function and remains constant during the lifetime of the lambda function object.
 For example:
-\begin{code}
-int i = 1;\\
-(free1 + i)( i = 10);
-\end{code}
-The value of the expression in last line is 11, not 20. 
-In other words, the lambda expression \snip{free1 + i} creates a lambda function $\lambda x.x+10$ rather than $\lambda x.x+i$.
+\begin{alltt}
+int i = 1;
+(_1 + i)(i = 2);
+\end{alltt}
+The value of the expression in last line is 2, not 3. 
+In other words, the lambda expression \snip{\_1 + i} creates a lambda function $\lambda x.x+1$ rather than $\lambda x.x+i$.
 
-As said, this is the default behaviour, but there are exceptions.
+As said, this is the default behaviour for which there are exceptions.
 The exact rules are as follows:
 \begin{itemize}
-\item The programmer can control the storing mechanism with \snip{ref} and \snip{cref} wrappers, see section~\ref{make_tuple}.
+\item The programmer can control the storing mechanism with \snip{ref} and \snip{cref} wrappers, see~\ref{boost_bind}.
 
 \item Array types cannot be copied, they are thus stored as const reference by default.
 
-\item For some expressions, it makes more sense to store the arguments as references. For example, after evaluating the following code, \snip{i} has the value 101.
-\begin{code}
-int i = 1;\\
-(i += free1)(make\_const(100));
-\end{code}
+\item For some expressions, it makes more sense to store the arguments as references. 
+For example, the obvious intention of the lambda expression \snip{i += \_1} is that calls to the lambda functor affect the value of the variable \snip{i}, rather than some temporary copy of it. 
+As another example, the streaming operators take their leftmost argument as non-const references. The exact rules are:
+
 \begin{itemize}
-\item The left argument of combined assignment operators (\snip{+=}, \snip{*=}, etc.) are stored as references to non-const. 
-\item If the left argument of \leftshift\ or \rightshift\ operator is derived from \snip{ostream} or respectively from \snip{istream}, the argument is stored as a reference to non-const. For any other types, the argument is stored as a copy.
+\item The left argument of compound assignment operators (\snip{+=}, \snip{*=}, etc.) are stored as references to non-const. 
+\item If the left argument of \leftshift\ or \rightshift\ operator is derived from an instantiation of \snip{basic\_ostream} or respectively from \snip{basic\_istream}, the argument is stored as a reference to non-const. For any other types, the argument is stored as a copy.
 \item In pointer arithmetic expressions, non-const array types are stored as non-const references. 
 \end{itemize}
 \end{itemize}
 
+%TODO (this should be removed???, as there  are no special rules for bind expressions anymore
 The rules for bind expressions are explained in section~\ref{bind_expression}.
 
 \section{Lambda expressions in details}
 
+There are different kind of lambda experessions. 
 The highest level of the grammar for C++ lambda expressions is as follows:
 
 \begin{grammar}
@@ -446,145 +428,223 @@ lambda-expression::=\\
 \subsection{\label{placeholders}Placeholders}
 
 The BLL defines three {\em placeholder types}: \snip{free1\_type}, \snip{free2\_type} and \snip{free3\_type}. An object of any of these types is a placeholder. 
-BLL has a predefined placeholder for each placeholder type: \snip{free1}, \snip{free2} and \snip{free3}. 
+BLL has a predefined placeholder variable for each placeholder type: \snip{\_1}, \snip{\_2} and \snip{\_3}. 
 However, the user is not forced to use these placeholders. 
 It is easy to define placeholders with alternative names.
 This is done by defining new variables of placeholder types. 
 For example:
 
-\begin{code}
-BLL\_NAMESPACE::free1\_type X;\\
-BLL\_NAMESPACE::free2\_type Y;\\
-BLL\_NAMESPACE::free3\_type Z;
-\end{code}
-With these variables defined, \snip{X += Y * Z} is equivalent to \snip{free1 += free2 * free3}.
+\begin{alltt}
+boost::lambda::free1_type X;
+boost::lambda::free2_type Y;
+boost::lambda::free3_type Z;
+\end{alltt}
+With these variables defined, \snip{X += Y * Z} is equivalent to \snip{\_1 += \_2 * \_3}.
 
 The use of placeholders in the lambda expression determines whether the resulting function is nullary, unary, binary or 3-ary. 
 The highest placeholder index is decisive. For example:
-\begin{code}
-free1 + 5 \qquad \qquad \qquad \qquad\= // unary\\
-free1 * free1 + free1 \> // unary\\
-free1 + free2 \> // binary\\
-bind(f, free1, free2, free3) \> // 3-ary \\
-free3 + 10 \> // 3-ary \\
-\end{code}
-Note that the last line creates a 3-ary function, which adds \snip{10} to its {\em third} argument. The first two arguments are discarded.
-Note also that a placeholder itself is not a lambda functor (an identity function). Hence, \snip{free1(x)} does not return the value of \snip{x}.
+\begin{alltt}
+_1 + 5              // unary
+_1 * _1 + _1        // unary
+_1 + _2             // binary
+bind(f, _1, _2, _3) // 3-ary
+_3 + 10             // 3-ary
+\end{alltt}
+Note that the last line creates a 3-ary function, which adds \snip{10} to its {\em third} argument. 
+The first two arguments are discarded.
+Note also that a placeholder itself is not a lambda functor (an identity function). 
+Hence, \snip{\_1(x)} does not return the value of \snip{x}.
 
 In addition two these three placeholder types, there is also a fourth placeholder type \snip{freeE\_type}.
-The use of this placeholder is defined in section \ref{exceptions} describing exception handling in lambda expressions.. 
+The use of this placeholder is defined in section \ref{exceptions} describing exception handling in lambda expressions. 
 
-When an actual argument is supplied for a placeholder, the parameter passing mode is always by reference. This means, that any side-effects to the placeholder are reflected to the actual argument. For example:
-\begin{code}
-int i = 10; \\
-(free1 += 10)(i); // i is now 20\\
-(++free1, cout \shiftleft\  free1)(i) // i is now 21, outputs 21
-\end{code}
+When an actual argument is supplied for a placeholder, the parameter passing mode is always by reference. 
+This means that any side-effects to the placeholder are reflected to the actual argument. 
+For example:
+\begin{alltt}
+int i = 1; 
+(_1 += 2)(i); // i is now 3
+(++_1, cout << _1)(i) // i is now 4, outputs 4
+\end{alltt}
+
+\subsubsection{Currying\label{currying}}
+
+Lambda functors support currying, that is, calling functions with one argument at a time.
+If too few arguments are provided for a lambda functor, another lambda functor with a lower arity results. 
+When all arguments are provided, the original lambda functor is called. 
+For example:
+\begin{alltt}
+int i, j, k;
+(_1 + _2 + _3)(i, j, k) \(\equiv\)
+(_1 + _2 + _3)(i)(j)(k) \(\equiv\)
+(_1 + _2 + _3)(i, j)(k) \(\equiv\)
+(_1 + _2 + _3)(i)(j, k) 
+\end{alltt}
+A curried lambda functor just stores the arguments that are provided, it does not evaluate any subexpressions that might in theory be possible to evaluate.
+E.g., in the expression \snip{(\_1 * \_1 + \_2)(i)}, the subexpression \snip{i * i} is not evaluated. 
+The lambda functor is evaluated only when all the arguments are available.
 
 \subsection{Overriding the deduced return value}
 
 The return type deduction system may not be able to deduce the return types of some user defined operators or bind expressions with class objects (see the example in section~\ref{parameters_and_return_types}).
 A \snipit{ret-expression} is provided for stating the return type explicitly and overriding the deduction system. To state that the return type of the lambda functor defined by the lambda expression \snip{e} is \snip{T}, you can write:
-\begin{code}
-ret$<$T$>$(e);
-\end{code}
-The effect is that the return type deduction is not initiated for the lambda expression \snip{e} at all, but instead, \snip{T} is used as the return value. Obviously \snip{T} cannot be an arbitrary type, the true result of the lambda functor must be implicitly convertible to \snip{T}. For example:
-\begin{code}
-A a; B b;\\
-C operator+(A, B); \\
+\begin{alltt}
+ret<T>(e);
+\end{alltt}
+The effect is that the return type deduction is not initiated for the lambda expression \snip{e} at all, but instead, \snip{T} is used as the return value. 
+Obviously \snip{T} cannot be an arbitrary type, the true result of the lambda functor must be implicitly convertible to \snip{T}. 
+For example:
+\begin{alltt}
+A a; B b;
+C operator+(A, B);
 int operator*(A, B); 
-\valipisteet
-\pushtabs
-ret$<$D$>$(free1 + free2)(a, b); \qquad \=// error (C cannot be converted to D)\\
-ret$<$C$>$(free1 + free2)(a, b); \>// ok\\
-ret$<$float$>$(free1 * free2)(a, b); \> // ok (int can be converted to float)
-\valipisteet
-\poptabs
-struct X \{ \\
-\> typedef Y result\_type;\\
-\> Y operator()(); \qquad \= // \#1 \\ 
-\> Z operator(int)(); \> // \#2 \\
+  ...
+ret<D>(_1 + _2)(a, b);     // error (C cannot be converted to D)
+ret<C>(_1 + _2)(a, b);     // ok
+ret<float>(_1 * _2)(a, b); // ok (int can be converted to float)
+  ...
+struct X \{
+  typedef Y result_type;
+  Y operator()();        // #1
+  Z operator(int)();     // #2
 \};
-\valipisteet
-X x; int i; \\
-bind(x)(); \qquad \qquad \qquad \qquad \= // ok, call \#1 \\
-bind(x, free1)(i); \> // try to call \#2: error, deduction gives Y\\
-ret$<$Z$>$(bind(x, free1))(i); \> // ok, call \#2
-\end{code}
-Note that within composite operator invocations, \snip{ret} must be used at each invocation, where the deduction would otherwise fail. E.g.:
-\begin{code}
-A a; B b;\\
-C operator+(A, B); D operator-(C);
-\valipisteet
-ret$<$D$>$( - (free1 + free2))(a, b); \qquad \qquad  \= // error \\
-ret$<$D$>$( - ret$<$C$>$(free1 + free2))(a, b); \> // ok 
-\end{code}
-Note also, that to be able to compose lambda expressions, lambda functors must return all temporaries as const. BLL does this for you transparently. For example, \snip{ret$<$int$>$} defines the return type \snip{const int}, \snip{ret$<$C*$>$} the return type \snip{C* const} etc. (Note! This applies only to returns by value, not references. Neither does it turn a {\em pointer to non-const} into a {\em pointer to const}.
+  ...
+X x; int i;
+bind(x)();              // ok, call #1 
+bind(x, _1)(i);         // try to call #2: error, deduction gives Y
+ret<Z>(bind(x, _1))(i); // ok, call #2
+\end{alltt}
+For bind expressions, there is a short-hand notation that can be used instead of \snip{ret}. The last line could be alternatively written as:
+\begin{alltt}
+bind<Z>(x, _1)(i);
+\end{alltt}
 
+Note that within nested lambda expressions, \snip{ret} must be used at each invocation where the deduction would otherwise fail. 
+For example:
+\begin{alltt}
+A a; B b;
+C operator+(A, B); D operator-(C);
+  ...
+ret<D>( - (_1 + _2))(a, b); // error 
+ret<D>( - ret<C>(_1 + _2))(a, b); // ok 
+\end{alltt}
+%Note also, that to be able to compose lambda expressions, lambda functors must return all temporaries as const. BLL does this for you transparently. For example, \snip{ret$<$int$>$} defines the return type \snip{const int}, \snip{ret$<$C*$>$} the return type \snip{C* const} etc. (Note! This applies only to returns by value, not references. Neither does it turn a {\em pointer to non-const} into a {\em pointer to const}.
 If you find yourself using  \snip{ret} repeatedly with the same types, it is worth while extending the return type deduction (see section~\ref{extending_return_type_system}):
+
+\subsubsection{Nullary lambda functors and ret}
+
+As stated above, the effect of \snip{ret} is to prevent the return type deduction to be performed. 
+However, there is an exception. Due to the way the C++ template instantiation works, the compiler is always forced to instantiate the return type deduction templates for zero-argument lambda functors.
+This introduces a slight problem with \snip{ret}, best described with an example:
+\begin{alltt}
+struct F \{ int operator()(int i) const; \}; 
+F f;
+  ...
+bind(f, _1);           // fails, cannot deduce the return type
+ret<int>(bind(f, _1)); // ok
+  ...
+bind(f, 1);            // fails, cannot deduce the return type
+ret<int>(bind(f, 1));  // fails as well!
+\end{alltt}
+The BLL cannot deduce the return types of the above bind calls, as \snip{F} does not define the typedef \snip{result\_type}. 
+One would expect \snip{ret} to fix this, but for a nullary lambda functor that results from a bind expression (last line above) this does not work.
+The return type deduction templates are instantiated, even though it would not be necessary. The result is a compilation error.
+
+The solution to this is to use the alternative syntax for specifying the return type with bind expressions:
+\begin{alltt}
+bind<int>(f, 1);       // ok
+\end{alltt}
+%TODO: use something else in place of ...
+The lambda functors created by \verb|ret<T>(bind(...)| and \verb|bind<T>(...)| have the exact same functionality ---
+apart from the fact that for some nullary lambda functors, the other works and the other does not. 
 
 \subsection{Operator expressions}
 
-The top levels of a grammar for operator expressions are as follows:
-\begin{grammar}
-operator-expression::=\\
-\>  unary-expression $|$ binary-expression\\
-\\
-unary-expression::=\\
-\>  prefix-operator lambda-expression $|$\\
-\>  lambda-expression postfix-operator\\
-\\
-binary-expression::=\\
-\>  lambda-expression binary-operator lambda-expression $|$\\
-\>  lambda-expression binary-operator other-expression $|$\\
-\>  other-expression binary-operator lambda-expression \\
-\end{grammar}
-
-
-Hence, an operator invocation with at least one argument being a lambda expression is itself a lambda expression. 
+The basic rule, which again has exceptions, is that any C++ operator invocation, with at least one argument being a lambda expression is itself a lambda expression.
 Almost all overloadable operators are supported. 
 For example, the following is a valid operator expression:
 
-\begin{code}
-cout \leftshift free1, free2[free3] = free1 \&\& false
-\end{code}
+\begin{alltt}
+cout << _1, _2[_3] = _1 && false
+\end{alltt}
 
-There are some restrictions that originate from the C++ operator overloading rules and some special cases:
+There are some restrictions that originate from the C++ operator overloading rules, and some special cases:
 
 \paragraph{Operators that cannot be supported}
 
-Some operators cannot be overloaded for lambda expressions. These are \snip{$->.$}, \snip{$->$}, \snip{new}, \snip{new[]}, \snip{delete} and \snip{delete[]}.
-
+Some operators cannot be overloaded at all, or their overloading rules prevent them to be overloaded to create lambda functors.
+These operators are \verb|->.|, \verb|->|, \snip{new}, \snip{new[]}, \snip{delete}, \snip{delete[]} and \verb|?:| (the conditional operator).
 
 \paragraph{\snip{operator=} and \snip{operator[]}\label{member_operators}}
 
 These operators must be implemented as class members. Consequently,  the left operand must be a lambda expression. For example:
-\begin{code}
-int i; \\
-i = free1; // not ok. i is not a lambda expression \\
-var(i) = free1; // ok, see section \ref{delay_expression}
-\end{code}
+\begin{alltt}
+int i; 
+i = _1;      // not ok. i is not a lambda expression
+var(i) = _1; // ok, see section \ref{delay_expression}
+\end{alltt}
 
 \paragraph{Locigal operators}
 
 Logical operators obey the short-circuiting evaluation rules. For example, \snip{i} is never incremented in the following code.
-\begin{code}
-bool flag = true; int i = 0;\\
-(free1 $||$ ++free2)(flag, i)
-\end{code}
+\begin{alltt}
+bool flag = true; int i = 0;
+(_1 || ++_2)(flag, i)
+\end{alltt}
 
 \paragraph{Comma operator}
 Comma operator is the 'statement separator' in lambda expressions. Since comma is also the separator between arguments in a function call, extra parenthesis are sometimes needed:
-\begin{code}
-  for\_each(a.begin(), a.end(), \textbf{(}++free1, cout \leftshift\ free1\textbf{)});
-\end{code}
+\begin{alltt}
+  for_each(a.begin(), a.end(), \textbf{(}++_1, cout << _1\textbf{)});
+\end{alltt}
 Comma operator adheres to the C++ rule of always evaluating the left operand before the right one.
 
-\paragraph{\snip{operator()}}
-...
+\paragraph{Function call operator}
 
-\paragraph{\snip{operator$->*$}}
-...
+A lambda functor of arity $n$ defines the $n$-ary function call operator, which evaluates the functor. 
+Function call operators of arities between $1$ and $n-1$ are defined to support curried calls (see currying, section~\ref{currying}).
+
+Note, placeholders do not define the function call operator.
+
+\paragraph{Member pointer operator}
+
+C++ allows the member pointer operator \verb|operator->*| to be overloaded freely. 
+Hence, for user defined types, member pointer operator is no special case.
+The built-in meaning, however, is a somewhat more complicated case.
+First, the built-in member pointer operator is applied, if the left argument is a pointer to an object of some class \snip{A}, and the right hand argument is a pointer to a member of \snip{A}, or a pointer to a member of a class from which \snip{A} derives.
+We must separate two cases:
+\begin{enumerate}
+
+\item The right hand argument is a pointer to a data member. 
+In this case the lambda functor simply performs the argument substitution and calls the built-in member pointer operator, which returns a reference to the member pointed to. 
+For example:
+\begin{alltt}
+struct A { int d; };
+A* a = new A();
+  ...
+(a ->* &A::d);     // returns a reference to a->d 
+(_1 ->* &A::d)(a); // likewise
+\end{alltt}
+
+\item The right hand argument is a pointer to a member function.
+For a built-in call like this, the result is kind of a delayed member function call. 
+Such an expression must be followed by a function argument list, with which the delayed member function call is performed.
+For example:
+\begin{alltt}
+struct B { int foo(int); };
+B* b = new B();
+  ...
+(b ->* &B::foo)     // returns a delayed call to b->foo, must be followed 
+		    // by a function argument list
+(b ->* &B::foo)(1)  // ok, calls b->foo(1)
+
+(_1 ->* &B::foo)(b); // returns a delayed call to b->foo, no effect as such
+
+(_1 ->* &B::foo)(b)(1); // calls b->foo(1)
+\end{alltt}
+
+\end{enumerate}
+
 
 \subsection{\label{bind_expression}Bind expressions}
 
@@ -614,7 +674,6 @@ object-argument::=\\
 \> lambda-expression
 \end{grammar}
 
-
 A bind expression delays the call of a function. If this {\em target function} is $n$-ary, then the \snipit{bind-argument-list} must contain $n$ arguments as well.
 In the current version of the BLL, $0 \leq n \leq 9$ must hold. 
 For member functions, the number of arguments must be $\leq 8$, as the object argument takes one argument position.
@@ -629,28 +688,29 @@ Below, we describe the requirements for the different types of bind expressions.
 \subsubsection{Function pointers or references as targets}
 
 The target function can be a pointer or a reference to a function and it can be either bound or unbound. For example:
-\begin{code}
-X foo(A, B, C); A a; B b; C c;\\
-bind(foo, free1, free2, c)(a, b);\\
-bind(\&foo, free1, free2, c)(a, b); \\
-bind(free1, a, b, c)(foo);\\
-bind(free1, a, b, c)(make\_const(\&foo));\\
-\end{code}
-The last line requires the \snip{make\_const}, since \snip{\&foo} is a temporary object. However, a lambda function is seldom called this way.
+\begin{alltt}
+X foo(A, B, C); A a; B b; C c;
+bind(foo, _1, _2, c)(a, b);
+bind(&foo, _1, _2, c)(a, b);
+bind(_1, a, b, c)(foo);
+bind(_1, a, b, c)(make_const(&foo));
+\end{alltt}
+The last line requires the use of \snip{make_const}, since \snip{&foo} is a non-const rvalue, see~\ref{non-const_rvalues}. 
 The return type deduction always succeeds with this type of bind expressions.
 
 Note, that in C++ it is possible to take the address of an overloaded function only if the address is assigned to or used to initialise a properly typed variable. 
-For example:
-\begin{code}
-void foo(int);\\
-void foo(float);\\
+This means, that overloaded functions cannot be used in bind expressions directly, e.g.:
+\begin{alltt}
+void foo(int);
+void foo(float);
 int i; 
-\valipisteet
-bind(\&foo, free1)(i); // error 
-\valipisteet
-void (*pf1)(int) = \&foo;\\
-bind(pf1, free1)(i); // ok
-\end{code}
+  ...
+bind(&foo, _1)(i); // error 
+  ...
+void (*pf1)(int) = &foo;
+bind(pf1, _1)(i); // ok
+bind(static_cast<void(*)(int)>(&foo), _1)(i); // ok
+\end{alltt}
 
 \subsubsection{Function objects as targets}
 
@@ -835,7 +895,7 @@ for\_each(a.begin(),a.end(), cout \leftshift\ space \leftshift\ free1);
 \subsubsection{About assignment and subscript operators} 
 
 As described in section~{\ref{member_operators}, assignment and subscripting operators must be defined as member functions. This means, that for expressions of the form
-\snipnbr{x = y} or \snipnbr{x[y]} to be interpreted as lambda expressions, the left operand \snip{x} must be a lambda expression. 
+\snip{x = y} or \snip{x[y]} to be interpreted as lambda expressions, the left operand \snip{x} must be a lambda expression. 
 This does not hold for combined assignment operators \snip{+=}, \snip{--=} etc.\ which are interpreted as lambda expressions, even if only the right operand is a lambda expression.
 Nevertheless, it is perfectly ok to delay the left operand explicitly. For example, \snip{i += free1} is equivalent to \snip{var(i) += free1}.
 
