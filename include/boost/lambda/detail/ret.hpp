@@ -20,8 +20,26 @@
 namespace boost { 
 namespace lambda {
 
+  // TODO:
+
+//  Add specializations for function references for ret, protect and unlambda
+//  e.g void foo(); unlambda(foo); fails, as it would add a const qualifier
+  // for a function type. 
+  // on the other hand unlambda(*foo) does work
+
+
 // -- ret -------------------------
 // the explicit return type template 
+
+  // TODO: It'd be nice to make ret a nop for other than lambda functors
+  // but causes an ambiguiyty with gcc (not with KCC), check what is the
+  // right interpretation.
+
+  //  // ret for others than lambda functors has no effect
+  // template <class U, class T>
+  // inline const T& ret(const T& t) { return t; }
+
+
 template<class RET, class Arg>
 inline const 
 lambda_functor<
