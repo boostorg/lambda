@@ -292,32 +292,49 @@ struct return_type_1<function_action<I, detail::unspecified>, A > {
 // general unary and binary actions
 template<class Act, class Args, int Code, class Open>
 struct return_type<lambda_functor_args<action<1, Act>, Args, Code>, Open> {
- typedef 
-     typename return_type_1_0<
-       Act, 
-       typename return_type<
-         typename detail::tuple_element_as_reference<
-           0, Args
-         >::type, Open>::type 
-     >::type
-   type;
+
+  typedef typename return_type<
+    typename detail::tuple_element_as_reference<0, Args>::type, 
+    Open
+  >::type A_type;
+
+  // const and reference is added, so that specializations for return_type_1
+  // become easier (we can rely on the Args always being references, so the
+  // number of specializations doesn't explode.
+  // Note! If T is already a reference to nonconst, it will remain that way
+  // To return type deduction, const T& is the same as rvalue T 
+  typedef typename boost::add_reference<
+    typename boost::add_const<A_type>::type
+  >::type refc_A_type;
+
+public:
+
+ typedef typename return_type_1_0<Act, refc_A_type>::type type;
+
 };
 
 template<class Act, class Args, int Code, class Open>
-struct return_type<lambda_functor_args<action<2, Act>, Args, Code>, Open> {
-  typedef 
-     typename return_type_2_0<
-       Act, 
-       typename return_type<
-          typename detail::tuple_element_as_reference<0, Args>::type, 
-          Open
-       >::type, 
-       typename return_type<
-          typename detail::tuple_element_as_reference<1, Args>::type, 
-          Open
-       >::type
-     >::type
-  type;
+class return_type<lambda_functor_args<action<2, Act>, Args, Code>, Open> {
+
+  typedef typename return_type<
+    typename detail::tuple_element_as_reference<0, Args>::type, 
+    Open
+  >::type A_type;
+
+  typedef typename return_type<
+    typename detail::tuple_element_as_reference<1, Args>::type, 
+    Open
+  >::type B_type;
+
+  typedef typename boost::add_reference<
+    typename boost::add_const<A_type>::type
+  >::type refc_A_type;
+  typedef typename boost::add_reference<
+    typename boost::add_const<B_type>::type
+  >::type refc_B_type;
+
+public:
+  typedef typename return_type_2_0<Act, refc_A_type, refc_B_type>::type type;
 };
 
   // Was needed for a while, not now, since no return type deduction depends
@@ -344,6 +361,30 @@ struct return_type<lambda_functor_args<action<2, Act>, Args, Code>, Open> {
 //    type;
 //  };
 
+
+// special case for comma action:
+// As the return type needs to be exactly the type of the rightmost argument, 
+// we cannot add a const and reference (we need to preserve rvalueness)
+// note, that return_type_2_0 is still called, so user can overload
+// return_type_2 for user defined types.
+
+template<class Args, int Code, class Open>
+class return_type<lambda_functor_args<action<2, other_action<comma_action> >, Args, Code>, Open> {
+
+  typedef typename return_type<
+    typename detail::tuple_element_as_reference<0, Args>::type, 
+    Open
+  >::type A_type;
+
+  typedef typename return_type<
+    typename detail::tuple_element_as_reference<1, Args>::type, 
+    Open
+  >::type B_type;
+
+public:
+  typedef typename 
+    return_type_2_0<other_action<comma_action>, A_type, B_type>::type type;
+};
    
 // protect action:
 // the return type is the lambda_functor wrapped inside protect
@@ -399,16 +440,22 @@ struct return_type<lambda_functor_args<action<4, curry_action<2> >, Args, Code>,
 // object only, we can ignore the arguments and reuse return_type_1.
 
 template <int I, class Act, class Args, int Code, class Open>
-struct return_type<lambda_functor_args<action<I, Act>, Args, Code>, Open> {
- typedef
-     typename return_type_1_0<
-       Act, 
-       typename return_type<
-         typename detail::tuple_element_as_reference<0,Args>::type, 
-         Open
-       >::type
-     >::type
-  type;
+class return_type<lambda_functor_args<action<I, Act>, Args, Code>, Open> {
+
+  typedef typename return_type<
+    typename detail::tuple_element_as_reference<0, Args>::type, 
+    Open
+  >::type A_type;
+
+  // reference is added, so that specializations for return_type_1
+  // become easier. 
+  typedef typename boost::add_reference<
+    typename boost::add_const<A_type>::type
+  >::type refc_A_type;
+
+public:
+
+ typedef typename return_type_1_0<Act, refc_A_type>::type type;
 };
 
 // The explicit return type action case, it is unary
@@ -418,7 +465,8 @@ struct return_type<
            action<1, explicit_return_type_action<RET> >, 
            Args, 
            Code>, 
-         Open> {
+         Open> 
+{
   typedef RET type;
 };
 
