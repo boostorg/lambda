@@ -498,12 +498,7 @@ public:
 
 // true-true case
 template <bool Is_data_member, bool Is_function_member>
-struct member_pointer_action_helper
-{
-	template<class, class> struct return_type
-	{
-	};
-};
+struct member_pointer_action_helper;
   // cannot be both, no body provided
 
   // data member case
@@ -519,14 +514,25 @@ public:
 
   template<class A, class B>
   struct return_type {
-
+  private:
     typedef typename detail::remove_reference_and_cv<B>::type plainB;
 
-    typedef typename detail::member_pointer<plainB>::type type1;
+    typedef typename detail::member_pointer<plainB>::type type0;
+    // we remove the reference now, as we may have to add cv:s 
+    typedef typename boost::remove_reference<type0>::type type1;
 
-    // A is a pointer type
-    typedef typename ::boost::remove_pointer<A>::type non_pointer_A; 
+    typedef typename 
+      detail::remove_reference_and_cv<B>::type plainB;
 
+    // A is a reference to pointer
+    // remove the top level cv qualifiers and reference
+    typedef typename 
+      detail::remove_reference_and_cv<A>::type non_ref_A;
+
+    // A is a pointer type, so take the type pointed to
+    typedef typename ::boost::remove_pointer<non_ref_A>::type non_pointer_A; 
+
+  public:
     // For non-reference types, we must add const and/or volatile if
     // the pointer type has these qualifiers
     // If the member is a reference, these do not have any effect
@@ -541,7 +547,9 @@ public:
       typename ::boost::add_volatile<type2>::type,
       type2
     >::RET type3;
+    // add reference back
     typedef typename ::boost::add_reference<type3>::type type;
+
   };
 };
 
@@ -629,12 +637,10 @@ public:
 
 template<class A, class B>
 struct return_type_2<other_action<member_pointer_action>, A, B> {
-
+private:
   typedef typename 
     detail::remove_reference_and_cv<B>::type plainB;
-  typedef typename
-    detail::member_pointer<plainB>::qualified_class_type B_class;
-
+public:
   typedef typename 
     detail::member_pointer_action_helper<
       detail::member_pointer<plainB>::is_data_member,
