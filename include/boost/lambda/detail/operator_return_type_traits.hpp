@@ -16,6 +16,7 @@
 #ifndef BOOST_LAMBDA_OPERATOR_RETURN_TYPE_TRAITS_HPP
 #define BOOST_LAMBDA_OPERATOR_RETURN_TYPE_TRAITS_HPP
 
+#include "boost/lambda/detail/is_instance_of.hpp"
 #include "boost/type_traits/same_traits.hpp"
 
 #include <cstddef> // needed for the ptrdiff_t
@@ -102,12 +103,16 @@ template <> struct promote_to_int<unsigned short int>
 
 template<class Act, class A> 
 struct return_type_1<unary_arithmetic_action<Act>, A> { 
-  typedef typename boost::remove_reference<A>::type type; 
+  typedef typename boost::remove_const<
+    typename boost::remove_reference<A>::type
+  >::type type; 
 };
 
 // bitwise not, operator~()
 template<class A> struct return_type_1<bitwise_action<not_action>, A> { 
-  typedef typename boost::remove_reference<A>::type type; 
+  typedef typename boost::remove_const<
+    typename boost::remove_reference<A>::type
+  >::type type; 
 };
 
 // identity_action
@@ -130,11 +135,14 @@ struct return_type_1<pre_increment_decrement_action<Act>, A> {
 
 };
 
-// post decrement just returns the same plain stype.
+// post decrement just returns the same plain type.
 template<class Act, class A> 
 struct return_type_1<post_increment_decrement_action<Act>, A> 
 { 
-  typedef typename boost::remove_reference<A>::type type; 
+  typedef 
+    typename boost::remove_const<
+      typename boost::remove_reference<A>::type
+    >::type type; 
 };
 
 // logical not, operator!()
@@ -145,7 +153,7 @@ struct return_type_1<logical_action<not_action>, A> {
 
 // address of action ---------------------------------------
 // Note that this applies to all types. 
-// A special user defined & may need to define its own
+// A special user defined operator& may need to define its own
 // specializations
 template<class A> 
 struct return_type_1<other_action<addressof_action>, A> { 
@@ -154,14 +162,18 @@ struct return_type_1<other_action<addressof_action>, A> {
 
 // contentsof action ------------------------------------
 
-// TODO: this deduction may lead to fail directly, gotta find a way
-// around it. Specializations for standard iterator types?
+// TODO: this deduction may lead to fail directly, 
+// (if A has no specialization for iterator_traits and has no
+// typedef A::reference.
+// There is no easy way around this, cause there doesn't seem to be a way
+// to test whether a class is an iterator or not.
+// (it ain't easy to provide pecializations for just iterator types?)
  
-// default is to assume that a typedef reference exists.
-// This works with std::iterators.
+// The default works with std::iterators.
+
 template<class A> 
 struct return_type_1<other_action<contentsof_action>, A> { 
-  typedef typename A::reference type; 
+  typedef typename std::iterator_traits<A>::reference type; 
 };
 
 // strip reference
@@ -188,10 +200,12 @@ struct return_type_1<other_action<contentsof_action>, const A> {
   >::RET type;
 };
 
+// not needed really (base case should take care of this as well)
 template<class A> 
 struct return_type_1<other_action<contentsof_action>, A*> { typedef A& type; };
 
 // the pointers itself can be const, this const may safely be dropped
+// not needed really (base case should take care of this as well)
 template<class A> 
 struct return_type_1<other_action<contentsof_action>, A* const> { 
   typedef A& type; 
@@ -412,20 +426,39 @@ struct return_type_2<bitwise_action<Act>, A, B>
   // plus_action is just a random pick, has to be a concrete instance
 };
 
-// TODO: templated streams
-// ostream
+// leftshift_action case takes care of stream references,
+// and if A is not a stream, it delegates the work to this specialization
+template<class A, class B>
+struct return_type_2<bitwise_action<leftshift_action_no_stream>, A, B>
+{
+  // the default is the type of the left argument (as non-reference type)
+  typedef 
+    typename boost::remove_const<
+      typename boost::remove_reference<A>::type
+    >::type type;
+};
+
+template<class A, class B>
+struct return_type_2<bitwise_action<rightshift_action_no_stream>, A, B>
+{
+  typedef 
+    typename boost::remove_const<
+      typename boost::remove_reference<A>::type
+    >::type type;
+};
+
+#ifdef BOOST_NO_TEMPLATED_STREAMS
 template<class A, class B> 
 struct return_type_2<bitwise_action<leftshift_action>, A, B>
 {
   typedef typename detail::IF<
-    boost::is_convertible<
-      typename boost::remove_reference<A>::type*, std::ostream*>::value,
-      typename boost::add_reference<A>::type, //reference to the stream
-      typename boost::remove_reference<A>::type
-    // for left shift, the default resulting type is the same as the left 
-    // operand. A can however be a reference (if it comes from a free variable
-    // or if cref or ref  wrappers have been used), 
-    // so we return a plain type.
+    boost::is_convertible< 
+      typename boost::remove_reference<A>::type*,
+      std::ostream*
+    >::value, 
+    A, //reference to the stream 
+    typename 
+      return_type_2<bitwise_action<leftshift_action_no_stream>, A, B>::type
   >::RET type;
 };
 
@@ -434,16 +467,47 @@ template<class A, class B>
 struct return_type_2<bitwise_action<rightshift_action>, A, B>
 {
   typedef typename detail::IF<
-    boost::is_convertible<typename boost::remove_reference<A>::type*, 
-                          std::istream*>::value,
-    typename boost::add_reference<A>::type, // ref to the stream type
-    typename boost::remove_reference<A>::type
-    // for right shift, the default resulting type is the same as the 
-    // left operand. A can however be a reference (if it comes from a 
-    //free variable or if cref or ref 
-    // wrappers have been used), so we return a const plain type.
+    boost::is_convertible< 
+      typename boost::remove_reference<A>::type*,
+      std::istream*
+    >::value,
+    A, // the stream type (A should be ref)
+    typename 
+      return_type_2<bitwise_action<rightshift_action_no_stream>, A, B>::type
   >::RET type;
 };
+
+#else
+// ostream
+template<class A, class B> 
+struct return_type_2<bitwise_action<leftshift_action>, A, B>
+{
+  typedef typename detail::IF<
+    is_instance_of_2< 
+      typename boost::remove_reference<A>::type,
+      std::basic_ostream
+    >::value, 
+    A, //reference to the stream 
+    typename 
+      return_type_2<bitwise_action<leftshift_action_no_stream>, A, B>::type
+  >::RET type;
+};
+
+// istream
+template<class A, class B> 
+struct return_type_2<bitwise_action<rightshift_action>, A, B>
+{
+  typedef typename detail::IF<
+    is_instance_of_2< 
+      typename boost::remove_reference<A>::type,
+      std::basic_istream
+    >::value, 
+    A, // the stream type (A should be ref)
+    typename 
+      return_type_2<bitwise_action<rightshift_action_no_stream>, A, B>::type
+  >::RET type;
+};
+#endif
 
 // -- logical actions ----------------------------------------
 // always bool
@@ -509,14 +573,13 @@ struct return_type_2<other_action<subscript_action>, const A, B> {
 };
 
 
-// TODO: this may fail directly, find a way around it
-
-// The general case, matches all plain class types
-// this covers vectors and sets (or any other container that 
-// defines the typedef value_type
+// The general case used to check if this a typedef value_type was defined
+// That could fail so, it got changed and there are specializations
+// for vector etc.
 template<class A, class B> 
 struct return_type_2<other_action<subscript_action>, A, B> { 
-  typedef typename A::value_type& type;
+  //  typedef typename A::value_type& type;
+  typedef detail::unspecified type;
 };
 
 
@@ -546,18 +609,11 @@ struct return_type_2<other_action<subscript_action>, A[N], B> {
 namespace std {
  template <class Key, class T, class Cmp, class Allocator> class map;
  template <class Key, class T, class Cmp, class Allocator> class multimap;
+ template <class T, class Allocator> class vector;
+ template <class T, class Allocator> class deque;
+ template <class Char, class Traits, class Allocator> class basic_string;
 }
 
-// do the same as map for sgi's hash_map, and hash_multimap.
-// The SGI STL Port is included because it is so commonly used.
-#if defined __SGI_STL_PORT
-namespace __STLPORT_NAMESPACE {
-template <class _Key, class _Tp, class _HashFcn, class _EqualKey,
-          class _Alloc> class hash_map;
-template <class _Key, class _Tp, class _HashFcn, class _EqualKey, 
-          class _Alloc> class hash_multimap;
-}
-#endif
 
 namespace boost { 
 namespace lambda {
@@ -574,7 +630,51 @@ struct return_type_2<other_action<subscript_action>, std::multimap<Key, T, Cmp, 
   // T == std::map<Key, T, Cmp, Allocator>::mapped_type; 
 };
 
+  // deque
+template<class T, class Allocator, class B> 
+struct return_type_2<other_action<subscript_action>, std::deque<T, Allocator>, B> { 
+  typedef typename std::deque<T, Allocator>::reference type;
+};
+template<class T, class Allocator, class B> 
+struct return_type_2<other_action<subscript_action>, const std::deque<T, Allocator>, B> { 
+  typedef typename std::deque<T, Allocator>::const_reference type;
+};
+
+  // vector
+template<class T, class Allocator, class B> 
+struct return_type_2<other_action<subscript_action>, std::vector<T, Allocator>, B> { 
+  typedef typename std::vector<T, Allocator>::reference type;
+};
+template<class T, class Allocator, class B> 
+struct return_type_2<other_action<subscript_action>, const std::vector<T, Allocator>, B> { 
+  typedef typename std::vector<T, Allocator>::const_reference type;
+};
+
+  // basic_string
+template<class Char, class Traits, class Allocator, class B> 
+struct return_type_2<other_action<subscript_action>, std::basic_string<Char, Traits, Allocator>, B> { 
+  typedef typename std::basic_string<Char, Traits, Allocator>::reference type;
+};
+template<class Char, class Traits, class Allocator, class B> 
+struct return_type_2<other_action<subscript_action>, const std::basic_string<Char, Traits, Allocator>, B> { 
+  typedef typename std::basic_string<Char, Traits, Allocator>::const_reference type;
+};
+
+
+
+
 #if defined __SGI_STL_PORT
+// do the same as map for sgi's hash_map, and hash_multimap.
+// The SGI STL Port is included because it is so commonly used.
+
+namespace __STLPORT_NAMESPACE {
+template <class _Key, class _Tp, class _HashFcn, class _EqualKey,
+          class _Alloc> class hash_map;
+template <class _Key, class _Tp, class _HashFcn, class _EqualKey, 
+          class _Alloc> class hash_multimap;
+}
+
+
 template <class _Key, class _Tp, class _HashFcn, class _EqualKey, class _Alloc, class B>
 struct return_type_2<other_action<subscript_action>, ::__STLPORT_NAMESPACE::hash_map<_Key, _Tp, _HashFcn, _EqualKey, _Alloc>, B> { 
   typedef _Tp& type;
