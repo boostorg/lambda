@@ -10,12 +10,55 @@
 #include <set>
 #include <string>
 
+#include <iostream>
+
+
+#include <sstream>
+
+using namespace std;
+using namespace boost;
 
 using namespace boost::lambda;
 
 
 class unary_plus_tester {};
 unary_plus_tester operator+(const unary_plus_tester& a) { return a; } 
+
+void cout_tests()
+{
+  // standard ostream and istream operators work
+  // stringstreams etc. do not work:
+
+  // ostringstream os;
+  // os << 1
+
+  // This should the derived basic_ostream instance (or a reference to it)
+  // but now the type deduction returns a reference to ostringstream.
+  // must be fixed.
+  using std::cout;
+  ostringstream os;
+  int i = 10; 
+  ret<std::ostream&>(os << _1)(i);
+
+  ret<std::ostream&>(os << constant("FOO"))();
+
+  BOOST_TEST(os.str() == std::string("10FOO"));
+  
+ 
+  // test for constant, constant_ref and var
+  i = 5;
+  constant_type<int>::type ci(constant(i));
+  var_type<int>::type vi(var(i)); 
+
+  (vi = _1)(make_const(100));
+  BOOST_TEST((ci)() == 5);
+  BOOST_TEST(i == 100);
+
+  int a;
+  constant_ref_type<int>::type cr(constant_ref(i));
+  (++vi, var(a) = cr)();
+  BOOST_TEST(i == 101);
+}
 
 void arithmetic_operators() {
   int i = 1; int j = 2; int k = 3;
@@ -330,7 +373,7 @@ int test_main(int, char *[]) {
   address_of_and_dereference();
   comma();
   pointer_arithmetic();
-
+  cout_tests();
   return 0;
 }
 
