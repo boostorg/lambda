@@ -12,7 +12,7 @@
         is granted, provided this copyright notice appears in all
         copies, and a notice that the code was modified is included
         with the copyright notice. 
-      </p></div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">In a nutshell</a></dt><dt>2. <a href="#sect:getting_started">Getting Started</a></dt><dd><dl><dt>2.1. <a href="#id2732612">Installing the library</a></dt></dl></dd><dt>3. <a href="#id2732964">Introduction</a></dt><dd><dl><dt>3.1. <a href="#id2732972">Motivation</a></dt><dt>3.2. <a href="#id2733662">Introduction to lambda expressions</a></dt></dl></dd><dt>4. <a href="#sect:using_library">Using the library</a></dt><dd><dl><dt>4.1. <a href="#sect:introductory_examples">Examples</a></dt><dt>4.2. <a href="#sect:parameter_and_return_types">Parameter and return types of lambda functors</a></dt><dt>4.3. <a href="#sect:actual_arguments_to_lambda_functors">About actual arguments to lambda functors</a></dt><dt>4.4. <a href="#sect:storing_bound_arguments">Storing bound arguments in lambda functions</a></dt></dl></dd><dt>5. <a href="#sect:lambda_expressions_in_details">Lambda expressions in details</a></dt><dd><dl><dt>5.1. <a href="#sect:placeholders">Placeholders</a></dt><dt>5.2. <a href="#sect:operator_expressions">Operator expressions</a></dt><dt>5.3. <a href="#bind_expressions">Bind expressions</a></dt><dt>5.4. <a href="#sect:overriding_deduced_return_value">Overriding the deduced return value</a></dt><dt>5.5. <a href="#sect:extending_return_type_system">Extending return type deduction system</a></dt><dt>5.6. <a href="#sect:delaying_constants_and_variables">Delaying constants and variables</a></dt><dt>5.7. <a href="#control_expressions">Control expressions</a></dt><dt>5.8. <a href="#id2794275">Exceptions</a></dt><dt>5.9. <a href="#construction_and_destruction">Construction and destruction</a></dt><dt>5.10. <a href="#id2794309">Special lambda expressions</a></dt></dl></dd><dt>6. <a href="#id2794352">Contributors</a></dt></dl></div><div class="simplesect"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2725492"></a>NOTE!</h2></div></div>
+      </p></div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">In a nutshell</a></dt><dt>2. <a href="#sect:getting_started">Getting Started</a></dt><dd><dl><dt>2.1. <a href="#id2732612">Installing the library</a></dt></dl></dd><dt>3. <a href="#id2732964">Introduction</a></dt><dd><dl><dt>3.1. <a href="#id2732972">Motivation</a></dt><dt>3.2. <a href="#id2733662">Introduction to lambda expressions</a></dt></dl></dd><dt>4. <a href="#sect:using_library">Using the library</a></dt><dd><dl><dt>4.1. <a href="#sect:introductory_examples">Examples</a></dt><dt>4.2. <a href="#sect:parameter_and_return_types">Parameter and return types of lambda functors</a></dt><dt>4.3. <a href="#sect:actual_arguments_to_lambda_functors">About actual arguments to lambda functors</a></dt><dt>4.4. <a href="#sect:storing_bound_arguments">Storing bound arguments in lambda functions</a></dt></dl></dd><dt>5. <a href="#sect:lambda_expressions_in_details">Lambda expressions in details</a></dt><dd><dl><dt>5.1. <a href="#sect:placeholders">Placeholders</a></dt><dt>5.2. <a href="#sect:operator_expressions">Operator expressions</a></dt><dt>5.3. <a href="#bind_expressions">Bind expressions</a></dt><dt>5.4. <a href="#sect:overriding_deduced_return_value">Overriding the deduced return value</a></dt><dt>5.5. <a href="#sect:extending_return_type_system">Extending return type deduction system</a></dt><dt>5.6. <a href="#sect:delaying_constants_and_variables">Delaying constants and variables</a></dt><dt>5.7. <a href="#control_expressions">Control expressions</a></dt><dt>5.8. <a href="#id2794532">Exceptions</a></dt><dt>5.9. <a href="#construction_and_destruction">Construction and destruction</a></dt><dt>5.10. <a href="#id2794555">Special lambda expressions</a></dt></dl></dd><dt>6. <a href="#id2794599">Contributors</a></dt></dl></div><div class="simplesect"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2725492"></a>NOTE!</h2></div></div>
 
 At the moment, the documentation is a draft. Exceptions, control constructs, advanced bind expressions (nesting binds etc.), constructor and destructor calls and a few other things are not documented yet.
 
@@ -926,9 +926,75 @@ This does not hold for compound assignment operators <tt>+=</tt>, <tt>-=</tt> et
 Nevertheless, it is perfectly ok to delay the left operand explicitly. 
 For example, <tt>i += _1</tt> is equivalent to <tt>var(i) += _1</tt>.
 </p></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="control_expressions"></a>5.7. Control expressions</h3></div></div><p>
-BLL defines several functions to create lambda functors for control expressions. 
-They all take lambda functors as parameters and return <tt>void</tt>. 
-</p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2794275"></a>5.8. Exceptions</h3></div></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="construction_and_destruction"></a>5.9. Construction and destruction</h3></div></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2794309"></a>5.10. Special lambda expressions</h3></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2794317"></a>5.10.1. Protect</h4></div></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2794325"></a>5.10.2. Const_parameters</h4></div></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2794334"></a>5.10.3. Break_const</h4></div></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2794342"></a>5.10.4. Unlambda</h4></div></div></div></div></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2794352"></a>6. Contributors</h2></div></div>
+BLL defines several functions to create lambda functors that represent control constructs. 
+They all take lambda functors as parameters and return <tt>void</tt>.
+To start with an example, the following code outputs all even elements of some container <tt>a</tt>:
+
+<pre class="programlisting">
+for_each(a.begin(), a.end(), 
+         if_then(_1 % 2 == 0, cout &lt;&lt; _1));  
+</pre>
+</p><p>
+The BLL supports the following function templates for control structures: 
+
+<pre class="programlisting">
+if_then(condition, then_part)
+if_then_else(condition, then_part, else_part)
+while_loop(condition, body)
+while_loop(condition) // no body case
+do_while_loop(condition, body)
+do_while_loop(condition) // no body case 
+for_loop(init, condition, increment, body)
+for_loop(init, condition, increment) // no body case
+switch_statement(...)
+</pre>
+</p><p>
+Delayed variables tend to be commonplace in control lambda expressions. 
+For instance, here we use the <tt>var</tt> function to turn the arguments of <tt>for_loop</tt> into lambda expressions. 
+The effect of the code is to add 1 to each element of a two-dimensional array:
+
+<pre class="programlisting">
+int a[5][10]; int i;
+for_each(a, a+5, 
+  for_loop(var(i)=0, var(i)&lt;10, ++var(i), 
+           _1[var(i)] += 1));  
+</pre>
+
+As explained in <a href="#sect:delaying_constants_and_variables" title="5.6. Delaying constants and variables">Section 5.6</a>, we can avoid the repeated use of wrapping of <tt>var</tt> if we define it beforehand:
+
+<pre class="programlisting">
+int i;
+var_type&lt;int&gt;::type vi(var(i));
+for_each(a, a+5, 
+  for_loop(vi=0, vi&lt;10, ++vi, _1[vi] += 6));  
+</pre>
+
+</p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="sect:switch_statement"></a>5.7.1. Switch statement</h4></div></div></div><p>
+The lambda expressions for <tt>switch</tt> control structures are more complex since the number of cases may vary. 
+The general form of a switch lambda expression is:
+
+<pre class="programlisting">
+switch_statement(<i><tt>condition</tt></i>, 
+  case_statement&lt;<i><tt>label</tt></i>&gt;(<i><tt>lambda expression</tt></i>),
+  case_statement&lt;<i><tt>label</tt></i>&gt;(<i><tt>lambda expression</tt></i>),
+  ...
+  default_statement(<i><tt>lambda expression</tt></i>)
+)
+</pre>
+
+The <tt><i><tt>condition</tt></i></tt> argument must be a lambda expression that creates a lambda functor with an integral return type.
+The different cases are created with the <tt>case_statement</tt> functions, and the optional default case with the <tt>default_statement</tt> function.
+The case labels are given as explicitly specified template arguments to <tt>case_statement functions</tt> and 
+<tt>break</tt> statements are implicitly part of each case. 
+For example, <tt>case_statement&lt;1&gt;(a)</tt>, where <tt>a</tt> is some lambda functor,  generates the code:
+
+<pre class="programlisting">case 1: 
+  evaluate lambda functor a; 
+  break;
+</pre>
+We have specialized the <tt>switch_statement</tt> function for up to 9 case statements.
+
+</p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2794532"></a>5.8. Exceptions</h3></div></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="construction_and_destruction"></a>5.9. Construction and destruction</h3></div></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2794555"></a>5.10. Special lambda expressions</h3></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2794563"></a>5.10.1. Protect</h4></div></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2794571"></a>5.10.2. Const_parameters</h4></div></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2794580"></a>5.10.3. Break_const</h4></div></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2794588"></a>5.10.4. Unlambda</h4></div></div></div></div></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2794599"></a>6. Contributors</h2></div></div>
 Jaakko Järvi, Gary Powell.
 
 Additional help and ideas: Jeremy Siek, Peter Higley, Peter Dimov
