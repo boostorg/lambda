@@ -317,10 +317,33 @@ void test_currying() {
 
 }
 
+void test_const_parameters() {
+
+  //  (_1 + _2)(1, 2); // this would fail, 
+
+  // Either make arguments const:
+  BOOST_TEST((_1 + _2)(make_const(1), make_const(2)) == 3); 
+
+  // Or use const_parameters:
+  BOOST_TEST(const_parameters(_1 + _2)(1, 2) == 3);
+
+
+
+};
+
 void test_break_const() 
 {
-  break_const(_1 + _2)(1, 2);
+  // break_const breaks constness! Be careful!
+  // You need this only if you need to have side effects on some argument(s)
+  // and some arguments are non-const rvalues:
   
+  // E.g.
+  int i = 1;
+  //  (_1 += _2)(i, 2) // fails, 2 is a non-const rvalue
+  
+  //   const_parameters(_1 += _2)(i, 2) // fails, side-effect to i
+  break_const(_1 += _2)(i, 2); // ok
+  BOOST_TEST(i == 3);
 }
 
 int test_main(int, char *[]) {
@@ -330,6 +353,7 @@ int test_main(int, char *[]) {
   test_protect();
   test_lambda_functors_as_arguments_to_lambda_functors();
   test_currying(); 
+  test_const_parameters();
   test_break_const(); 
   return 0;
 }
