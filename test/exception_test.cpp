@@ -33,11 +33,11 @@ void erroneous_exception_related_lambda_expressions() {
   // this should fail too for the same reason
   //  try_catch(rethrow(), catch_all(cout << constant("Howdy")))();
 
-  // this fails too (_E outside of catch_exception)
-  // (_1 + _2 + _E)(i, i, i); 
+  // this fails too (_e outside of catch_exception)
+  // (_1 + _2 + _e)(i, i, i); 
 
-  // and this (_E outside of catch_exception)
-  //  try_catch( throw_exception(1), catch_all(cout << _E));
+  // and this (_e outside of catch_exception)
+  //  try_catch( throw_exception(1), catch_all(cout << _e));
 
   // and this (_3 in catch_exception
   //   try_catch( throw_exception(1), catch_exception<int>(cout << _3));
@@ -531,7 +531,7 @@ void return_type_matching() {
     try_catch(
       _1 + 1,
       catch_exception<int>((&_1, rethrow())), // no match, but ok since throws
-      catch_exception<char>(_E) // ok, char convertible to int 
+      catch_exception<char>(_e) // ok, char convertible to int 
     )(i)
  
     == 2
@@ -542,19 +542,19 @@ void return_type_matching() {
  
   //   try_catch(
   //     _1 += 1,
-  //     catch_exception<char>(_E) // NOT ok, char not convertible to int& 
+  //     catch_exception<char>(_e) // NOT ok, char not convertible to int& 
   //   )(i);
 
   // if you don't care about the return type, you can use make_void
   try_catch(
     make_void(_1 += 1),
-    catch_exception<char>(_E) // since try is void, catch can return anything 
+    catch_exception<char>(_e) // since try is void, catch can return anything 
   )(i);
   BOOST_TEST(i == 2);
   
   try_catch(
     (_1 += 1, throw_exception('a')),
-    catch_exception<char>(_E) // since try throws, it is void, 
+    catch_exception<char>(_e) // since try throws, it is void, 
                               // so catch can return anything 
   )(i);
   BOOST_TEST(i == 3);
@@ -565,7 +565,7 @@ void return_type_matching() {
       throw_exception(1),
       catch_exception<int>(throw_exception('b'))
     ),
-    catch_exception<char>( _1 = _E ) 
+    catch_exception<char>( _1 = _e ) 
   )(a);
   BOOST_TEST(a == 'b');
 }
@@ -591,48 +591,5 @@ int test_main(int, char *[]) {
 }
 
 
-
-
-//    cout << "Before make void call. i ="<< i << "\n";
-//    (make_void(free1 += 3))(i);
-//    cout << "After make void call, should be += 3 i = " << i << "\n";
-
-//    int j =0;
-//    var_type<int>::type vj(var(j));
-//    (make_void(for_loop(vj = 0, vj < free1, ++vj, cout << vj << "\n")))(i);
-
-//     try_catch( make_void(free1 += 3 + free2),
-//      catch_exception<int>( cout << constant("Should work: ") << free1 + free2 << "\n" )
-//  )
-//                  (i, i);
-
-//     try_catch( make_void(free1 += 3),
-//      catch_exception<int>( cout << constant("Should work: ") << free1 + free2 << "\n" )
-//  )
-//                  (i, i);
-
-//      try_catch( throw_exception(1),
-//      catch_exception<int>(
-//    throw_exception(2) )
-//                  )
-//                  ();
-
-//      try_catch( throw_exception(1),
-//      catch_exception<int>(
-//        ((cout << constant("caught int: ") << free1 + free2 << "\n")
-//    ,throw_exception(2) )
-//    ),
-//  catch_all(
-//        ((cout << constant("catch all: ") << free1 + free2 << "\n")
-//    ,rethrow())
-//          )
-//                  )(i,i);
-
-//    // try_catch which returns (10 is added, so that the try return type is int
-//    cout << "\n -------------- \n" << 
-//      try_catch( (throw_exception(5), 10),
-// catch_exception<int>( free1 + free2 + freeE )  // returns int
-//               )
-//              (i, i) << "\n";
 
 
