@@ -95,7 +95,7 @@ template<template <class T> class cast_type, class T, class Args, int Code, clas
 struct return_type<lambda_functor_args<action<1, cast_action< cast_type<T> > >, Args, Code>,
  Open>
 { 
-  typedef T const type;
+  typedef T type;
 };
 
 // return type of typeid_action
@@ -113,7 +113,7 @@ template<class Args, int Code, class Open>
 struct return_type<lambda_functor_args<action<1, sizeof_action >, Args, Code>,
  Open >
 { 
-  typedef std::size_t const type;
+  typedef std::size_t type;
 };
 
 
