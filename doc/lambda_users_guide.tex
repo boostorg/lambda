@@ -89,7 +89,7 @@ Permission to modify the code and to distribute modified code is granted, provid
 \subsection*{Contributors}
 
 The core of the libary is written by Jaakko Järvi. 
-Gary Powell has been part of the 'development team' right after the core was written. His contributions are numerous oughout the library.
+Gary Powell has been part of the 'development team' right after the core was written. His contributions are numerous throughout the library.
 
 Many people have participated and helped including 
 Jeremy Siek, Peter Higley, Peter Dimov, ...
@@ -109,7 +109,7 @@ for_each(a.begin(), a.end(), std::cout << _1 << ' ');
 
 \noindent The expression \verb|std::cout << _1 << ' '| defines a unary function object. 
 The variable \snip{\_1} is the parameter of the function, a {\em placeholder} for the actual argument. 
-Within each iteration of \snip{for\_each}, the function is called with with an element of \snip{a} as the actual argument.
+Within each iteration of \snip{for\_each}, the function is called with an element of \snip{a} as the actual argument.
 This actual argument is substituted for the placeholder, and the function is evaluated.
 
 The BLL is about letting you define small unnamed function objects, such as the one above, directly on the call site of an STL algorithm.
@@ -290,6 +290,61 @@ E.g. the lambda expression \snip{\_1 + 1} can be seen as syntactic sugar for the
 A lambda expression defines a function. A C++ lambda expression concretely constructs a function object, {\em a functor}, when evaluated. We use the name {\em lambda functor} to refer to such a function object. Hence, in the terminology adpoted here, the result of evaluating a lambda expression is a lambda functor.
 
 
+\subsection{\label{how_to_use_it}Introductory examples}
+
+The preceding discussion describes the basic syntax and semantics of lambda expressions. 
+There are some exceptions and special cases for the basic rules covered so far, but that discussion is postponed until later sections.
+In this section we give examples of using lambda expressions in STL algorithm invocations. 
+So let's start with some simple expressions and work up. 
+First, we'll initialize the elements of a container (e.g.\ a \verb|list|) to the value \verb|1|:
+
+\begin{alltt}
+list<int> v(10);
+for_each(v.begin(), v.end(), _1 = 1);
+\end{alltt}
+
+\noindent In this example \verb|_1 = 1| creates a lambda function which assigns the value \verb|1| to every element in \verb|v|.
+Next, we create a container of pointers and make them point to the elements in the first container \verb|v|:
+\begin{alltt}
+list<int*> vp(10); 
+transform(v.begin(), v.end(), vp.begin(), &_1);
+\end{alltt}
+
+\noindent Here we take the address of each element in \verb|v| (with \verb|&_1|) and assign it to the corresponding element in \verb|vp|.
+Now lets change the values in \verb|v|. 
+For each element we call some function \verb|foo| passing the original value of the element as an argument to \verb|foo|:
+
+\begin{alltt}
+int foo(int);
+for_each(v.begin(), v.end(), _1 = bind(foo, _1));
+\end{alltt}
+
+\noindent Next we'll sort the elements of \verb|vp|:
+
+\begin{alltt}
+sort(vp.begin(), vp.end(), *_1 > *_2);
+\end{alltt}
+
+\noindent In this call to \verb|sort|, we are sorting the elements by their contents in descending order. 
+Finally we'll output the sorted content of \verb|vp| separated by line breaks:
+
+\begin{alltt}
+for_each(vp.begin(), vp.end(), cout << *_1 << '\verb|\n|');
+\end{alltt}
+
+
+%After seeing these examples it should be obvious how to write the lambda expression to, say, increment each element in \verb|v| by 6 times the result of the call to a zero-argument function named \verb|rand|\label{nullary_example}:
+
+%\begin{alltt}
+%for_each(v.begin(), v.end(), _1 += 6 * bind(rand));
+%\end{alltt}
+
+%\noindent See this is easy. 
+%We must admit that there are some traps and we'll try and point them out as we go along. 
+%But in general you will have no trouble using this new library.
+
+ 
+
 
 \subsection{Parameter and return types of lambda functors\label{parameters_and_return_types}}
 
@@ -329,7 +384,7 @@ bind<int>(foo, _1, _2);
 A rare case, where the \snip{ret<{\em type}>} syntax does not work, but
 \snip{bind<{\em type}>} does, is explained in section~\ref{bind_vs_ret}.
 
-\paragraph*{About actual arguments to lambda functions}
+\subsubsection{About actual arguments to lambda functions\label{non_const_rvalue_problem}}
 
 A general restriction for the actual arguments is that they cannot be nonconst rvalues. 
 For example:
@@ -342,9 +397,8 @@ int i = 1; int j = 2;
 
 \noindent This restriction is not as bad as it may look. 
 Since the lambda functions are most often called inside STL-algorithms, 
-the arguments originate from dereferencing iterators.
-The dereferencing operators usually do not return rvalues.
-And for the cases where the restriction is encountered, there are workarounds:
+the arguments originate from dereferencing iterators and the dereferencing operators seldom return rvalues.
+And for the cases where they do, there are workarounds:
 \begin{enumerate} 
 \item If the rvalue is of a class type, the return type of the function that creates the rvalue should be defined as const. Due to an unfortunate language restriction this does not work for built-in types, as built-in rvalues cannot be const qualified. 
 
@@ -356,22 +410,39 @@ int i = 1; int j = 2;
 \end{alltt}
 
 \item
-If neither of the above is possible, the lambda expression can be wrapped in a \snip{break\_const} function. 
-{\bf Note!} This solution can break const correctness.
-It takes its arguments as const, and casts away constness prior to the call to the original lambda functor.
+If neither of the above is possible, the lambda expression can be wrapped in a \snip{const\_parameters} function. 
+It creates another type of lambda functor, which takes its arguments as const references. For example:
+\begin{alltt}
+const_parameters(_1 + _2)(1, 2); // ok
+\end{alltt}
+
+\item 
+It none of the above is possible, there is still one solution, which unfortunately can break const correctness.
+The solution is yet another lambda functor wrapper, which we have named as \snip{break\_const} to alert the user of the potential dangers of this function. 
+
+\snip{break\_const} creates a lambda functor that takes its arguments as const, and casts away constness prior to the call to the original wrapped lambda functor.
+The need to use this function arises in a case where one argument is a nonconst rvalue, and there are side effects to another argument.
 For example:
 \begin{alltt}
-break_const(_1 + _2)(1, 2); // ok
+int i; 
+  ...
+(_1 += _2)(i, 2); // error, 2 is a nonconst rvalue
+const_parameters(_1 += _2)(i, 2); // error, i becomes const
+break_const(_1 += _2)(i, 2); // ok, but dangerous
 \end{alltt}
-The result of \snip{break\_const} is not a lambda functor, so it cannot be used as a subexpression of a lambda expression.
-\begin{alltt}
-break_const(_1 + _2) + _3; // fails.
-\end{alltt}
-However, this kind of code should never be necessary, since calls to sub lambda functors are made inside the BLL, and are not affected by the non-const rvalue problem.
 
 \end{enumerate}
 
-\paragraph*{Storing bound arguments in lambda functions}
+Note, that the results of \snip{break\_const} or \snip{const\_parameters} are not lambda functors, so they cannot be used as subexpressions of lambda expressions. E.g.:
+\begin{alltt}
+break_const(_1 + _2) + _3; // fails.
+const_parameters(_1 + _2) + _3; // fails.
+\end{alltt}
+However, this kind of code should never be necessary, since calls to sub lambda functors are made inside the BLL, and are not affected by the non-const rvalue problem.
+
+
+
+\subsubsection{Storing bound arguments in lambda functions\label{storing_bound_arguments}}
 
 The lambda function stores the bound arguments in a tuple object. 
 By default, temporary const copies of the arguments are stored. 
@@ -397,37 +468,24 @@ As another example, the streaming operators take their leftmost argument as non-
 
 \begin{itemize}
 \item The left argument of compound assignment operators (\snip{+=}, \snip{*=}, etc.) are stored as references to non-const. 
-\item If the left argument of \leftshift\ or \rightshift\ operator is derived from an instantiation of \snip{basic\_ostream} or respectively from \snip{basic\_istream}, the argument is stored as a reference to non-const. For any other types, the argument is stored as a copy.
+\item If the left argument of \verb|<<| or \verb|>>|  operator is derived from an instantiation of \snip{basic\_ostream} or respectively from \snip{basic\_istream}, the argument is stored as a reference to non-const. For any other types, the argument is stored as a copy.
 \item In pointer arithmetic expressions, non-const array types are stored as non-const references. 
 \end{itemize}
 \end{itemize}
 
-%TODO (this should be removed???, as there  are no special rules for bind expressions anymore
-The rules for bind expressions are explained in section~\ref{bind_expression}.
-
 \section{Lambda expressions in details}
 
-There are different kind of lambda experessions. 
-The highest level of the grammar for C++ lambda expressions is as follows:
-
-\begin{grammar}
-lambda-expression::=\\
-\>  placeholder $|$\\
-\>  ret-expression $|$ \\
-\>  operator-expression $|$\\
-\>  bind-expression $|$\\
-\>  delay-expression $|$\\
-\>  control-expression $|$\\
-\>  construction-expression $|$\\
-\>  throw-expression $|$\\
-\>  try-catch-expression $|$\\
-\end{grammar}
-
-\noindent In the sequel, we devote a separate section for each of the possible forms of a lambda expression.
+We have introduced bind expressions and operator invocations as lambda expressions. 
+These are not the only types of lambda expressions, however.
+Different language constructs require different syntax, and there are some special cases in the semantics as well.
+This section describes different types of lambda expressions in details.
+We devote a separate section for each of the possible forms of a lambda expression.
 
 \subsection{\label{placeholders}Placeholders}
 
-The BLL defines three {\em placeholder types}: \snip{free1\_type}, \snip{free2\_type} and \snip{free3\_type}. An object of any of these types is a placeholder. 
+The BLL defines three {\em placeholder types}: \snip{free1\_type}, \snip{free2\_type} and \snip{free3\_type}. 
+An object of any of these types is a placeholder. 
+
 BLL has a predefined placeholder variable for each placeholder type: \snip{\_1}, \snip{\_2} and \snip{\_3}. 
 However, the user is not forced to use these placeholders. 
 It is easy to define placeholders with alternative names.
@@ -467,6 +525,10 @@ int i = 1;
 (++_1, cout << _1)(i) // i is now 4, outputs 4
 \end{alltt}
 
+Note that placeholder objects do not define the function call operators.
+So strictly speaking, they are not lambda expressions, as evaluating a placeholder does not create a callable lambda functor.
+Creating an identity functor is however straigthforward, for example: \snip{0, \_1} serves for this purpose. 
+
 \subsubsection{Currying\label{currying}}
 
 Lambda functors support currying, that is, calling functions with one argument at a time.
@@ -481,13 +543,332 @@ int i, j, k;
 (_1 + _2 + _3)(i)(j, k) 
 \end{alltt}
 A curried lambda functor just stores the arguments that are provided, it does not evaluate any subexpressions that might in theory be possible to evaluate.
-E.g., in the expression \snip{(\_1 * \_1 + \_2)(i)}, the subexpression \snip{i * i} is not evaluated. 
-The lambda functor is evaluated only when all the arguments are available.
+E.g., in the expression \snip{(\_1 * \_1 + \_2)(i)}, the subexpression \snip{i * i} is not evaluated, rather its evaluation is postponed until the actual argument for \snip{\_2} is available too. 
+
+\subsection{Operator expressions}
+
+The basic rule is that any C++ operator invocation with at least one argument being a lambda expression is itself a lambda expression.
+Almost all overloadable operators are supported. 
+For example, the following is a valid operator expression:
+
+\begin{alltt}
+cout << _1, _2[_3] = _1 && false
+\end{alltt}
+
+There are some restrictions that originate from the C++ operator overloading rules, and some special cases:
+
+\paragraph{Operators that cannot be supported}
+
+Some operators cannot be overloaded at all, or their overloading rules prevent them to be overloaded to create lambda functors.
+These operators are \verb|->.|, \verb|->|, \snip{new}, \snip{new[]}, \snip{delete}, \snip{delete[]} and \verb|?:| (the conditional operator).
+
+\paragraph{\snip{operator=} and \snip{operator[]}\label{member_operators}}
+
+These operators must be implemented as class members. 
+Consequently,  the left operand must be a lambda expression. For example:
+\begin{alltt}
+int i; 
+i = _1;      // not ok. i is not a lambda expression
+var(i) = _1; // ok, see section \ref{delay_expression}
+\end{alltt}
+
+\paragraph{Locigal operators}
+
+Logical operators obey the short-circuiting evaluation rules. For example, \snip{i} is never incremented in the following code:
+\begin{alltt}
+bool flag = true; int i = 0;
+(_1 || ++_2)(flag, i)
+\end{alltt}
+
+\paragraph{Comma operator}
+Comma operator is the 'statement separator' in lambda expressions. Since comma is also the separator between arguments in a function call, extra parenthesis are sometimes needed:
+\begin{alltt}
+for_each(a.begin(), a.end(), \textbf{(}++_1, cout << _1\textbf{)});
+\end{alltt}
+The lambda functor created by the comma operator adheres to the C++ rule of always evaluating the left operand before the right one.
+In the above example, each element of \snip{a} is first incremented, then written to the stream.
+
+\paragraph{Function call operator}
+
+A lambda functor of arity $n$ defines the $n$-ary function call operator, which evaluates the functor. 
+Function call operators of arities between $1$ and $n-1$ are defined to support curried calls (see currying, section~\ref{currying}).
+Note that placeholders do not define the function call operator.
+
+\paragraph{Member pointer operator}
+
+The member pointer operator \verb|operator->*| can be overloaded freely. 
+Hence, for user defined types, member pointer operator is no special case.
+The built-in meaning, however, is a somewhat more complicated case.
+First, the built-in member pointer operator is applied, if the left argument is a pointer to an object of some class \snip{A}, and the right hand argument is a pointer to a member of \snip{A}, or a pointer to a member of a class from which \snip{A} derives.
+We must separate two cases:
+\begin{enumerate}
+
+\item The right hand argument is a pointer to a data member. 
+In this case the lambda functor simply performs the argument substitution and calls the built-in member pointer operator, which returns a reference to the member pointed to. 
+For example:
+\begin{alltt}
+struct A { int d; };
+A* a = new A();
+  ...
+(a ->* &A::d);     // returns a reference to a->d 
+(_1 ->* &A::d)(a); // likewise
+\end{alltt}
+
+\item The right hand argument is a pointer to a member function.
+For a built-in call like this, the result is kind of a delayed member function call. 
+Such an expression must be followed by a function argument list, with which the delayed member function call is performed.
+For example:
+\begin{alltt}
+struct B { int foo(int); };
+B* b = new B();
+  ...
+(b ->* &B::foo)     // returns a delayed call to b->foo
+                    // a function argument list must follow
+(b ->* &B::foo)(1)  // ok, calls b->foo(1)
+
+(_1 ->* &B::foo)(b); // returns a delayed call to b->foo, 
+                     // no effect as such
+(_1 ->* &B::foo)(b)(1); // calls b->foo(1)
+\end{alltt}
+
+\end{enumerate}
+
+
+\subsection{\label{bind_expression}Bind expressions}
+
+Bind expressions can have two forms: 
+\begin{alltt}
+bind(\textit{target-function}, \textit{bind-argument-list})
+bind(\textit{target-member-function}, \textit{object-argument}, \textit{bind-argument-list})
+\end{alltt}
+
+%
+%\\
+%target-function::=\\ 
+%\> pointer-to-function $|$ \\
+%\> reference-to-function $|$ \\
+%\> object-with-function-call-operator $|$ \\
+%\> lambda-expression\\
+%\\
+%target-member-function::=\\
+%\> pointer-to-member-function $|$ \\
+%\> lambda-expression\\
+%\\
+%bind-argument-list::=\\
+%\> any-expression, bind-argument-list $|$ \\
+%\> lambda-expression, bind-argument-list  \\
+%\\
+%object-argument::=\\
+%\> class-object-expression $|$ \\
+%\> pointer-to-class-object-expression $|$ \\
+%\> lambda-expression
+%\end{grammar}
+
+\noindent A bind expression delays the call of a function. 
+If this {\em target function} is $n$-ary, then the \snipit{bind-argument-list} must contain $n$ arguments as well.
+In the current version of the BLL, $0 \leq n \leq 9$ must hold. 
+For member functions, the number of arguments must be $\leq 8$, as the object argument takes one argument position.
+
+Basically, the \snipit{bind-argument-list} must be a valid argument list for the target function, except that any argument can be replaced with a placeholder, or more generally, with a lambda expression. 
+Note that also the target function can be a lambda expression.
+
+The result of a bind expression is either a nullary\footnote{A zero-argument function.}, unary, binary or 3-ary function object depending on the use of placeholders in the \snipit{bind-argument-list} (see section~\ref{placeholders}).
+
+The return type of the lambda functor created by the bind expression can be given as an explicitly qualified template parameter, as in the following example:
+\begin{alltt}
+bind<\textit{RET}>(\textit{target-function}, \textit{bind-argument-list})
+\end{alltt}
+
+Below, we describe the different types of bind expressions.
+
+\subsubsection{Function pointers or references as targets}
+
+The target function can be a pointer or a reference to a function and it can be either bound or unbound. For example:
+\begin{alltt}
+X foo(A, B, C); A a; B b; C c;
+bind(foo, _1, _2, c)(a, b);
+bind(&foo, _1, _2, c)(a, b);
+bind(_1, a, b, c)(foo);
+bind(_1, a, b, c)(make_const(&foo));
+\end{alltt}
+The last line requires the use of \snip{make\_const}, since \snip{\&foo} is a non-const rvalue, see section~\ref{non_const_rvalue_problem}. 
+The return type deduction always succeeds with this type of bind expressions. 
+
+Note, that in C++ it is possible to take the address of an overloaded function only if the address is assigned to or used to initialise a properly typed variable. 
+This means, that overloaded functions cannot be used in bind expressions directly, e.g.:
+\begin{alltt}
+void foo(int);
+void foo(float);
+int i; 
+  ...
+bind(&foo, _1)(i); // error 
+  ...
+void (*pf1)(int) = &foo;
+bind(pf1, _1)(i); // ok
+bind(static_cast<void(*)(int)>(&foo), _1)(i); // ok
+\end{alltt}
+
+\subsubsection{\label{members_as_targets}Member functions as targets}
+
+A bound object argument can be a reference or pointer to the object, the BLL supports both cases with a uniform interface: 
+\begin{alltt}
+bool A::foo(int) const; 
+A a;
+vector<int> ints; 
+  ...
+find_if(ints.begin(), ints.end(), bind(&A::foo, a, _1)); 
+find_if(ints.begin(), ints.end(), bind(&A::foo, &a, _1));
+\end{alltt}
+Similarly, if the object argument is unbound, the resulting binder object can be called both via a pointer or a reference.
+\begin{alltt}
+bool A::foo(int); 
+list<A> refs; 
+list<A*> pointers; 
+  ...
+find_if(refs.befin(), refs.end(), bind(&A::foo, _1, 1)); 
+find_if(pointers.begin(), pointers.end(), bind(&A::foo, _1, 1)); 
+\end{alltt}
+
+
+%The exact rules for the object argument (whether it is bound, or supplied in the lambda function invoction) are as follows:
+%If the target function is a pointer to a member function of some class \snip{A}, then the object argument must be an expression of type \snip{B}, where either
+%\begin{itemize}
+%\item \snip{B} = \snip{A} or there is an implicit conversion from \snip{B} to \snip{A}.
+%\item \snip{B} = \snip{A*}.
+%\item \snip{B} = \snip{C*}, where \snip{C} is any class derived form \snip{A}.
+%\end{itemize}
+%For example:
+%\begin{alltt}
+%struct A \{
+%  virtual void f();
+%  void fc() const;
+%\};
+%
+%struct B : public A \{ 
+%  virtual void f(); 
+%\};
+%
+%struct C \{
+%  operator A const() \{ return A(); \}
+%\};
+%
+% A a; B b; C c;
+%  ...
+% bind(&A::f, a)(); 
+% bind(&A::f, b)(); // calls B::f
+% bind(&A::fc, c)(); 
+%
+% bind(&A::f, &a)();
+% bind(&A::f, &b)(); // calls B::f
+% bind(&A::f, &c)(); // error: no conversion from C* \(\rightarrow\) A, 
+%\end{alltt}
+
+Even though the interfaces are the same, there are important semantic differences between using a pointer or a reference as the object argument.
+The differences stem from the way \snip{bind}-functions take their parameters, and how the bound parameters are stored within the lambda functor.
+The object argument has the same parameter passing and storing mechanism than any other bind argument slot (see section~\ref{storing_bound_arguments}); it is passed as a const reference and stored as a const copy in the lambda functor.
+This creates some asymmetry between the lambda functor and the original member function, and between seemingly similar lambda functors. For example:
+\begin{alltt}
+class A \{
+  int i; mutable int j;
+public:
+  A(int ii, int jj) : i(ii), j(jj) {};
+  void set_i(int x) \{ i = x; \}; 
+  void set_j(int x) \{ j = x; \}; 
+\};
+\end{alltt}
+\noindent When a pointer is used, the behaviour is intuitive:
+\begin{alltt}
+A a(0,0); int k = 1;
+bind(&A::set_i, &a, _1)(k); // a.i == 1
+bind(&A::set_j, &a, _1)(k); // a.j == 1
+\end{alltt}
+When the object argument is a reference, things are more complicated:
+\begin{alltt}
+A a(0,0); int k = 1;
+bind(&A::set_i, a, _1)(k); // error; a const copy of a is stored. 
+                           // Cannot call a non-const function set_i
+bind(&A::set_j, a, _1)(k); // a.j == 0, as a copy of a is modified
+\end{alltt}
+To prevent the copying from taking place, one can use the \snip{ref} or \snip{cref} wrappers (see~\ref{boost_bind}):
+\begin{alltt}
+bind(&A::set_i, ref(a), _1)(k); // a.j == 1
+bind(&A::set_j, cref(a), _1)(k); // a.j == 1
+\end{alltt}
+
+Note that the preceding discussing is releveant only for bound arguments. 
+If the object argument is unbound, the parameter passing mode is always by reference. Hence, no copying occurs for unbound variables:
+\begin{alltt}
+A a(0,0);
+bind(&A::set_i, _1, 1)(a); // a.i == 1
+bind(&A::set_j, _1, 1)(a); // a.j == 1
+\end{alltt}
+
+% JATKA TÄSTÄ
+\subsubsection{Function objects as targets}
+
+Function objects, that is, class objects which have the function call operator defined, can be used as target functions. 
+In general, BLL cannot deduce the return type of an arbitrary function object. 
+However, there are two ways to give BLL this capability for a certain function object class:
+
+\paragraph{The \snip{result\_type} typedef.}
+
+Specify the return type of the function call operator as the typedef \snip{result\_type}.
+For example:
+\begin{alltt}
+struct A \{
+  typedef B result\_type;
+  B operator()(X, Y, Z); 
+\};
+\end{alltt};
+
+\noindent Function objects in the standard library adhere to this convention. 
+
+\paragraph{The \snip{sig} template.}
+
+Make the function object class derive from \snip{has\_sig} class and provide a member template \snip{sig<Args>} with a typedef \snip{type} to specify the result type of the function call operator of the function object class.
+The idea for this mechanism comes from the return type deduction system of the FC++ library~\ref{fc++}.
+
+For example:
+\begin{alltt}
+struct A \{
+  typedef B result\_type;
+  B operator()(X, Y, Z); 
+\};
+\end{alltt};
+  
+The possible const qualifier in \snip{operator()} is respected, even so that the same function object can define both a const and non-const version of the function call operator. 
+
+
+For example:
+\begin{code}
+struct A \{\\
+\> typedef B result\_type; \\
+\> B operator()(X, Y, Z); // \#1\\
+\> B operator()(X, Y, Z) const; // \#2\\
+\};
+\end{code};
+The above function object can be used like this.
+\begin{code}
+A a; const A ca = A(); X x; Y y; Z z;\\
+bind(a, x, y, free1)(z); // calls \#1\\ 
+bind(ca, x, y, free1)(z); // calls \#2\\ 
+bind(free1, x, y, z)(a); // calls \#1\\ 
+bind(free1, x, y, z)(ac); // calls \#2\\ 
+\end{code}
+Note however, that the target function object may not be a nonconst temporary. For example:
+\begin{code}
+bind(A(), x, y, z); // error\\
+bind(make\_const(A()), x, y, z)(); // ok, calls \#1
+\end{code}
+
+The overloading of the function call operator is not limited to overloading with respect to constness; arbitrary overloading is allowed. However, the return type deduction system can handle only one return type. Consequently, all the overloaded function call operators must have the same return type or the \snip{ret} wrapper must be used.
+
+
 
 \subsection{Overriding the deduced return value}
 
 The return type deduction system may not be able to deduce the return types of some user defined operators or bind expressions with class objects (see the example in section~\ref{parameters_and_return_types}).
-A \snipit{ret-expression} is provided for stating the return type explicitly and overriding the deduction system. To state that the return type of the lambda functor defined by the lambda expression \snip{e} is \snip{T}, you can write:
+A special lambda expression type is provided for stating the return type explicitly and overriding the deduction system. To state that the return type of the lambda functor defined by the lambda expression \snip{e} is \snip{T}, you can write:
 \begin{alltt}
 ret<T>(e);
 \end{alltt}
@@ -528,7 +909,7 @@ C operator+(A, B); D operator-(C);
 ret<D>( - (_1 + _2))(a, b); // error 
 ret<D>( - ret<C>(_1 + _2))(a, b); // ok 
 \end{alltt}
-%Note also, that to be able to compose lambda expressions, lambda functors must return all temporaries as const. BLL does this for you transparently. For example, \snip{ret$<$int$>$} defines the return type \snip{const int}, \snip{ret$<$C*$>$} the return type \snip{C* const} etc. (Note! This applies only to returns by value, not references. Neither does it turn a {\em pointer to non-const} into a {\em pointer to const}.
+
 If you find yourself using  \snip{ret} repeatedly with the same types, it is worth while extending the return type deduction (see section~\ref{extending_return_type_system}):
 
 \subsubsection{Nullary lambda functors and ret}
@@ -558,287 +939,6 @@ bind<int>(f, 1);       // ok
 The lambda functors created by \verb|ret<T>(bind(...)| and \verb|bind<T>(...)| have the exact same functionality ---
 apart from the fact that for some nullary lambda functors, the other works and the other does not. 
 
-\subsection{Operator expressions}
-
-The basic rule, which again has exceptions, is that any C++ operator invocation, with at least one argument being a lambda expression is itself a lambda expression.
-Almost all overloadable operators are supported. 
-For example, the following is a valid operator expression:
-
-\begin{alltt}
-cout << _1, _2[_3] = _1 && false
-\end{alltt}
-
-There are some restrictions that originate from the C++ operator overloading rules, and some special cases:
-
-\paragraph{Operators that cannot be supported}
-
-Some operators cannot be overloaded at all, or their overloading rules prevent them to be overloaded to create lambda functors.
-These operators are \verb|->.|, \verb|->|, \snip{new}, \snip{new[]}, \snip{delete}, \snip{delete[]} and \verb|?:| (the conditional operator).
-
-\paragraph{\snip{operator=} and \snip{operator[]}\label{member_operators}}
-
-These operators must be implemented as class members. Consequently,  the left operand must be a lambda expression. For example:
-\begin{alltt}
-int i; 
-i = _1;      // not ok. i is not a lambda expression
-var(i) = _1; // ok, see section \ref{delay_expression}
-\end{alltt}
-
-\paragraph{Locigal operators}
-
-Logical operators obey the short-circuiting evaluation rules. For example, \snip{i} is never incremented in the following code.
-\begin{alltt}
-bool flag = true; int i = 0;
-(_1 || ++_2)(flag, i)
-\end{alltt}
-
-\paragraph{Comma operator}
-Comma operator is the 'statement separator' in lambda expressions. Since comma is also the separator between arguments in a function call, extra parenthesis are sometimes needed:
-\begin{alltt}
-  for_each(a.begin(), a.end(), \textbf{(}++_1, cout << _1\textbf{)});
-\end{alltt}
-Comma operator adheres to the C++ rule of always evaluating the left operand before the right one.
-
-\paragraph{Function call operator}
-
-A lambda functor of arity $n$ defines the $n$-ary function call operator, which evaluates the functor. 
-Function call operators of arities between $1$ and $n-1$ are defined to support curried calls (see currying, section~\ref{currying}).
-
-Note, placeholders do not define the function call operator.
-
-\paragraph{Member pointer operator}
-
-C++ allows the member pointer operator \verb|operator->*| to be overloaded freely. 
-Hence, for user defined types, member pointer operator is no special case.
-The built-in meaning, however, is a somewhat more complicated case.
-First, the built-in member pointer operator is applied, if the left argument is a pointer to an object of some class \snip{A}, and the right hand argument is a pointer to a member of \snip{A}, or a pointer to a member of a class from which \snip{A} derives.
-We must separate two cases:
-\begin{enumerate}
-
-\item The right hand argument is a pointer to a data member. 
-In this case the lambda functor simply performs the argument substitution and calls the built-in member pointer operator, which returns a reference to the member pointed to. 
-For example:
-\begin{alltt}
-struct A { int d; };
-A* a = new A();
-  ...
-(a ->* &A::d);     // returns a reference to a->d 
-(_1 ->* &A::d)(a); // likewise
-\end{alltt}
-
-\item The right hand argument is a pointer to a member function.
-For a built-in call like this, the result is kind of a delayed member function call. 
-Such an expression must be followed by a function argument list, with which the delayed member function call is performed.
-For example:
-\begin{alltt}
-struct B { int foo(int); };
-B* b = new B();
-  ...
-(b ->* &B::foo)     // returns a delayed call to b->foo, must be followed 
-		    // by a function argument list
-(b ->* &B::foo)(1)  // ok, calls b->foo(1)
-
-(_1 ->* &B::foo)(b); // returns a delayed call to b->foo, no effect as such
-
-(_1 ->* &B::foo)(b)(1); // calls b->foo(1)
-\end{alltt}
-
-\end{enumerate}
-
-
-\subsection{\label{bind_expression}Bind expressions}
-
-The grammar for the bind expressions can be outlined as follows:
-\begin{grammar}
-bind-expression::=\\
-\> \textsf{\em bind(} target-function, bind-argument-list \textsf{\em )} $|$\\
-\> \textsf{\em bind(} target-member-function, object-argument, bind-argument-list \textsf{\em )} $|$\\
-\\
-target-function::=\\ 
-\> pointer-to-function $|$ \\
-\> reference-to-function $|$ \\
-\> object-with-function-call-operator $|$ \\
-\> lambda-expression\\
-\\
-target-member-function::=\\
-\> pointer-to-member-function $|$ \\
-\> lambda-expression\\
-\\
-bind-argument-list::=\\
-\> any-expression, bind-argument-list $|$ \\
-\> lambda-expression, bind-argument-list  \\
-\\
-object-argument::=\\
-\> class-object-expression $|$ \\
-\> pointer-to-class-object-expression $|$ \\
-\> lambda-expression
-\end{grammar}
-
-A bind expression delays the call of a function. If this {\em target function} is $n$-ary, then the \snipit{bind-argument-list} must contain $n$ arguments as well.
-In the current version of the BLL, $0 \leq n \leq 9$ must hold. 
-For member functions, the number of arguments must be $\leq 8$, as the object argument takes one argument position.
-
-Basically, the \snipit{bind-argument-list} must be a valid argument list for the target function, except that any argument can be replaced with a placeholder, or more generally, with a lambda expression. 
-Note that also the target function can be a lambda expression.
-
-The result of a bind expression is either a nullary\footnote{A zero-argument function.}, unary, binary or 3-ary function object depending on the use of placeholders in the \snipit{bind-argument-list} (see section~\ref{placeholders}).
-
-Below, we describe the requirements for the different types of bind expressions.
-
-\subsubsection{Function pointers or references as targets}
-
-The target function can be a pointer or a reference to a function and it can be either bound or unbound. For example:
-\begin{alltt}
-X foo(A, B, C); A a; B b; C c;
-bind(foo, _1, _2, c)(a, b);
-bind(&foo, _1, _2, c)(a, b);
-bind(_1, a, b, c)(foo);
-bind(_1, a, b, c)(make_const(&foo));
-\end{alltt}
-The last line requires the use of \snip{make_const}, since \snip{&foo} is a non-const rvalue, see~\ref{non-const_rvalues}. 
-The return type deduction always succeeds with this type of bind expressions.
-
-Note, that in C++ it is possible to take the address of an overloaded function only if the address is assigned to or used to initialise a properly typed variable. 
-This means, that overloaded functions cannot be used in bind expressions directly, e.g.:
-\begin{alltt}
-void foo(int);
-void foo(float);
-int i; 
-  ...
-bind(&foo, _1)(i); // error 
-  ...
-void (*pf1)(int) = &foo;
-bind(pf1, _1)(i); // ok
-bind(static_cast<void(*)(int)>(&foo), _1)(i); // ok
-\end{alltt}
-
-\subsubsection{Function objects as targets}
-
-Function objects, that is, class objects which have the function call operator defined, can be used as target functions. 
-The return type deduction system requires that the function object class defines the return type of the function call operator as the typedef \snip{result\_type}. 
-Function objects in the standard library adhere to this convention. 
-
-The possible const qualifier in \snip{operator()} is respected, even so that the same function object can define both a const and non-const version of the function call operator. 
-For example:
-\begin{code}
-struct A \{\\
-\> typedef B result\_type; \\
-\> B operator()(X, Y, Z); // \#1\\
-\> B operator()(X, Y, Z) const; // \#2\\
-\};
-\end{code};
-The above function object can be used like this.
-\begin{code}
-A a; const A ca = A(); X x; Y y; Z z;\\
-bind(a, x, y, free1)(z); // calls \#1\\ 
-bind(ca, x, y, free1)(z); // calls \#2\\ 
-bind(free1, x, y, z)(a); // calls \#1\\ 
-bind(free1, x, y, z)(ac); // calls \#2\\ 
-\end{code}
-Note however, that the target function object may not be a nonconst temporary. For example:
-\begin{code}
-bind(A(), x, y, z); // error\\
-bind(make\_const(A()), x, y, z)(); // ok, calls \#1
-\end{code}
-
-The overloading of the function call operator is not limited to overloading with respect to constness; arbitrary overloading is allowed. However, the return type deduction system can handle only one return type. Consequently, all the overloaded function call operators must have the same return type or the \snip{ret} wrapper must be used.
-
-\subsubsection{\label{members_as_targets}Member functions as targets}
-
-A bound object argument can be a reference or pointer to the object, the BLL supports both cases with a uniform interface:
-\begin{code}
-bool A::foo(int); A a; A* ap = \&a;
-vector$<$int$>$ ints; 
-\valipisteet
-find\_if(ints.begin(), ints.end(), bind(\&A::foo, a, free1)); \ \  \=// reference is ok\\
-find\_if(ints.begin(), ints.end(), bind(\&A::foo, ap, free1)); \>// pointer is ok 
-\end{code}
-The functionality is identical in both cases.
-Similarly, if the object argument is free, the resulting binder object can be called both via a pointer or a reference.
-\begin{code}
-bool A::foo(int); list$<$A$>$ refs; list$<$A*$>$ pointers; 
-\valipisteet
-find\_if(refs.befin(), refs.end(), bind(\&A::foo, free1, 1)); \qquad  \=\\
-find\_if(pointers.begin(), pointers.end(), bind(\&A::foo, free1, 1)); 
-\end{code}
-
-The exact rules for the object argument (whether it is bound, or supplied in the lambda function invoction) are as follows:
-If the target function is a pointer to a member function of some class \snip{A}, then the object argument must be an expression of type \snip{B}, where either
-\begin{itemize}
-\item \snip{B} = \snip{A} or there is an implicit conversion from \snip{B} to \snip{A}.
-\item \snip{B} = \snip{A*}.
-\item \snip{B} = \snip{C*}, where \snip{C} is any class derived form \snip{A}.
-\end{itemize}
-For example:
-\begin{code}
-struct A \{\\
-\>  virtual void f();\\
-\>  void fc() const;\\
-\};\\
-\\
-struct B : public A \{ \\
-\>virtual void f(); \\
-\};\\
-\\
-struct C \{ \\
-\>operator A const() \{ return A(); \}\\
-\};\\
-\\
- A a; B b; C c;
-\valipisteet
- bind(\&A::f, a)(); \\
- bind(\&A::f, b)(); // calls B::f\\
- bind(\&A::fc, c)(); \\
-\\
- bind(\&A::f, \&a)();\\
- bind(\&A::f, \&b)(); // calls B::f\\
- bind(\&A::f, \&c)();  // error: no conversion from C* $\rightarrow$ A, C does not inherit A
-\end{code}
-
-The parameter passing and storing mechanism of the object argument is by reference. This means that the member of the actual object argument is called, not the member of a copy:
-\begin{code}
-class A \{ \\
-\> int i; \\
-\> mutable int j; \\
-public:\\
-\> void add(int x) \{ i += x; \}; \\
-\> void add\_mutable(int x) const \{ j += x; \}; \\
-\};\\
-A a; a.i = 0; vector$<$int$>$ vec;
-\valipisteet
-for\_each(vec.begin(), vec.end(), bind(\&A::add, a, free1));
-\end{code}
-The \snip{for\_each} changes the state of \snip{a}.
-Analogously, for const member functions the object argument is passed and stored as const reference.
-
-There is a small glitch when the target function is a free variable. It is best explained with an example:
-\begin{code}
-void (A::* f)(int) = \&A::add;\\
-bind(free1, a, 1)(f);
-\end{code}
-One would expect the last line to add 1 to \snip{a.i}, but this is not the case. 
-Since the first variable is a lambda expression, BLL does not know that the second argument is an object argument, and that it should be stored as reference. 
-The standard mechanism for storing bound function arguments is used and thus a temporary copy of \snip{a} is taken and stored in the lambda function.
-In this case, the problem is not serious, since \snip{a} is actually stored as type \snip{const A}, which results in a compile time error when trying to invoke the nonconst member \snip{add}.
-If the member function is const, the error is harder to spot since the compiler accepts the code:
-\begin{code}
-void (A::* g)(int) const = \&A::add\_mutable;\\
-bind(free1, a, 1)(g);
-\end{code}
-The effect of this invocation is: \snip{A tmp = a; tmp.add\_mutable(1);}, which may not be what the programmer wanted.
-
-To fix the above two examples, the storing mechanism of the bound object argument must be stated explicitly:
-\begin{code}
-bind(free1, ref(a), 1)(f);\\
-bind(free1, cref(a), 1)(g);
-\end{code}
-
-An easier alternative is to use a pointer as the object argument:
-\begin{code}
-bind(free1, \&a, 1)(f);
-bind(free1, \&a, 1)(g);
-\end{code}
-In this case, the members of \snip{a} are always called (not the members of a temporary copy).
 
 \subsection{Delaying constants and variables\label{delay_expression}}
 
