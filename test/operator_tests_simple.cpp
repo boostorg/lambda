@@ -5,10 +5,12 @@
 
 #include "boost/lambda/lambda.hpp"
 
-#include <iostream>
+#include <vector>
+#include <map>
+#include <set>
+#include <string>
+#include <deque>
 
-
-class B {};
 
 using namespace boost::lambda;
 
@@ -41,6 +43,7 @@ void arithmetic_operators() {
 
 void bitwise_operators() {
   unsigned int ui = 2;
+
   BOOST_TEST((_1 << 1)(ui)==(2 << 1));
   BOOST_TEST((_1 >> 1)(ui)==(2 >> 1));
 
@@ -241,6 +244,8 @@ void assignment_and_subscript() {
 
   (_1[_2])(s, make_const(0)) = 'm';
   BOOST_TEST(s == "mao");
+
+  // TODO: tests for vector, set, map, multimap
 }
 
 class A {};
@@ -251,6 +256,14 @@ void address_of_and_dereference() {
   
   BOOST_TEST((&_1)(a) == &a);
   BOOST_TEST((*&_1)(i) == 42);
+
+  std::vector<int> vi; vi.push_back(1);
+  std::vector<int>::iterator it = vi.begin();
+  
+  (*_1 = 7)(it);
+  BOOST_TEST(vi[0] == 7); 
+
+  // TODO: Add tests for more complex iterator types
 }
 
 
@@ -259,6 +272,9 @@ void comma() {
 
   int i = 100;
   BOOST_TEST((_1 = 10, 2 * _1)(i) == 20);
+
+  // TODO: that the return type is the exact type of the right argument
+  // (that r/l valueness is preserved)
 
 }
 
@@ -317,3 +333,9 @@ int test_main(int, char *[]) {
 
   return 0;
 }
+
+
+
+
+
+
