@@ -1,4 +1,4 @@
-//  basic_test.cpp  --------------------------------
+//  bind_tests_advanced.cpp  --------------------------------
 
 #define BOOST_INCLUDE_MAIN  // for testing, include rather than link
 #include <boost/test/test_tools.hpp>    // see "Header Implementation Option"
