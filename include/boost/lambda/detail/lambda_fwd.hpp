@@ -40,9 +40,6 @@ class return_type;
 
 template <int I, class Act> class action;
 
-  //template <int I> class function_action;
-
-
 template <class BinderArgs> 
 struct lambda_functor;
 
