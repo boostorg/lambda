@@ -3,8 +3,9 @@
 #define BOOST_INCLUDE_MAIN  // for testing, include rather than link
 #include <boost/test/test_tools.hpp>    // see "Header Implementation Option"
  
+
 #include "boost/lambda/detail/is_instance_of.hpp"
- 
+
 #include <iostream>
 
 template <class T1> struct A1 {};
@@ -25,12 +26,21 @@ class C2 { public: operator B2() { return B2(); } };
 class C3 { public: operator B3() { return B3(); } };
 class C4 { public: operator B4() { return B4(); } };
  
+// test that the result is really a constant
+// (in an alternative implementation, gcc 3.0.2. claimed that it was 
+// a non-constant)
+template <bool b> class X {};
+// this should compile 
+X<boost::lambda::is_instance_of_2<int, A2>::value> x;
+
+
 int test_main(int, char *[]) {
 
-using boost::lambda::detail::is_instance_of_1;
-using boost::lambda::detail::is_instance_of_2;
-using boost::lambda::detail::is_instance_of_3;
-using boost::lambda::detail::is_instance_of_4;
+using boost::lambda::is_instance_of_1;
+using boost::lambda::is_instance_of_2;
+using boost::lambda::is_instance_of_3;
+using boost::lambda::is_instance_of_4;
+
 
 BOOST_TEST((is_instance_of_1<B1, A1>::value == true));
 BOOST_TEST((is_instance_of_1<A1<float>, A1>::value == true));
