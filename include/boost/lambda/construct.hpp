@@ -19,6 +19,7 @@
 #if !defined(BOOST_LAMBDA_CONSTRUCT_HPP)
 #define BOOST_LAMBDA_CONSTRUCT_HPP
 
+#include <iostream>
 namespace boost { 
 namespace lambda {
 
@@ -87,19 +88,45 @@ template<class T> struct constructor {
 };
 
 
+namespace detail {
+
+// A standard conforming compiler could disambiguate between
+// A1* and A1&, but not all compilers do that, so we need the
+// helpers
+
+
+template <bool IsPointer>
+struct destructor_helper {
+
+  template<class A1>
+  static void exec(A1& a1) {
+    // remove all the qualifiers, not sure whether it is necessary
+    typedef typename boost::remove_cv<A1>::type plainA1;
+     a1.~plainA1();
+  }
+};
+
+template <>
+struct destructor_helper<true> {
+
+  template<class A1>
+  static void exec(A1* a1) {
+    typedef typename boost::remove_cv<A1>::type plainA1;
+    (*a1).~plainA1();
+  }
+};
+
+}
+
 // destructor funtion object
 struct destructor {  
 
-   typedef void result_type;
+  typedef void result_type;
   
   template<class A1>
   void operator()(A1& a1) const {
-     a1.operator~();
-  }
-
-  template<class A1>
-  void operator()(A1* a1) const {
-     a1->~A1();
+    typedef typename boost::remove_cv<A1>::type plainA1;
+    detail::destructor_helper<boost::is_pointer<plainA1>::value>::exec(a1);
   }
 };
 
