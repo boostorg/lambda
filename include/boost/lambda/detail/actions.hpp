@@ -42,7 +42,11 @@ template <class RET> class explicit_return_type_action {};
 
 // action for preventing the expansion of a lambda expression
 struct protect_action {};
-   
+
+// action for curried functions, I stands for the number of curried arguments
+// (can be 1 or 2)
+template <int I> class curry_action {};   
+
 template <class Action> class return_void_action;
 
 namespace detail {
@@ -57,11 +61,6 @@ namespace detail {
   // This argument is only relevant in the return type deduction code
 template <int I, class Result_type = detail::unspecified> class function_action {};
    
-// lambda_functor_action arise when the target function in a bind expression
-// is a lambda functor. We must use a separate action type to notify 
-// the return type deduction system, but the apply functions of 
-// function_action struct work just fine
-template <int I> class lambda_functor_action : public function_action<I> {};
 
 
 
@@ -84,12 +83,18 @@ public:
   }
 };
 
+
+template <class T> struct is_lambda_functor;
 template<class T> class function_action<3, T> {
 public:
+
   template<class RET, class A1, class A2, class A3>
   static RET apply(A1& a1, A2& a2, A3& a3) {
+   
     return function_adaptor<typename boost::remove_const<A1>::type>::template apply<RET>
            (a1, a2, a3);
+
+
   }
 };
 
