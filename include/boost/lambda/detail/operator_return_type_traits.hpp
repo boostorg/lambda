@@ -22,6 +22,8 @@
 #include <cstddef> // needed for the ptrdiff_t
 #include <iosfwd>  // for istream and ostream
 
+#include <iterator> // needed for operator&
+
 namespace boost { 
 namespace lambda {
 namespace detail {
