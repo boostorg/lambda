@@ -140,8 +140,8 @@ typedef typename
   // We need to make a conservative choise here.
   // The resulting lambda functor stores all const reference arguments as
   // const copies. References to non-const are stored as such.
-  // So if the source of the argument is an const open argument, a bound
-  // argument stroed as a const reference, or a function returning a 
+  // So if the source of the argument is a const open argument, a bound
+  // argument stored as a const reference, or a function returning a 
   // const reference, that information is lost. There is no way of 
   // telling apart 'real const references' from just 'LL internal
   // const references' (or it would be really hard)
@@ -154,24 +154,6 @@ typedef typename
 
 template <class Act, class A, class B> struct return_type_2_protect {
 
-//    typedef typename boost::remove_reference<A>::type A1;
-//    typedef typename boost::remove_reference<B>::type B1;
-
-//    // adding const to a function type fails, these tests are to 
-//    // avoid that. Note that only the true branch is instantiated with this IF
-//    typedef typename 
-//      detail::IF_type<
-//        !is_lambda_functor<A1>::value && (boost::is_function<A1>::value || !(boost::is_const<A1>::value)),
-//        boost::add_reference<A1>,
-//        boost::add_const<A1>
-//      >::type A2;
-
-//    typedef typename 
-//      detail::IF_type<
-//        !is_lambda_functor<B1>::value && (    boost::is_function<B1>::value || !(boost::is_const<B1>::value)), 
-//        boost::add_reference<B1>,
-//        boost::add_const<B1>
-//      >::type B2;
 
 
 typedef typename 
@@ -188,17 +170,6 @@ typedef typename
     typename return_type_2<Act, A, B>::type
   >::RET type;
 };
-
-
-
-
-//  // unary function action (it is binary action)
-//  // If a function object overloads operator(), the return type could depend
-//  // on the argument types. This is not taken into consideration.
-//  template<class A, class B, class Ret> 
-//  struct return_type_2<function_action<2, Ret>, A, B> {
-//    typedef typename return_type_1<function_action<1, Ret>, A>::type type;
-//  };
 
 
 // reduce to lambda_functor_args
