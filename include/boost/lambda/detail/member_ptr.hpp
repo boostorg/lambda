@@ -498,7 +498,12 @@ public:
 
 // true-true case
 template <bool Is_data_member, bool Is_function_member>
-struct member_pointer_action_helper;
+struct member_pointer_action_helper
+{
+	template<class, class> struct return_type
+	{
+	};
+};
   // cannot be both, no body provided
 
   // data member case
