@@ -25,6 +25,7 @@
 # if defined __GNUC__
 #   if (__GNUC__ == 2 && __GNUC_MINOR__ <= 97) 
 #define BOOST_NO_TEMPLATED_STREAMS
+#define BOOST_LAMBDA_INCORRECT_BIND_OVERLOADING
 #endif
 #endif  // __GNUC__
 
@@ -36,3 +37,10 @@
 #endif  // __KCC
 
 #endif
+
+
+
+
+
+
+
