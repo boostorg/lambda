@@ -41,7 +41,7 @@ class return_type;
 template <int I, class Act> class action;
 
 template <class BinderArgs> 
-struct lambda_functor;
+class lambda_functor;
 
 
 template <class Action, 
