@@ -547,9 +547,9 @@ public:
    
 template <int I> class placeholder {};
    
-typedef const lambda_functor<placeholder<FIRST> >  free1_type;
-typedef const lambda_functor<placeholder<SECOND> > free2_type;
-typedef const lambda_functor<placeholder<THIRD> >  free3_type;
+typedef const lambda_functor<placeholder<FIRST> >  placeholder1_type;
+typedef const lambda_functor<placeholder<SECOND> > placeholder2_type;
+typedef const lambda_functor<placeholder<THIRD> >  placeholder3_type;
    
 // free variables are lambda_functors. This is to allow uniform handling with 
 // other lambda_functors.
