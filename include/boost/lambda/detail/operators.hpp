@@ -245,30 +245,6 @@ operator>>(const lambda_functor<Arg>& a, Ret(&b)(ManipArg))
 }
 
 
-// special case for operator->*
-
-template<class Arg, class T, class B>
-inline const 
-lambda_functor<
-  lambda_functor_args<
-    action<2, other_action< member_pointer_action> >,
-    tuple<lambda_functor<Arg>, T B::* const>,
-    dig_arity<Arg>::value
-  > 
->
-operator->*(const lambda_functor<Arg>& a,T B::* const b) 
-{
-  return 
-    lambda_functor<
-      lambda_functor_args<
-        action<2, other_action< member_pointer_action> >,
-        tuple<lambda_functor<Arg>, T B::* const>,
-        dig_arity<Arg>::value
-      > 
-    > ( tuple<lambda_functor<Arg>, T B::* const >(a, b) );
-}
-
-
 // (+ and -) take their arguments as const references. 
 // This has consquences with pointer artihmetic
 // E.g int a[]; ... *a = 1 works but not *(a+1) = 1. 
