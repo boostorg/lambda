@@ -19,7 +19,6 @@
 #if !defined(BOOST_LAMBDA_CONSTRUCT_HPP)
 #define BOOST_LAMBDA_CONSTRUCT_HPP
 
-#include <iostream>
 namespace boost { 
 namespace lambda {
 
@@ -210,7 +209,7 @@ struct delete_ptr {
 };
 
 
-// new_array is used together with bind.W
+// new_array is used together with bind.
 
 template<class T> struct new_array {
 
