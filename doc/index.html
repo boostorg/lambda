@@ -12,15 +12,7 @@
         is granted, provided this copyright notice appears in all
         copies, and a notice that the code was modified is included
         with the copyright notice. 
-      </p></div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">In a nutshell</a></dt><dt>2. <a href="#sect:getting_started">Getting Started</a></dt><dd><dl><dt>2.1. <a href="#id2732612">Installing the library</a></dt><dt>2.2. <a href="#id2732960">Conventions used in this document</a></dt></dl></dd><dt>3. <a href="#id2733006">Introduction</a></dt><dd><dl><dt>3.1. <a href="#id2733013">Motivation</a></dt><dt>3.2. <a href="#id2733687">Introduction to lambda expressions</a></dt></dl></dd><dt>4. <a href="#sect:using_library">Using the library</a></dt><dd><dl><dt>4.1. <a href="#sect:introductory_examples">Examples</a></dt><dt>4.2. <a href="#sect:parameter_and_return_types">Parameter and return types of lambda functors</a></dt><dt>4.3. <a href="#sect:actual_arguments_to_lambda_functors">About actual arguments to lambda functors</a></dt><dt>4.4. <a href="#sect:storing_bound_arguments">Storing bound arguments in lambda functions</a></dt></dl></dd><dt>5. <a href="#sect:lambda_expressions_in_details">Lambda expressions in details</a></dt><dd><dl><dt>5.1. <a href="#sect:placeholders">Placeholders</a></dt><dt>5.2. <a href="#sect:operator_expressions">Operator expressions</a></dt><dt>5.3. <a href="#bind_expressions">Bind expressions</a></dt><dt>5.4. <a href="#sect:overriding_deduced_return_value">Overriding the deduced return value</a></dt><dt>5.5. <a href="#sect:extending_return_type_system">Extending return type deduction system</a></dt><dt>5.6. <a href="#sect:delaying_constants_and_variables">Delaying constants and variables</a></dt><dt>5.7. <a href="#lambda_expressions_for_control_structures">Lambda expressions for control structures</a></dt><dt>5.8. <a href="#id2794612">Exceptions</a></dt><dt>5.9. <a href="#construction_and_destruction">Construction and destruction</a></dt><dt>5.10. <a href="#id2795045">Special lambda expressions</a></dt></dl></dd><dt>6. <a href="#id2795087">Contributors</a></dt></dl></div><div class="simplesect"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2725492"></a>NOTE!</h2></div></div>
-
-At the moment, the documentation is a draft. Exceptions, advanced bind expressions (nesting binds etc.) and a few other things are not documented yet.
-
-Also, cross-references and bibliographical references are not ok yet (I'm moving the docs from latex to docbook). So I am aware that there are errors in those parts, and they will be fixed. 
-
-Any other kind of errors (typos, incorrect code, ...) are real errors, and feedback is appreciated.
-
-  </div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="introduction"></a>1. In a nutshell</h2></div></div><p>
+      </p></div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">In a nutshell</a></dt><dt>2. <a href="#sect:getting_started">Getting Started</a></dt><dd><dl><dt>2.1. <a href="#id2732601">Installing the library</a></dt><dt>2.2. <a href="#id2732961">About compiling</a></dt><dt>2.3. <a href="#id2733023">Conventions used in this document</a></dt></dl></dd><dt>3. <a href="#id2733068">Introduction</a></dt><dd><dl><dt>3.1. <a href="#id2733076">Motivation</a></dt><dt>3.2. <a href="#id2733818">Introduction to lambda expressions</a></dt></dl></dd><dt>4. <a href="#sect:using_library">Using the library</a></dt><dd><dl><dt>4.1. <a href="#sect:introductory_examples">Examples</a></dt><dt>4.2. <a href="#sect:parameter_and_return_types">Parameter and return types of lambda functors</a></dt><dt>4.3. <a href="#sect:actual_arguments_to_lambda_functors">About actual arguments to lambda functors</a></dt><dt>4.4. <a href="#sect:storing_bound_arguments">Storing bound arguments in lambda functions</a></dt></dl></dd><dt>5. <a href="#sect:lambda_expressions_in_details">Lambda expressions in details</a></dt><dd><dl><dt>5.1. <a href="#sect:placeholders">Placeholders</a></dt><dt>5.2. <a href="#sect:operator_expressions">Operator expressions</a></dt><dt>5.3. <a href="#bind_expressions">Bind expressions</a></dt><dt>5.4. <a href="#sect:overriding_deduced_return_value">Overriding the deduced return value</a></dt><dt>5.5. <a href="#sect:extending_return_type_system">Extending return type deduction system</a></dt><dt>5.6. <a href="#sect:delaying_constants_and_variables">Delaying constants and variables</a></dt><dt>5.7. <a href="#lambda_expressions_for_control_structures">Lambda expressions for control structures</a></dt><dt>5.8. <a href="#sect:exceptions">Exceptions</a></dt><dt>5.9. <a href="#construction_and_destruction">Construction and destruction</a></dt><dt>5.10. <a href="#id2795412">Special lambda expressions</a></dt><dt>5.11. <a href="#sect:nested_stl_algorithms">Nesting STL algorithm invocations</a></dt></dl></dd><dt>6. <a href="#id2796002">Performance</a></dt><dt>7. <a href="#id2796039">Contributors</a></dt><dt><a href="#id2796054">Bibliography</a></dt></dl></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="introduction"></a>1. In a nutshell</h2></div></div><p>
 
       The Boost Lambda Library (BLL in the sequel) is a C++ template
       library, which implements a form of <span class="emphasis"><i>lambda abstraction</i></span> for C++.
@@ -28,7 +20,7 @@ Any other kind of errors (typos, incorrect code, ...) are real errors, and feedb
       convenient means to define unnamed function objects for STL algorithms.
     </p><p>A line of code says more than a thousand words; the
       following line outputs the elements of some STL container
-      <tt>a</tt> separated by spaces<sup>[<a name="id2732520" href="#ftn.id2732520">1</a>]</sup>:
+      <tt>a</tt> separated by spaces<sup>[<a name="id2732521" href="#ftn.id2732521">1</a>]</sup>:
 
       <pre class="programlisting">for_each(a.begin(), a.end(), std::cout &lt;&lt; _1 &lt;&lt; ' ');</pre>
 
@@ -38,7 +30,7 @@ Any other kind of errors (typos, incorrect code, ...) are real errors, and feedb
       called with an element of <tt>a</tt> as the actual argument.
       This actual argument is substituted for the placeholder, and the function is evaluated.
     </p><p>The BLL is about letting you define small unnamed function objects, such as the one above, directly on the call site of an STL algorithm.
-    </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="sect:getting_started"></a>2. Getting Started</h2></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2732612"></a>2.1. Installing the library</h3></div></div><p>
+    </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="sect:getting_started"></a>2. Getting Started</h2></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2732601"></a>2.1. Installing the library</h3></div></div><p>
 	The library consists of include files only, so there is no
 	installation procedure. The <tt>boost</tt> include directory
 	must be on the include path.
@@ -59,6 +51,8 @@ Any other kind of errors (typos, incorrect code, ...) are real errors, and feedb
 	      <tt>lambda/exceptions.hpp</tt> gives tools for throwing and catching
 	      exceptions within lambda functions (includes
 	      <tt>lambda.hpp</tt>).
+	    </p></li><li><p>
+	      <tt>lambda/algorithm.hpp</tt> allows nested STL algorithm invocations.
 	    </p></li></ul></div>
 
 	Any other header files in the package are for internal use.
@@ -66,15 +60,28 @@ Any other kind of errors (typos, incorrect code, ...) are real errors, and feedb
 	<span class="emphasis"><i>Tuple</i></span> and the <span class="emphasis"><i>type_traits</i></span> libraries.
       </p><p>
 	All definitions are placed in the namespace <tt>boost::lambda</tt>.
-      </p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2732960"></a>2.2. Conventions used in this document</h3></div></div><p>In most code examples, we omit the namespace prefixes for names in the <tt>std</tt> and <tt>boost::lambda</tt> namespaces.
+      </p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2732961"></a>2.2. About compiling</h3></div></div><p>The BLL uses templates rather heavily, performing numerous recursive instantiations of the same templates. 
+This has (at least) three implications:
+<div class="itemizedlist"><ul type="disc"><li><p>
+While it is possible to write incredibly complex lambda expressions, it probably isn't a good idea. 
+Compiling such expressions may end up requiring a lot of memory, and being slow.
+</p></li><li><p>
+The types of lambda functors that result from even the simplest lambda expressions are cryptic. 
+Usually the programmer doesn't need to deal with the type at all, but in the case of an error in a lambda expression, the compiler usually outputs the types of the lambda functors involved. 
+This can make the error messages very long and difficult to interpret, particularly if the compiler outputs the whole chain of template instantiations.
+</p></li><li><p>
+The C++ Standard suggests a template nesting level of 17 to help detect infinite recursion. 
+Complex lambda templates can easily exceed this limit. 
+Most compilers allow a greater number of nested templates, but commonly require the limit explicitly increased with a command line argument.
+</p></li></ul></div></p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2733023"></a>2.3. Conventions used in this document</h3></div></div><p>In most code examples, we omit the namespace prefixes for names in the <tt>std</tt> and <tt>boost::lambda</tt> namespaces.
 Implicit using declarations
 <pre class="programlisting">
 using namespace std;
 using namespace boost::lambda;
 </pre>
 are assumed to be in effect.
-</p></div></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2733006"></a>3. Introduction</h2></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2733013"></a>3.1. Motivation</h3></div></div><p>The Standard Template Library (STL)
-	[???], now part of the C++ Standard Library [C++98], is a generic container and algorithm library.
+</p></div></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2733068"></a>3. Introduction</h2></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2733076"></a>3.1. Motivation</h3></div></div><p>The Standard Template Library (STL)
+	[[<a href="#cit:stepanov:94" title="[STL94]">STL94</a>]], now part of the C++ Standard Library [C++98], is a generic container and algorithm library.
 	Typically STL algorithms operate on container elements via <span class="emphasis"><i>function objects</i></span>. These function objects are passed as arguments to the algorithms.</p><p>
 	Any C++ construct, which can be called with the function call syntax,
 	is a function object. 
@@ -82,7 +89,7 @@ are assumed to be in effect.
 	In addition, it contains <span class="emphasis"><i>adaptors</i></span> for creating function objects from pointers to unary and binary functions, as well as from pointers to nullary and unary member functions.
 	It also contains <span class="emphasis"><i>binder</i></span> templates for creating a unary function object from a binary function object by fixing one of the arguments to a constant value.
 	Some STL implementations contain function composition operations as
-	extensions to the standard [???].
+	extensions to the standard [[<a href="#cit:sgi:02" title="[SGI02]">SGI02</a>]].
       </p><p>
 	All these tools aim at one goal: to make it possible to specify <span class="emphasis"><i>unnamed functions</i></span> in a call of an STL algorithm, in other words, to pass code fragments as an argument to a function. 
 	However, this goal is attained only partially.
@@ -123,7 +130,7 @@ for_each(a.begin(), a.end(), cout &lt;&lt; (1 + _1));
 	      lambda expression syntax.
 	    </p></li></ul></div>
 
-      </p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2733687"></a>3.2. Introduction to lambda expressions</h3></div></div><p>
+      </p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2733818"></a>3.2. Introduction to lambda expressions</h3></div></div><p>
 	Lambda expression are common in functional programming languages. 
 	Their syntax varies between languages (and between different forms of lambda calculus), but the basic form of a lambda expressions is:
 
@@ -171,7 +178,7 @@ lambda x y.x+y
 	We refer to this type of C++ lambda expressions as <span class="emphasis"><i>bind expressions</i></span>. 
       </p><p>A lambda expression defines a C++ function object, hence function application syntax is like calling any other function object:
 	the C++ expression <tt>(_1 + _2)(1, 2)</tt> corresponds to   
-	<tt>(lambda x y.x+y) 1 2</tt><sup>[<a name="id2733907" href="#ftn.id2733907">2</a>]</sup>.
+	<tt>(lambda x y.x+y) 1 2</tt><sup>[<a name="id2734038" href="#ftn.id2734038">2</a>]</sup>.
       </p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="sect:partial_function_application"></a>3.2.1. Partial function application</h4></div></div><p>
 	  A bind expression is in effect a <span class="emphasis"><i>partial function application</i></span>.
 	  In partial function application, some of the arguments of a function are bound to fixed values. 
@@ -196,7 +203,7 @@ lambda x y.x+y
 list&lt;int&gt; v(10);
 for_each(v.begin(), v.end(), _1 = 1);</pre>
 
-	In this example <tt>_1 = 1</tt> creates a lambda function which assigns the value <tt>1</tt> to every element in <tt>v</tt>.<sup>[<a name="id2734121" href="#ftn.id2734121">3</a>]</sup>
+	In this example <tt>_1 = 1</tt> creates a lambda function which assigns the value <tt>1</tt> to every element in <tt>v</tt>.<sup>[<a name="id2728884" href="#ftn.id2728884">3</a>]</sup>
       </p><p>
 	Next, we create a container of pointers and make them point to the elements in the first container <tt>v</tt>:
 
@@ -257,7 +264,7 @@ for_each(v.begin(), v.end(), _1 = bind(foo, _1));</pre>
 	<pre class="programlisting">bind&lt;int&gt;(foo, _1, _2);</pre>
 
 	A rare case, where the <tt>ret&lt;type&gt;(bind(...))</tt> syntax does not work, but
-	<tt>bind&lt;type&gt;(...)</tt> does, is explained in ???.
+	<tt>bind&lt;type&gt;(...)</tt> does, is explained in <a href="#sect:nullary_functors_and_ret" title="5.4.1. Nullary lambda functors and ret">Section 5.4.1</a>.
       </p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="sect:actual_arguments_to_lambda_functors"></a>4.3. About actual arguments to lambda functors</h3></div></div><p>A general restriction for the actual arguments is that they cannot be nonconst rvalues. 
 	For example:
 
@@ -380,7 +387,7 @@ Note that the last line creates a 3-ary function, which adds <tt>10</tt> to its 
 The first two arguments are discarded.
 </p><p>
 In addition two these three placeholder types, there is also a fourth placeholder type <tt>freeE_type</tt>.
-The use of this placeholder is defined in ??? describing exception handling in lambda expressions. 
+The use of this placeholder is defined in <a href="#sect:exceptions" title="5.8. Exceptions">Section 5.8</a> describing exception handling in lambda expressions. 
 </p><p>When an actual argument is supplied for a placeholder, the parameter passing mode is always by reference. 
 This means that any side-effects to the placeholder are reflected to the actual argument. 
 For example:
@@ -419,7 +426,7 @@ For example, the following is a valid operator expression:
 <pre class="programlisting">cout &lt;&lt; _1, _2[_3] = _1 &amp;&amp; false</pre>
 </p><p>
 However, there are some restrictions that originate from the C++ operator overloading rules, and some special cases.
-</p><div class="simplesect"><div class="titlepage"><div><h4 class="title"><a name="id2729930"></a>Operators that cannot be overloaded</h4></div></div><p>
+</p><div class="simplesect"><div class="titlepage"><div><h4 class="title"><a name="id2729991"></a>Operators that cannot be overloaded</h4></div></div><p>
 Some operators cannot be overloaded at all, or their overloading rules prevent them to be overloaded to create lambda functors.
 These operators are <tt>-&gt;.</tt>, <tt>-&gt;</tt>, <tt>new</tt>, <tt>new[]</tt>, <tt>delete</tt>, <tt>delete[]</tt> and <tt>?:</tt> (the conditional operator).
 </p></div><div class="simplesect"><div class="titlepage"><div><h4 class="title"><a name="sect:assignment_and_subscript"></a>Assignment and subscript operators</h4></div></div><p>
@@ -504,9 +511,9 @@ For member functions, the number of arguments must be &lt; 8, as the object argu
 Basically, the
 <span class="emphasis"><i><tt>bind-argument-list</tt></i></span> must be a valid argument list for the target function, except that any argument can be replaced with a placeholder, or more generally, with a lambda expression. 
 Note that also the target function can be a lambda expression.
-</p><p>The result of a bind expression is either a nullary<sup>[<a name="id2791871" href="#ftn.id2791871">4</a>]</sup>, unary, binary or 3-ary function object depending on the use of placeholders in the <span class="emphasis"><i><tt>bind-argument-list</tt></i></span> (see <a href="#sect:placeholders" title="5.1. Placeholders">Section 5.1</a>).
+</p><p>The result of a bind expression is either a nullary<sup>[<a name="id2791932" href="#ftn.id2791932">4</a>]</sup>, unary, binary or 3-ary function object depending on the use of placeholders in the <span class="emphasis"><i><tt>bind-argument-list</tt></i></span> (see <a href="#sect:placeholders" title="5.1. Placeholders">Section 5.1</a>).
 </p><p>
-The return type of the lambda functor created by the bind expression can be given as an explicitly qualified template parameter, as in the following example:
+The return type of the lambda functor created by the bind expression can be given as an explicitly specified template parameter, as in the following example:
 <pre class="programlisting">
 bind&lt;<span class="emphasis"><i>RET</i></span>&gt;(<span class="emphasis"><i>target-function</i></span>, <span class="emphasis"><i>bind-argument-list</i></span>)
 </pre>
@@ -562,7 +569,7 @@ find_if(pointers.begin(), pointers.end(), bind(&amp;A::foo, _1, 1));
 </p><p>
 Even though the interfaces are the same, there are important semantic differences between using a pointer or a reference as the object argument.
 The differences stem from the way <tt>bind</tt>-functions take their parameters, and how the bound parameters are stored within the lambda functor.
-The object argument has the same parameter passing and storing mechanism than any other bind argument slot (see ???); it is passed as a const reference and stored as a const copy in the lambda functor.
+The object argument has the same parameter passing and storing mechanism than any other bind argument slot (see <a href="#sect:storing_bound_arguments" title="4.4. Storing bound arguments in lambda functions">Section 4.4</a>); it is passed as a const reference and stored as a const copy in the lambda functor.
 This creates some asymmetry between the lambda functor and the original member function, and between seemingly similar lambda functors. For example:
 <pre class="programlisting">
 class A {
@@ -607,7 +614,7 @@ bind(&amp;A::set_j, _1, 1)(a); // a.j == 1
 </p></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="sect:function_objects_as_targets"></a>5.3.3. Function objects as targets</h4></div></div><p>Function objects, that is, class objects which have the function call operator defined, can be used as target functions. 
 In general, BLL cannot deduce the return type of an arbitrary function object. 
 However, there are two ways to give BLL this capability for a certain function object class.
-</p><div class="simplesect"><div class="titlepage"><div><h5 class="title"><a name="id2792225"></a>The result_type typedef</h5></div></div><p>
+</p><div class="simplesect"><div class="titlepage"><div><h5 class="title"><a name="id2792286"></a>The result_type typedef</h5></div></div><p>
 The BLL recognizes the typedef <tt>result_type</tt> in the function object, and uses that as the return type of the function call operator.
 For example:
 <pre class="programlisting">
@@ -626,7 +633,7 @@ If the function object defines several function call operators, there is no way 
 If the function call operator is a template, the result type may depend on the template parameters. 
 Hence, the typedef ought to be a template too, which the C++ language does not support.
 </p></li></ol></div>
-</p></div><div class="simplesect"><div class="titlepage"><div><h5 class="title"><a name="id2792294"></a>The sig template</h5></div></div><p>
+</p></div><div class="simplesect"><div class="titlepage"><div><h5 class="title"><a name="id2792355"></a>The sig template</h5></div></div><p>
 The second method is slightly more complex, but also more flexible. 
 The steps that need to be taken to make BLL aware of the return type(s) of a function object are:
 
@@ -718,7 +725,7 @@ ret&lt;D&gt;( - (_1 + _2))(a, b); // error
 ret&lt;D&gt;( - ret&lt;C&gt;(_1 + _2))(a, b); // ok
 </pre>
 </p><p>If you find yourself using  <tt>ret</tt> repeatedly with the same types, it is worth while extending the return type deduction (see <a href="#sect:extending_return_type_system" title="5.5. Extending return type deduction system">Section 5.5</a>).
-</p><div class="simplesect"><div class="titlepage"><div><h4 class="title"><a name="id2792642"></a>Nullary lambda functors and ret</h4></div></div><p>
+</p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="sect:nullary_functors_and_ret"></a>5.4.1. Nullary lambda functors and ret</h4></div></div><p>
 As stated above, the effect of <tt>ret</tt> is to prevent the return type deduction to be performed. 
 However, there is an exception. 
 Due to the way the C++ template instantiation works, the compiler is always forced to instantiate the return type deduction templates for zero-argument lambda functors.
@@ -737,7 +744,7 @@ ret&lt;int&gt;(bind(f, 1));  // fails as well!
 The BLL cannot deduce the return types of the above bind calls, as <tt>F</tt> does not define the typedef <tt>result_type</tt>. 
 One would expect <tt>ret</tt> to fix this, but for a nullary lambda functor that results from a bind expression (last line above) this does not work.
 The return type deduction templates are instantiated, even though it would not be necessary and the result is a compilation error.
-</p><p>The solution to this is not to use the <tt>ret</tt> function, but rather specify the return type as an explicitly qualified template parameter in the <tt>bind</tt> call:
+</p><p>The solution to this is not to use the <tt>ret</tt> function, but rather define the return type as an explicitly specified template parameter in the <tt>bind</tt> call:
 <pre class="programlisting">
 bind&lt;int&gt;(f, 1);       // ok
 </pre>
@@ -895,7 +902,7 @@ By using <tt>var</tt> to make <tt>index</tt> a lambda expression, we get the des
 In sum, <tt>var(x)</tt> creates a nullary lambda functor, 
 which stores a reference to the variable <tt>x</tt>. 
 When the lambda functor is invoked, a reference to <tt>x</tt> is returned.
-</p><div class="simplesect"><div class="titlepage"><div><h4 class="title"><a name="id2794129"></a>Naming delayed constants and variables</h4></div></div><p>
+</p><div class="simplesect"><div class="titlepage"><div><h4 class="title"><a name="id2794196"></a>Naming delayed constants and variables</h4></div></div><p>
 Sometimes a delayed variable or a constant is repeated several times in a lambda expression. 
 It is possible to predefine and name a delayed variable or constant outside a lambda expression. 
 The templates <tt>var_type</tt> and <tt>constant_type</tt> serve for this purpose. 
@@ -924,7 +931,7 @@ Here is an example of naming a delayed constant:
 constant_type&lt;char&gt;::type space(constant(' '));
 for_each(a.begin(),a.end(), cout &lt;&lt; space &lt;&lt; _1);
 </pre>
-</p></div><div class="simplesect"><div class="titlepage"><div><h4 class="title"><a name="id2794247"></a>About assignment and subscript operators</h4></div></div><p>
+</p></div><div class="simplesect"><div class="titlepage"><div><h4 class="title"><a name="id2794314"></a>About assignment and subscript operators</h4></div></div><p>
 As described in <a href="#sect:assignment_and_subscript" title="Assignment and subscript operators">the section called &#8220;Assignment and subscript operators&#8221;</a>, assignment and subscripting operators must be defined as member functions. 
 This means, that for expressions of the form
 <tt>x = y</tt> or <tt>x[y]</tt> to be interpreted as lambda expressions, the left-hand operand <tt>x</tt> must be a lambda expression. 
@@ -1000,7 +1007,78 @@ For example, <tt>case_statement&lt;1&gt;(a)</tt>, where <tt>a</tt> is some lambd
 </pre>
 The <tt>switch_statement</tt> function is specialized for up to 9 case statements.
 
-</p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2794612"></a>5.8. Exceptions</h3></div></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="construction_and_destruction"></a>5.9. Construction and destruction</h3></div></div></div><p>
+</p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="sect:exceptions"></a>5.8. Exceptions</h3></div></div><p>
+The BLL provides lambda functors that throw and catch exceptions.
+Lambda functors for throwing exceptions are created with the unary function <tt>throw_exception</tt>.
+The argument to this function is the exception to be thrown, or a lambda functor which creates the exception to be thrown.
+A lambda functor for rethrowing exceptions is created with the nullary <tt>rethrow</tt> function.
+</p><p>
+Lambda expressions for handling exceptions are somewhat more complex.
+The general form of a lambda expression for try catch blocks is as follows:
+
+<pre class="programlisting">
+try_catch(
+  <i><tt>lambda expression</tt></i>,
+  catch_exception&lt;<i><tt>type</tt></i>&gt;(<i><tt>lambda expression</tt></i>),
+  catch_exception&lt;<i><tt>type</tt></i>&gt;(<i><tt>lambda expression</tt></i>),
+  ...
+  catch_all(<i><tt>lambda expression</tt></i>)
+)
+</pre>
+
+The first lambda expression is the try block. 
+Each <tt>catch_exception</tt> defines a catch block where the explicitly specified template argument defines the type of the exception to catch.
+The lambda expression within the <tt>catch_exception</tt> defines the actions to take if the exception is caught.
+Note that the resulting exception handlers catch the exceptions as references, i.e., 
+<tt>catch_exception&lt;T&gt;(...)</tt> results in the catch block:
+
+<pre class="programlisting">
+catch(T&amp; e) { ... }
+</pre>
+
+The last catch block can alternatively be a call to 
+<tt>catch_exception&lt;<i><tt>type</tt></i>&gt;</tt> 
+or to 
+<tt>catch_all</tt>, which is the lambda expression equivalent to 
+<tt>catch(...)</tt>.
+
+</p><p>
+
+The <a href="#ex:exceptions" title="Example 1. Throwing and handling exceptions in lambda expressions.">Example 1</a> demonstrates the use of the BLL exception handling tools. 
+The first handler catches exceptions of type <tt>foo_exception</tt>. 
+Note the use of <tt>_1</tt> placeholder in the body of the handler.
+</p><p>
+The second handler shows how to throw exceptions, and demonstrates the use of the <span class="emphasis"><i>exception placeholder</i></span> <tt>_E</tt>.
+It is a special placeholder, which refers to the caught exception object within the handler body.
+Here we are handling an exception of type <tt>std::exception</tt>, which carries a string explaining the cause of the exception. 
+This explanation can be queried with the zero-argument member function <tt>what</tt>;
+<tt>bind(&amp;std::exception::what, _E)</tt> creates the lambda function for making that call.
+
+Note that <tt>_E</tt> is not a full-fledged placeholder, but rather a special case of <tt>_3</tt>. 
+As a consequence, <tt>_E</tt> cannot be used outside of an exception handler lambda expression, and <tt>_3</tt> cannot be used inside of an exception handler lambda expression.
+This kind of illegal use of placeholders is caught by the compiler.
+</p><p>
+Finally, the third handler (<tt>catch_all</tt>) demonstrates rethrowing exceptions.
+</p><div class="example"><p><a name="ex:exceptions"></a><b>Example 1. Throwing and handling exceptions in lambda expressions.</b></p><pre class="programlisting">
+for_each(
+  a.begin(), a.end(),
+  try_catch(
+    bind(foo, _1),                 // foo may throw
+    catch_exception&lt;foo_exception&gt;(
+      cout &lt;&lt; constant(&quot;Caught foo_exception: &quot;) 
+           &lt;&lt; &quot;foo was called with argument = &quot; &lt;&lt; _1
+    ),
+    catch_exception&lt;std::exception&gt;(
+      cout &lt;&lt; constant(&quot;Caught std::exception: &quot;) 
+           &lt;&lt; bind(&amp;std::exception::what, _E),
+      throw_exception(constructor&lt;bar_exception&gt;(_1))
+    ),      
+    catch_all(
+      (cout &lt;&lt; constant(&quot;Unknown&quot;), rethrow())
+    )
+  )
+);
+</pre></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="construction_and_destruction"></a>5.9. Construction and destruction</h3></div></div></div><p>
 Operators <tt>new</tt> and <tt>delete</tt> can be overloaded, but their return types are fixed. 
 Particularly, the return types cannot be lambda functors.
 Likewise, we cannot create lambda functors from constructors and destructors directly using bind functions. 
@@ -1027,21 +1105,166 @@ transform(x.begin(), x.end(), y.begin(), back_inserter(v),
           bind(constructor&lt;pair&lt;int, int&gt; &gt;(), _1, _2));
 </pre>
 
-<a href="#table:constructor_destructor_fos" title="Table 2. Construction and destruction related function objects">Table 2</a> lists all the function objects related to creating and destroying objects, showing the expression to create and call the function object, and the effect of evaluating that expression.
+<a href="#table:constructor_destructor_fos" title="Table 2. Construction and destruction related function objects.">Table 2</a> lists all the function objects related to creating and destroying objects, showing the expression to create and call the function object, and the effect of evaluating that expression.
 
 
 
-</p><div class="table"><p><a name="table:constructor_destructor_fos"></a><b>Table 2. Construction and destruction related function objects</b></p><table summary="Construction and destruction related function objects" border="1"><colgroup><col><col></colgroup><thead><tr><th>Function object call</th><th>Wrapped expression</th></tr></thead><tbody><tr><td><tt>constructor&lt;T&gt;()(<i><tt>arg_list</tt></i>)</tt></td><td>T(<i><tt>arg_list</tt></i>)</td></tr><tr><td><tt>destructor()(<i><tt>a</tt></i>)</tt></td><td><tt>a.~A()</tt>, where <tt>a</tt> is of type <tt>A</tt></td></tr><tr><td><tt>destructor()(<i><tt>pa</tt></i>)</tt></td><td><tt>pa.-&gt;A()</tt>, where <tt>pa</tt> is of type <tt>A*</tt></td></tr><tr><td><tt>new_ptr&lt;T&gt;()(<i><tt>arg_list</tt></i>)</tt></td><td>new T(<i><tt>arg_list</tt></i>)</td></tr><tr><td><tt>new_array&lt;T&gt;()(<i><tt>sz</tt></i>)</tt></td><td>new T[<i><tt>sz</tt></i>]</td></tr><tr><td><tt>delete_ptr()(p)</tt></td><td><tt>delete p</tt></td></tr><tr><td><tt>delete_array()(p)</tt></td><td><tt>delete p[]</tt></td></tr></tbody></table></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2795045"></a>5.10. Special lambda expressions</h3></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2795052"></a>5.10.1. Protect</h4></div></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2795060"></a>5.10.2. Const_parameters</h4></div></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2795069"></a>5.10.3. Break_const</h4></div></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2795077"></a>5.10.4. Unlambda</h4></div></div></div></div></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2795087"></a>6. Contributors</h2></div></div>
-Jaakko Järvi, Gary Powell.
+</p><div class="table"><p><a name="table:constructor_destructor_fos"></a><b>Table 2. Construction and destruction related function objects.</b></p><table summary="Construction and destruction related function objects." border="1"><colgroup><col><col></colgroup><thead><tr><th>Function object call</th><th>Wrapped expression</th></tr></thead><tbody><tr><td><tt>constructor&lt;T&gt;()(<i><tt>arg_list</tt></i>)</tt></td><td>T(<i><tt>arg_list</tt></i>)</td></tr><tr><td><tt>destructor()(<i><tt>a</tt></i>)</tt></td><td><tt>a.~A()</tt>, where <tt>a</tt> is of type <tt>A</tt></td></tr><tr><td><tt>destructor()(<i><tt>pa</tt></i>)</tt></td><td><tt>pa.-&gt;A()</tt>, where <tt>pa</tt> is of type <tt>A*</tt></td></tr><tr><td><tt>new_ptr&lt;T&gt;()(<i><tt>arg_list</tt></i>)</tt></td><td>new T(<i><tt>arg_list</tt></i>)</td></tr><tr><td><tt>new_array&lt;T&gt;()(<i><tt>sz</tt></i>)</tt></td><td>new T[<i><tt>sz</tt></i>]</td></tr><tr><td><tt>delete_ptr()(p)</tt></td><td><tt>delete p</tt></td></tr><tr><td><tt>delete_array()(p)</tt></td><td><tt>delete p[]</tt></td></tr></tbody></table></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2795412"></a>5.10. Special lambda expressions</h3></div></div><p>
+When a lambda functor is called, the default behavior is to substitute the actual arguments for the placeholders within all subexpressions.
+This section describes the tools to prevent the substitution and evaluation of a subexpression, and explains when these tools should be used.
+</p><p>
+The arguments to a bind expression can be arbitrary lambda expressions, e.g., other bind expressions.
+For example:
 
-Additional help and ideas: Jeremy Siek, Peter Higley, Peter Dimov
+<pre class="programlisting">
+int foo(int); int bar(int);
 ...
+int i;
+bind(foo, bind(bar, _1)(i);
+</pre>
 
+The last line makes the call <tt>foo(bar(i));</tt>
 
-</div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.id2732520" href="#id2732520">1</a>] </sup>In all code examples names of the <tt>std</tt>
-	  namespace are not prefixed with <tt>std::</tt>.</p></div><div class="footnote"><p><sup>[<a name="ftn.id2733907" href="#id2733907">2</a>] </sup>Actually, this is not a valid C++ lambda expression. 
-	    The reason for this is explained in <a href="#sect:actual_arguments_to_lambda_functors" title="4.3. About actual arguments to lambda functors">Section 4.3</a>.</p></div><div class="footnote"><p><sup>[<a name="ftn.id2734121" href="#id2734121">3</a>] </sup>
+Note, that the first argument, the target function, in a bind expression is no exception, and can thus be a bind expression too.
+The innermost lambda functor just has to return something that can be used as a target function: another lambda functor, function pointer, pointer to member function etc. 
+For example, in the following code the innermost lambda functor makes a selection between two functions, and returns a pointer to one of them:
+
+<pre class="programlisting">
+int add(int a, int b) { return a+b; }
+int mul(int a, int b) { return a*b; }
+
+int(*)(int, int)  add_or_mul(bool x) { 
+  return x ? add : mul; 
+}
+
+bool condition; int i; int j;
+...
+bind(bind(&amp;add_or_mul, _1), _2, _3)(condition, i, j);
+</pre>
+
+</p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2795472"></a>5.10.1. Unlambda</h4></div></div><p>A nested bind expression may occur inadvertently, if the target function is a variable with a type that depends on a template parameter. 
+Typically the target function could be a formal parameter of a function template. 
+In such a case, the programmer may not know whether the target function is a lambda functor or not.
+</p><p>Consider the following function template:
+
+<pre class="programlisting">
+template&lt;class F&gt;
+int nested(const F&amp; f) {
+  int x;
+  ...
+  bind(f, _1)(x);
+  ...
+}
+</pre>
+
+Somewhere inside the function the formal parameter
+<tt>f</tt> is used as a target function in a bind expression. 
+In order for this<tt>bind</tt> call to be valid, <tt>f</tt> must be a unary function.
+</p><p>
+Suppose the following two calls to <tt>nested</tt> are made:
+<pre class="programlisting">
+int foo(int);
+int bar(int, int);
+nested(&amp;foo);
+nested(bind(bar, 1, _1));
+</pre>
+Both are unary functions, or function objects, with appropriate argument and return types, but the latter will not compile.
+In the latter call, the bind expression inside <tt>nested</tt> will become:
+<pre class="programlisting">
+bind(bind(bar, 1, _1), _1) 
+</pre>
+When this is invoked with <tt>x</tt>, after substituitions we end up trying to call
+<pre class="programlisting">
+bar(1, x)(x);
+</pre>
+which is an error. 
+The call to <tt>bar</tt> returns int, not a unary function or function object.
+</p><p>
+In the example above, the intent of the bind expression in the <tt>nested</tt> function is to treat <tt>f</tt> as an ordinary function object, instead of a lambda functor. 
+The BLL provides the function template <tt>unlambda</tt> to express this: a lambda functor wrapped inside <tt>unlambda</tt> is not a lambda functor anymore, and does not take part into the argument substitution process.
+Note that for all other argument types <tt>unlambda</tt> is an identity operation, except for making non-const objects const.
+</p><p>
+Using <tt>unlambda</tt>, the <tt>nested</tt> function is written as:
+<pre class="programlisting">
+template&lt;class F&gt;
+int nested(const F&amp; f) {
+  int x;
+  ...
+  bind(unlambda(f), _1)(x);
+  ...
+}
+</pre>
+
+</p></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2795670"></a>5.10.2. Protect</h4></div></div><p>
+The <tt>protect</tt> function is related to unlambda. 
+It is also used to prevent the argument substitution taking place, but whereas <tt>unlambda</tt> turns a lambda functor into an ordinary function object for good, <tt>protect</tt> does this temporarily, for just one evaluation round.
+For example:
+
+<pre class="programlisting">
+int x = 1, y = 10;
+(_1 + protect(_1 + 2))(x)(y);
+</pre>
+
+The first call substitutes <tt>x</tt> for the leftmost <tt>_1</tt> with <tt>x</tt>, and results in another lambda functor <tt>x + (_1 + 2)</tt>, which after the call with <tt>y</tt> becomes <tt>x + (y + 2)</tt>, and thus finally 13.
+</p><p>
+Primary motivation for including <tt>protect</tt> into the library, was to allow nested STL algorithm invocations (<a href="#sect:nested_stl_algorithms" title="5.11. Nesting STL algorithm invocations">Section 5.11</a>).
+</p></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="sect:nested_stl_algorithms"></a>5.11. Nesting STL algorithm invocations</h3></div></div><p>
+The BLL defines common STL algorithms as function object classes, instances of which can be used as target functions in bind expressions.
+For example, the following code iterates over the elements of a two-dimensional array, and computes their sum.
+
+<pre class="programlisting">
+int a[100][200];
+int sum = 0;
+
+std::for_each(a, a + 100, 
+	      bind(ll::for_each(), _1, _1 + 200, protect(sum += _1)));
+</pre>
+
+The BLL versions of the STL algorithms are structs, which define a function call operator (or several overloaded ones) to call the corresponding standard algorithm. 
+All these structs are placed in the subnamespace <tt>boost::lambda:ll</tt>. 
+The supported algorithms are listed in <a href="#table:nested_algorithms" title="Table 3. The nested STL algorithms.">Table 3</a>.
+</p><p>
+Note that there is no easy way to express an overloaded member function call in a lambda expression. 
+This limits the usefulness of nested STL algorithms, as for instance the <tt>begin</tt> function has more than one overloaded definitions in container templates.
+In general, something analogous to the pseudo-code below cannot be written:
+
+<pre class="programlisting">
+std::for_each(a.begin(), a.end(), 
+	      bind(ll::for_each(), _1.begin(), _1.end(), protect(sum += _1)));
+</pre>
+
+Some aid for common special cases can be provided though.
+The BLL defines two helper function object classes, <tt>call_begin</tt> and <tt>call_end</tt>, which wrap a call to the <tt>begin</tt> and, respectively, <tt>end</tt> functions of a container, and return the <tt>const_iterator</tt> type of the container.
+With these helper templates, the above code becomes:
+<pre class="programlisting">
+std::for_each(a.begin(), a.end(), 
+	      bind(ll::for_each(), 
+                   bind(call_begin(), _1), bind(call_end(), _1),
+                        protect(sum += _1)));
+</pre>
+
+</p><div class="table"><p><a name="table:nested_algorithms"></a><b>Table 3. The nested STL algorithms.</b></p><table summary="The nested STL algorithms." border="1"><colgroup><col></colgroup><thead></thead><tbody><tr><td><tt>for_each</tt></td></tr><tr><td><tt>find</tt></td></tr><tr><td><tt>find_if</tt></td></tr><tr><td><tt>find_end</tt></td></tr><tr><td><tt>find_first_of</tt></td></tr><tr><td><tt>transform</tt></td></tr></tbody></table></div></div></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2796002"></a>6. Performance</h2></div></div><p>In theory, all overhead of using STL algorithms and lambda functors compared to hand written loops can be optimized away, just as the overhead from standard STL function objects and binders.
+Depending on the compiler, this can also be true in practice.
+</p><p>We have only performed limited performance testing, and 
+our tests suggest that the BLL does not introduce a loss of performance compared to STL function objects. 
+Hence, with a reasonable optimizing compiler, one should expect the performance characteristics be comparable to using classic STL. 
+Moreover, with a great optimizing compiler there may be no performance penalty at all.
+Note however, that evaluating a lambda functor consist of a sequence of calls to small functions that are declared inline. 
+If the compiler fails to actually expand these functions inline, the performance, compared to hand written loops, can suffer.
+</p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2796039"></a>7. Contributors</h2></div></div>
+
+The main body of the library was written by Jaakko Järvi and Gary Powell.
+We've got outside help, suggestions and ideas from Jeremy Siek, Peter Higley, Peter Dimov, ...
+
+</div><div id="id2796054" class="bibliography"><div class="titlepage"><div><h2 class="title"><a name="id2796054"></a>Bibliography</h2></div></div><div class="biblioentry"><a name="cit:stepanov:94"></a><p>[STL94] <span class="authorgroup">A. A. Stepanov and M. Lee. </span><span class="title"><I>The Standard Template Library</I>. </span><span class="orgname">Hewlett-Packard Laboratories. </span><span class="pubdate">1994. </span><span class="bibliomisc">
+<a href="http://www.hpl.hp.com/techreports" target="_top">www.hpl.hp.com/techreports</a>
+. </span></p></div><div class="biblioentry"><a name="cit:sgi:02"></a><p>[SGI02] <span class="title"><I>The SGI Standard Template Library</I>. </span><span class="pubdate">2002. </span><span class="bibliomisc"><a href="http://www.sgi.com/tech/stl/" target="_top">www.sgi.com/tech/stl/</a>. </span></p></div><div class="biblioentry"><a name="cit:c++"></a><p>[C++98] <span class="title"><I>International Standard, Programming Languages &#8211; C++</I>. </span><span class="subtitle">ISO/IEC:14882. </span><span class="pubdate">1998. </span></p></div><div class="biblioentry"><a name="cit:jarvi:99"></a><p>[Jar99] <span class="articleinfo">
+<span class="author">Jaakko Järvi. </span>
+<span class="title"><I>C++ Function Object Binders Made Easy</I>. </span>
+. </span><span class="title"><I>Lecture Notes in Computer Science</I>. </span><span class="volumenum">1977. </span><span class="publishername">Springer. </span><span class="pubdate">2000. </span></p></div><div class="biblioentry"><a name="cit:jarvi:01"></a><p>[Jar01] <span class="author">Jaakko Järvi. </span><span class="author">Gary Powell. </span><span class="title"><I>The Lambda Library : Lambda Abstraction in C++</I>. </span><span class="bibliomisc">Second  Workshop on C++ Template Programming, Tampa Bay, OOPSLA'01. </span><span class="pubdate">2001. </span><span class="bibliomisc"><a href="http://www.oonumerics.org/tmpw01/" target="_top">www.oonumerics.org/tmpw01/</a>. </span></p></div></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.id2732521" href="#id2732521">1</a>] </sup>In all code examples names of the <tt>std</tt>
+	  namespace are not prefixed with <tt>std::</tt>.</p></div><div class="footnote"><p><sup>[<a name="ftn.id2734038" href="#id2734038">2</a>] </sup>Actually, this is not a valid C++ lambda expression. 
+	    The reason for this is explained in <a href="#sect:actual_arguments_to_lambda_functors" title="4.3. About actual arguments to lambda functors">Section 4.3</a>.</p></div><div class="footnote"><p><sup>[<a name="ftn.id2728884" href="#id2728884">3</a>] </sup>
 Strictly taken, the C++ standard defines <tt>for_each</tt> as a <span class="emphasis"><i>non-modifying sequence operation</i></span>, and the function object passed to <tt>for_each</tt> should not modify its argument. 
 The requirements for the arguments of <tt>for_each</tt> are unnecessary strict, since as long as the iterators are <span class="emphasis"><i>mutable</i></span>, <tt>for_each</tt> accepts a function object that can have side-effects on their argument.
 Nevertheless, it is straightforward to provide another function template with the functionality of<tt>std::for_each</tt> but more fine-grained requirements for its arguments.
-</p></div><div class="footnote"><p><sup>[<a name="ftn.id2791871" href="#id2791871">4</a>] </sup>A zero-argument function.</p></div></div></div></body></html>
+</p></div><div class="footnote"><p><sup>[<a name="ftn.id2791932" href="#id2791932">4</a>] </sup>A zero-argument function.</p></div></div></div></body></html>
