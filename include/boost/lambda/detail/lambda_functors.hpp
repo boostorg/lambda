@@ -106,6 +106,12 @@ public:
   explicit lambda_functor(const Args& args) 
     : inherited(args) {} 
 
+  // lambda functors can be copied, if arity and action are the same
+  // and Args tuples copyable
+  template <class Args2> lambda_functor
+    (const lambda_functor<lambda_functor_args<Action, Args2, NONE> >& f)
+      : inherited(f.args) {}
+
   typename 
     return_type<
       lambda_functor, 
@@ -143,6 +149,12 @@ public:
   explicit lambda_functor(const Args& args) 
     : inherited(args) {}
 
+  // lambda functors can be copied, if arity and action are the same
+  // and Args tuples copyable
+  template <class Args2> lambda_functor
+    (const lambda_functor<lambda_functor_args<Action, Args2, FIRST> >& f)
+      : inherited(f.args) {}
+
   template<class A>
   typename 
     return_type<lambda_functor, open_args<A&, null_type, null_type> >::type
@@ -176,6 +188,12 @@ public:
 
   explicit lambda_functor(const Args& args) 
     : inherited(args) {}
+
+  // lambda functors can be copied, if arity and action are the same
+  // and Args tuples copyable
+  template <class Args2> lambda_functor
+    (const lambda_functor<lambda_functor_args<Action, Args2, SECOND> >& f)
+      : inherited(f.args) {}
 
   template<class A, class B>
   typename return_type<lambda_functor, open_args<A&, B&, null_type> >::type
@@ -231,6 +249,12 @@ public:
   explicit lambda_functor(const Args& args) 
     : inherited(args) {}
     
+  // lambda functors can be copied, if arity and action are the same
+  // and Args tuples copyable
+  template <class Args2> lambda_functor
+    (const lambda_functor<lambda_functor_args<Action, Args2, THIRD> >& f)
+      : inherited(f.args) {}
+
   template<class A, class B, class C>
   typename return_type<lambda_functor, open_args<A&, B&, C&> >::type 
   operator()(A& a, B& b, C& c) const
@@ -314,6 +338,13 @@ public:
   explicit lambda_functor(const Args& args) 
     : inherited(args) {}
 
+  // lambda functors can be copied, if arity and action are the same
+  // and Args tuples copyable
+  template <class Args2> lambda_functor
+    (const lambda_functor<lambda_functor_args<Action, Args2, Code> >& f)
+      : inherited(f.args) {}
+
+
   // No operator() for this, since this lambda_functor can only be used 
   // in a catch_exception or catch_all
 
@@ -325,22 +356,8 @@ public:
 
 };
 
-// This subclass adds lambda functors the ability to be copied,
-// if the functors are 'copy compatible'
-// This ability is needed, if lambda functor evaluation results in 
-// a lambda functor (e.g. with protect).
-template <class Act, class Args, int Code> 
-struct lambda_functor_sub<lambda_functor_args<Act, Args, Code> > 
-  : public lambda_functor<lambda_functor_args<Act, Args, Code> > {
 
-  // as long as action and arity are the same, lambda functors are convertible
-  // if the argument tuples are.
-  template <class Args2> lambda_functor_sub
-    (const lambda_functor<lambda_functor_args<Act, Args2, Code> >& f)
-      : lambda_functor<lambda_functor_args<Act, Args, Code> >(f.args) {}
-};
-
-// any lambda functor can turned into const_incorrect_lambda_functor
+// any lambda functor can be turned into a const_incorrect_lambda_functor
 // The opreator() takes arguments as consts and then casts constness
 // away. So this breaks const correctness!!! but is a necessary workaround
 // in some cases due to language limitations.
@@ -445,3 +462,5 @@ public:
 } // namespace boost
 
 #endif
+
+
