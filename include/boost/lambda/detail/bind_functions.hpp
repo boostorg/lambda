@@ -21,18 +21,6 @@
 namespace boost { 
 namespace lambda {
 
-  // template<class T, int I> struct select_action {
-  //   typedef typename
-  //     detail::IF<
-  //       is_lambda_functor<T>::value,
-  //       lambda_functor_action<I>,
-  //       function_action<I>
-  //     >::RET type;
-  // };
-  // // Note, that select_action is only used upto 4-argument binds.
-  // // (lambda functors are at most 3-ary)
-
-
 // 1-argument bind functions --------------------------
 template <class Arg1>
 inline const
