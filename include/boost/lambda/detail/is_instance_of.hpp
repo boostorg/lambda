@@ -1,5 +1,22 @@
-#ifndef BOOST_LAMBDA_IS_CONVERTIBLE_TEMPLATE
-#define BOOST_LAMBDA_IS_CONVERTIBLE_TEMPLATE
+// Boost Lambda Library - is_instance_of.hpp ---------------------
+
+// Copyright (C) 2001 Jaakko Järvi (jaakko.jarvi@cs.utu.fi)
+//
+// Permission to copy, use, sell and distribute this software is granted
+// provided this copyright notice appears in all copies. 
+// Permission to modify the code and to distribute modified code is granted
+// provided this copyright notice appears in all copies, and a notice 
+// that the code was modified is included with the copyright notice.
+//
+// This software is provided "as is" without express or implied warranty, 
+// and with no claim as to its suitability for any purpose.
+//
+// For more information, see www.boost.org
+
+// ---------------------------------------------------------------
+
+#ifndef BOOST_LAMBDA_IS_INSTANCE_OF
+#define BOOST_LAMBDA_IS_INSTANCE_OF
 
 #include "boost/lambda/detail/preprocessor/enum_shifted_params.hpp"
 #include "boost/lambda/detail/preprocessor/2nd_repeat.hpp"
@@ -13,7 +30,7 @@
 // n is the number of template arguments for B
 // 
 // Example:
-// is_instance_of_2<std::istream, basic_stream>::vaule == true
+// is_instance_of_2<std::istream, basic_stream>::value == true
 
 // Vesa Karvonen's preprocessor library is not part of boost (yet), so 
 // the relevant headers are under boost/lambda/detail
