@@ -64,19 +64,17 @@ clean:
 
 run:	
 	./is_instance_of_test.exe
-	./is_instance_of_test.exe
 	./member_pointer_test.exe
-	./exception_test.exe
 	./operator_tests_simple.exe 
-	./bind_tests_simple.exe 
-	./exception_test.exe 
 	./control_structures.exe 
 	./switch_construct.exe 
-	./bind_tests_advanced.exe 
 	./extending_return_type_traits.exe 
 	./constructor_tests.exe 
 	./cast_test.exe 
+	./bind_tests_simple.exe 
+	./bind_tests_advanced.exe 
 	./bind_tests_simple_function_references.exe
+	./exception_test.exe
 
 
 
