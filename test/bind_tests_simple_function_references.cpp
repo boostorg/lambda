@@ -53,6 +53,7 @@ int test_main(int, char *[]) {
   int i = 1; int j = 2; int k = 3;
   int result;
    
+
   // bind all parameters
   BOOST_TEST(bind(sum_of_args_0)()==0);
   BOOST_TEST(bind(sum_of_args_1, 1)()==1);
