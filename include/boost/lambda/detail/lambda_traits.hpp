@@ -392,6 +392,12 @@ struct bind_traits<const reference_wrapper<T> >{
   typedef T& type;
 };
 
+// the bind_tuple_mapper, bind_type_generators may 
+// cause const null_type values to appear in tuples
+template<>
+struct bind_traits<const null_type> {
+  typedef null_type type;
+};
 
 
 template <
@@ -413,11 +419,48 @@ struct bind_tuple_mapper {
           typename bind_traits<T8>::type,
           typename bind_traits<T9>::type> type;
 };
+
+
+// maps the bind argument types to the resulting lambda functor type
+template <
+  class T0 = null_type, class T1 = null_type, class T2 = null_type, 
+  class T3 = null_type, class T4 = null_type, class T5 = null_type, 
+  class T6 = null_type, class T7 = null_type, class T8 = null_type, 
+  class T9 = null_type
+>
+class bind_type_generator {
+
+  typedef typename
+  detail::bind_tuple_mapper<
+    T0, T1, T2, T3, T4, T5, T6, T7, T8, T9
+  >::type args_t;
+
+  BOOST_STATIC_CONSTANT(int, nof_elems = boost::tuples::length<args_t>::value);
+
+  typedef 
+    action<
+      nof_elems, 
+      function_action<nof_elems>
+    > action_type;
+
+public:
+  typedef
+    lambda_functor<
+      lambda_functor_args<
+        action_type, 
+        args_t,
+	combine_arities<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>::value
+      >
+    > type; 
+    
+};
+
+
    
 } // detail
    
 template <class T> inline const T&  make_const(const T& t) { return t; }
-
+.
 
 } // end of namespace lambda
 } // end of namespace boost
