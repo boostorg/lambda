@@ -353,7 +353,7 @@ template <class T> struct exception_catch_tag {};
 // tagged_lambda_functor<exception_catch_tag<catch_all_block> >, LambdaFunctor>
 
 
-}; // end detail
+} // end detail
 
 // the code is RETHROW, this ensures that a compile time error results, 
 // if this lambda_functor is used outside a delayed catch_expression
