@@ -32,6 +32,7 @@ void introduction() {
 
   using boost::lambda::_1;
 
+  std::cout << "Output should be: 1 2\n";
   std::vector<int> a; a.push_back(1); a.push_back(2);
   for_each(a.begin(), a.end(), std::cout << _1 << ' ');
   std::cout << '\n';
@@ -51,6 +52,7 @@ void motivation() {
 
   vector<int> a; a.push_back(1); a.push_back(2);
 
+  std::cout << "Output should be: 23 = 23 = 23\n";
   transform(a.begin(), a.end(), ostream_iterator<int>(cout),
           bind1st(plus<int>(), 1));
   
