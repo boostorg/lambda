@@ -54,9 +54,10 @@ namespace lambda {
 
 namespace {
 
-	boost::lambda::placeholder1_type free1;
-	boost::lambda::placeholder2_type free2;
-	boost::lambda::placeholder3_type free3;
+  // These are constants types and need to be initialised
+  boost::lambda::placeholder1_type free1 = boost::lambda::placeholder1_type();
+  boost::lambda::placeholder2_type free2 = boost::lambda::placeholder2_type();
+  boost::lambda::placeholder3_type free3 = boost::lambda::placeholder3_type();
 
 	boost::lambda::placeholder1_type& _1 = free1;
 	boost::lambda::placeholder2_type& _2 = free2;
