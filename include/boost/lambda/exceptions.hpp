@@ -309,7 +309,6 @@ struct return_or_throw_phase2<true> {
 };
 
 
-template <class T> struct  foo {};
 // the non-void case. Try part returns a value, so catch parts must 
 // return a value of the same type or throw
 template<class RET, class ARG>
@@ -882,6 +881,7 @@ class lambda_functor_base<
   Args
 > 
 {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -905,6 +905,7 @@ public:
 
 template<class Args>
 class lambda_functor_base<action<2, try_catch_action<catch_action<detail::catch_all_block> > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -928,6 +929,7 @@ public:
 // 2 catch types case
 template<class Args, class Catch1, class Catch2>
 class lambda_functor_base<action<3, try_catch_action<catch_action<detail::catch_block<Catch1>, detail::catch_block<Catch2> > > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -955,6 +957,7 @@ public:
 
 template<class Args, class Catch1>
 class lambda_functor_base<action<3, try_catch_action<catch_action<detail::catch_block<Catch1>,detail::catch_all_block> > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -983,6 +986,7 @@ public:
 // 3 catch types case
 template<class Args, class Catch1, class Catch2, class Catch3>
 class lambda_functor_base<action<4, try_catch_action<catch_action<detail::catch_block<Catch1>, detail::catch_block<Catch2>, detail::catch_block<Catch3> > > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -1018,6 +1022,7 @@ public:
 
 template<class Args, class Catch1, class Catch2>
 class lambda_functor_base<action<4, try_catch_action<catch_action<detail::catch_block<Catch1>, detail::catch_block<Catch2>,detail::catch_all_block> > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -1052,6 +1057,7 @@ public:
 // 4 catch types case
 template<class Args, class Catch1, class Catch2, class Catch3, class Catch4>
 class lambda_functor_base<action<5, try_catch_action<catch_action<detail::catch_block<Catch1>, detail::catch_block<Catch2>, detail::catch_block<Catch3>, detail::catch_block<Catch4> > > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -1091,6 +1097,7 @@ public:
 
 template<class Args, class Catch1, class Catch2, class Catch3>
 class lambda_functor_base<action<5, try_catch_action<catch_action<detail::catch_block<Catch1>, detail::catch_block<Catch2>, detail::catch_block<Catch3>,detail::catch_all_block> > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -1131,6 +1138,7 @@ public:
 // 5 catch types case
 template<class Args, class Catch1, class Catch2, class Catch3, class Catch4, class Catch5>
 class lambda_functor_base<action<6, try_catch_action<catch_action<detail::catch_block<Catch1>, detail::catch_block<Catch2>, detail::catch_block<Catch3>, detail::catch_block<Catch4>, detail::catch_block<Catch5> > > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -1176,6 +1184,7 @@ public:
 
 template<class Args, class Catch1, class Catch2, class Catch3, class Catch4>
 class lambda_functor_base<action<6, try_catch_action<catch_action<detail::catch_block<Catch1>, detail::catch_block<Catch2>, detail::catch_block<Catch3>, detail::catch_block<Catch4>,detail::catch_all_block> > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -1222,6 +1231,7 @@ public:
 // 6 catch types case
 template<class Args, class Catch1, class Catch2, class Catch3, class Catch4, class Catch5, class Catch6>
 class lambda_functor_base<action<7, try_catch_action<catch_action<detail::catch_block<Catch1>, detail::catch_block<Catch2>, detail::catch_block<Catch3>, detail::catch_block<Catch4>, detail::catch_block<Catch5>, detail::catch_block<Catch6> > > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -1273,6 +1283,7 @@ public:
 
 template<class Args, class Catch1, class Catch2, class Catch3, class Catch4, class Catch5>
 class lambda_functor_base<action<7, try_catch_action<catch_action<detail::catch_block<Catch1>, detail::catch_block<Catch2>, detail::catch_block<Catch3>, detail::catch_block<Catch4>, detail::catch_block<Catch5>,detail::catch_all_block> > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -1326,6 +1337,7 @@ public:
 template<class Args, class Catch1, class Catch2, class Catch3, class Catch4, class Catch5, class Catch6,
                      class Catch7>
 class lambda_functor_base<action<8, try_catch_action<catch_action<detail::catch_block<Catch1>, detail::catch_block<Catch2>, detail::catch_block<Catch3>, detail::catch_block<Catch4>, detail::catch_block<Catch5>, detail::catch_block<Catch6>, detail::catch_block<Catch7> > > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -1384,6 +1396,7 @@ public:
 template<class Args, class Catch1, class Catch2, class Catch3, class Catch4, class Catch5, class Catch6>
 class lambda_functor_base<action<8, try_catch_action<catch_action<detail::catch_block<Catch1>, detail::catch_block<Catch2>, detail::catch_block<Catch3>, detail::catch_block<Catch4>, detail::catch_block<Catch5>, detail::catch_block<Catch6>,
                                                                detail::catch_all_block> > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -1444,6 +1457,7 @@ template<class Args, class Catch1, class Catch2, class Catch3, class Catch4, cla
                      class Catch7, class Catch8>
 class lambda_functor_base<action<9, try_catch_action<catch_action<detail::catch_block<Catch1>, detail::catch_block<Catch2>, detail::catch_block<Catch3>, detail::catch_block<Catch4>, detail::catch_block<Catch5>, detail::catch_block<Catch6>,
     detail::catch_block<Catch7>, detail::catch_block<Catch8> > > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -1509,6 +1523,7 @@ template<class Args, class Catch1, class Catch2, class Catch3, class Catch4, cla
                      class Catch7>
 class lambda_functor_base<action<9, try_catch_action<catch_action<detail::catch_block<Catch1>, detail::catch_block<Catch2>, detail::catch_block<Catch3>, detail::catch_block<Catch4>, detail::catch_block<Catch5>, detail::catch_block<Catch6>,
     detail::catch_block<Catch7>,detail::catch_all_block> > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -1575,6 +1590,7 @@ template<class Args, class Catch1, class Catch2, class Catch3, class Catch4, cla
                      class Catch7, class Catch8, class Catch9>
 class lambda_functor_base<action<10, try_catch_action<catch_action<detail::catch_block<Catch1>, detail::catch_block<Catch2>, detail::catch_block<Catch3>, detail::catch_block<Catch4>, detail::catch_block<Catch5>, detail::catch_block<Catch6>,
     detail::catch_block<Catch7>, detail::catch_block<Catch8>, detail::catch_block<Catch9> > > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}
@@ -1646,6 +1662,7 @@ template<class Args, class Catch1, class Catch2, class Catch3, class Catch4, cla
                      class Catch7, class Catch8>
 class lambda_functor_base<action<10, try_catch_action<catch_action<detail::catch_block<Catch1>, detail::catch_block<Catch2>, detail::catch_block<Catch3>, detail::catch_block<Catch4>, detail::catch_block<Catch5>, detail::catch_block<Catch6>,
     detail::catch_block<Catch7>, detail::catch_block<Catch8>,detail::catch_all_block> > >, Args> {
+public:
   Args args;
 public:
   explicit lambda_functor_base(const Args& a) : args(a) {}

@@ -21,7 +21,4 @@
 
 #include "boost/lambda/detail/bind_functions.hpp"
 				    
-//#include "bind/make_void.hpp"
-//#include "bind/ret.hpp"
-
 #endif

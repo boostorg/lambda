@@ -36,6 +36,7 @@ using ::boost::tuples::null_type;
 
 #include "boost/lambda/detail/lambda_traits.hpp"
 
+
 #include "boost/lambda/detail/function_adaptors.hpp"
 #include "boost/lambda/detail/return_type_traits.hpp"
 
