@@ -544,10 +544,10 @@ These functions are described more thoroughly in <xref linkend="lambda.delaying_
     <section id="lambda.actual_arguments_to_lambda_functors">
       <title>About actual arguments to lambda functors</title>
 
-      <para><emphasis>This section is no longer (or currently) relevant;
+<!--      <para><emphasis>This section is no longer (or currently) relevant;
        acual arguments can be non-const rvalues.
        The section can, however, become relevant again, if in the future BLL will support
-       lambda functors with higher arities than 3.</emphasis></para>
+       lambda functors with higher arities than 3.</emphasis></para> -->
 
       <para>A general restriction for the actual arguments is that they cannot be non-const rvalues. 
 	For example:
@@ -2073,12 +2073,12 @@ was to allow nested STL algorithm invocations
 <section id="lambda.rvalues_as_actual_arguments">
 <title>Rvalues as actual arguments to lambda functors</title>
 
-      <para><emphasis>This section and all of its subsections
+<!--      <para><emphasis>This section and all of its subsections
        are no longer (or currently) relevant;
        acual arguments can be non-const rvalues and these workarounds are thus
        not needed.
        The section can, however, become relevant again, if in the future BLL will support
-       lambda functors with higher arities than 3.</emphasis></para>
+       lambda functors with higher arities than 3.</emphasis></para> -->
 
 <para>
 Actual arguments to the lambda functors cannot be non-const rvalues.
