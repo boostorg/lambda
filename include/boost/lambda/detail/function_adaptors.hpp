@@ -178,6 +178,10 @@ struct function_adaptor<Result (*)(Arg1, Arg2)> {
   static Result apply(Result (*func)(Arg1, Arg2), A1& a1, A2& a2) {
     return func(a1, a2);
   }
+  template <class A1, class F>
+  static Result apply(F func, A1& a1) {
+    return func(a1);
+  }
 };
 
 
