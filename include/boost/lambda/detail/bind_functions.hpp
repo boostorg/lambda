@@ -21,8 +21,6 @@
 namespace boost { 
 namespace lambda {
 
-using boost::tuple;
-   
 template<class T, int I> struct select_action {
   typedef typename 
     detail::IF<
