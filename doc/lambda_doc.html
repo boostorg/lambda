@@ -1,14 +1,14 @@
 <html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type"><title>
       C++ BOOST
 
-      The Boost Lambda Library</title><meta name="generator" content="DocBook XSL Stylesheets V1.48"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="article"><div class="titlepage"><div><h1 class="title"><a name="id2779314"></a>
+      The Boost Lambda Library</title><meta name="generator" content="DocBook XSL Stylesheets V1.48"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="article"><div class="titlepage"><div><h1 class="title"><a name="id2588587"></a>
       <span class="inlinemediaobject"><img src="../../../c++boost.gif" alt="C++ BOOST"></span>
 
       The Boost Lambda Library</h1></div><div><p class="copyright">Copyright © 1999-2002 Jaakko Järvi, Gary Powell</p></div><div><div class="legalnotice"><p>
         The Boost Lambda Library is free software; Permission to copy,
         use, modify and distribute this software and its documentation is granted, provided this copyright
         notice appears in all copies. 
-      </p></div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">In a nutshell</a></dt><dt>2. <a href="#sect:getting_started">Getting Started</a></dt><dd><dl><dt>2.1. <a href="#id2732600">Installing the library</a></dt><dt>2.2. <a href="#id2779414">Conventions used in this document</a></dt></dl></dd><dt>3. <a href="#id2733514">Introduction</a></dt><dd><dl><dt>3.1. <a href="#id2733521">Motivation</a></dt><dt>3.2. <a href="#id2733868">Introduction to lambda expressions</a></dt></dl></dd><dt>4. <a href="#sect:using_library">Using the library</a></dt><dd><dl><dt>4.1. <a href="#sect:introductory_examples">Introductory Examples</a></dt><dt>4.2. <a href="#sect:parameter_and_return_types">Parameter and return types of lambda functors</a></dt><dt>4.3. <a href="#sect:actual_arguments_to_lambda_functors">About actual arguments to lambda functors</a></dt><dt>4.4. <a href="#sect:storing_bound_arguments">Storing bound arguments in lambda functions</a></dt></dl></dd><dt>5. <a href="#sect:lambda_expressions_in_details">Lambda expressions in details</a></dt><dd><dl><dt>5.1. <a href="#sect:placeholders">Placeholders</a></dt><dt>5.2. <a href="#sect:operator_expressions">Operator expressions</a></dt><dt>5.3. <a href="#sect:bind_expressions">Bind expressions</a></dt><dt>5.4. <a href="#sect:overriding_deduced_return_type">Overriding the deduced return type</a></dt><dt>5.5. <a href="#sect:delaying_constants_and_variables">Delaying constants and variables</a></dt><dt>5.6. <a href="#sect:lambda_expressions_for_control_structures">Lambda expressions for control structures</a></dt><dt>5.7. <a href="#sect:exceptions">Exceptions</a></dt><dt>5.8. <a href="#sect:construction_and_destruction">Construction and destruction</a></dt><dt>5.9. <a href="#id2794558">Special lambda expressions</a></dt><dt>5.10. <a href="#id2795127">Casts, sizeof and typeid</a></dt><dt>5.11. <a href="#sect:nested_stl_algorithms">Nesting STL algorithm invocations</a></dt></dl></dd><dt>6. <a href="#sect:extending_return_type_system">Extending return type deduction system</a></dt><dt>7. <a href="#id2796701">Practical considerations</a></dt><dd><dl><dt>7.1. <a href="#id2796707">Performance</a></dt><dt>7.2. <a href="#id2796750">About compiling</a></dt><dt>7.3. <a href="#id2796820">Portability</a></dt></dl></dd><dt>8. <a href="#id2796875">Relation to other Boost libraries</a></dt><dd><dl><dt>8.1. <a href="#id2796882">Boost Function</a></dt><dt>8.2. <a href="#id2797046">Boost Bind</a></dt></dl></dd><dt>9. <a href="#id2797278">Contributors</a></dt><dt><a href="#id2797294">Bibliography</a></dt></dl></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="introduction"></a>1. In a nutshell</h2></div></div><p>
+      </p></div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">In a nutshell</a></dt><dt>2. <a href="#sect:getting_started">Getting Started</a></dt><dd><dl><dt>2.1. <a href="#id2779360">Installing the library</a></dt><dt>2.2. <a href="#id2733972">Conventions used in this document</a></dt></dl></dd><dt>3. <a href="#id2734018">Introduction</a></dt><dd><dl><dt>3.1. <a href="#id2734026">Motivation</a></dt><dt>3.2. <a href="#id2735152">Introduction to lambda expressions</a></dt></dl></dd><dt>4. <a href="#sect:using_library">Using the library</a></dt><dd><dl><dt>4.1. <a href="#sect:introductory_examples">Introductory Examples</a></dt><dt>4.2. <a href="#sect:parameter_and_return_types">Parameter and return types of lambda functors</a></dt><dt>4.3. <a href="#sect:actual_arguments_to_lambda_functors">About actual arguments to lambda functors</a></dt><dt>4.4. <a href="#sect:storing_bound_arguments">Storing bound arguments in lambda functions</a></dt></dl></dd><dt>5. <a href="#sect:lambda_expressions_in_details">Lambda expressions in details</a></dt><dd><dl><dt>5.1. <a href="#sect:placeholders">Placeholders</a></dt><dt>5.2. <a href="#sect:operator_expressions">Operator expressions</a></dt><dt>5.3. <a href="#sect:bind_expressions">Bind expressions</a></dt><dt>5.4. <a href="#sect:overriding_deduced_return_type">Overriding the deduced return type</a></dt><dt>5.5. <a href="#sect:delaying_constants_and_variables">Delaying constants and variables</a></dt><dt>5.6. <a href="#sect:lambda_expressions_for_control_structures">Lambda expressions for control structures</a></dt><dt>5.7. <a href="#sect:exceptions">Exceptions</a></dt><dt>5.8. <a href="#sect:construction_and_destruction">Construction and destruction</a></dt><dt>5.9. <a href="#id2794557">Special lambda expressions</a></dt><dt>5.10. <a href="#id2795127">Casts, sizeof and typeid</a></dt><dt>5.11. <a href="#sect:nested_stl_algorithms">Nesting STL algorithm invocations</a></dt></dl></dd><dt>6. <a href="#sect:extending_return_type_system">Extending return type deduction system</a></dt><dt>7. <a href="#id2796701">Practical considerations</a></dt><dd><dl><dt>7.1. <a href="#id2796707">Performance</a></dt><dt>7.2. <a href="#id2796750">About compiling</a></dt><dt>7.3. <a href="#id2796819">Portability</a></dt></dl></dd><dt>8. <a href="#id2797204">Relation to other Boost libraries</a></dt><dd><dl><dt>8.1. <a href="#id2797211">Boost Function</a></dt><dt>8.2. <a href="#id2797374">Boost Bind</a></dt></dl></dd><dt>9. <a href="#id2797606">Contributors</a></dt><dt><a href="#id2797623">Bibliography</a></dt></dl></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="introduction"></a>1. In a nutshell</h2></div></div><p>
 
       The Boost Lambda Library (BLL in the sequel) is a C++ template
       library, which implements form of <span class="emphasis"><i>lambda abstractions</i></span> for C++.
@@ -27,7 +27,7 @@ In explaining what the library is about, a line of code says more than a thousan
       called with an element of <tt>a</tt> as the actual argument.
       This actual argument is substituted for the placeholder, and the &#8216;body&#8217; of the function is evaluated.
     </p><p>The essence of BLL is letting you define small unnamed function objects, such as the one above, directly on the call site of an STL algorithm.
-    </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="sect:getting_started"></a>2. Getting Started</h2></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2732600"></a>2.1. Installing the library</h3></div></div><p>
+    </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="sect:getting_started"></a>2. Getting Started</h2></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2779360"></a>2.1. Installing the library</h3></div></div><p>
 	The library consists of include files only, hence there is no
 	installation procedure. The <tt>boost</tt> include directory
 	must be on the include path.
@@ -59,14 +59,14 @@ Cast expressions
 	<span class="emphasis"><i>Tuple</i></span> [<a href="#cit:boost::tuple" title="[tuple]">tuple</a>] and the <span class="emphasis"><i>type_traits</i></span> [<a href="#cit:boost::type_traits" title="[type_traits]">type_traits</a>] libraries, and on the <tt>boost/ref.hpp</tt> header.
       </p><p>
 	All definitions are placed in the namespace <tt>boost::lambda</tt> and its subnamespaces.
-      </p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2779414"></a>2.2. Conventions used in this document</h3></div></div><p>In most code examples, we omit the namespace prefixes for names in the <tt>std</tt> and <tt>boost::lambda</tt> namespaces.
+      </p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2733972"></a>2.2. Conventions used in this document</h3></div></div><p>In most code examples, we omit the namespace prefixes for names in the <tt>std</tt> and <tt>boost::lambda</tt> namespaces.
 Implicit using declarations
 <pre class="programlisting">
 using namespace std;
 using namespace boost::lambda;
 </pre>
 are assumed to be in effect.
-</p></div></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2733514"></a>3. Introduction</h2></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2733521"></a>3.1. Motivation</h3></div></div><p>The Standard Template Library (STL)
+</p></div></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2734018"></a>3. Introduction</h2></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2734026"></a>3.1. Motivation</h3></div></div><p>The Standard Template Library (STL)
 	[<a href="#cit:stepanov:94" title="[STL94]">STL94</a>], now part of the C++ Standard Library [<a href="#cit:c++:98" title="[C++98]">C++98</a>], is a generic container and algorithm library.
 Typically STL algorithms operate on container elements via <span class="emphasis"><i>function objects</i></span>. These function objects are passed as arguments to the algorithms.
 </p><p>
@@ -166,7 +166,7 @@ as function composition is supported implicitly.
 
 </p></li></ul></div>
 
-</p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2733868"></a>3.2. Introduction to lambda expressions</h3></div></div><p>
+</p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2735152"></a>3.2. Introduction to lambda expressions</h3></div></div><p>
 	Lambda expression are common in functional programming languages. 
 	Their syntax varies between languages (and between different forms of lambda calculus), but the basic form of a lambda expressions is:
 
@@ -253,7 +253,7 @@ There are quite a lot of exceptions and special cases, but discussion of them is
 list&lt;int&gt; v(10);
 for_each(v.begin(), v.end(), _1 = 1);</pre>
 
-	The expression <tt>_1 = 1</tt> creates a lambda functor which assigns the value <tt>1</tt> to every element in <tt>v</tt>.<sup>[<a name="id2729083" href="#ftn.id2729083">1</a>]</sup>
+	The expression <tt>_1 = 1</tt> creates a lambda functor which assigns the value <tt>1</tt> to every element in <tt>v</tt>.<sup>[<a name="id2728964" href="#ftn.id2728964">1</a>]</sup>
       </p><p>
 	Next, we create a container of pointers and make them point to the elements in the first container <tt>v</tt>:
 
@@ -465,7 +465,7 @@ For example, the following is a valid lambda expression:
 <pre class="programlisting">cout &lt;&lt; _1, _2[_3] = _1 &amp;&amp; false</pre>
 </p><p>
 However, there are some restrictions that originate from the C++ operator overloading rules, and some special cases.
-</p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2730115"></a>5.2.1. Operators that cannot be overloaded</h4></div></div><p>
+</p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2729971"></a>5.2.1. Operators that cannot be overloaded</h4></div></div><p>
 Some operators cannot be overloaded at all, or their overloading rules prevent them to be overloaded to create lambda functors.
 These operators are <tt>-&gt;.</tt>, <tt>-&gt;</tt>, <tt>new</tt>, <tt>new[]</tt>, <tt>delete</tt>, <tt>delete[]</tt> and <tt>?:</tt> (the conditional operator).
 </p></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="sect:assignment_and_subscript"></a>5.2.2. Assignment and subscript operators</h4></div></div><p>
@@ -844,7 +844,7 @@ By using <tt>var</tt> to make <tt>index</tt> a lambda expression, we get the des
 In sum, <tt>var(x)</tt> creates a nullary lambda functor, 
 which stores a reference to the variable <tt>x</tt>. 
 When the lambda functor is invoked, a reference to <tt>x</tt> is returned.
-</p><div class="simplesect"><div class="titlepage"><div><h4 class="title"><a name="id2793252"></a>Naming delayed constants and variables</h4></div></div><p>
+</p><div class="simplesect"><div class="titlepage"><div><h4 class="title"><a name="id2793251"></a>Naming delayed constants and variables</h4></div></div><p>
 It is possible to predefine and name a delayed variable or constant outside a lambda expression. 
 The templates <tt>var_type</tt> and <tt>constant_type</tt> serve for this purpose. 
 They are used as:
@@ -1074,7 +1074,7 @@ transform(x.begin(), x.end(), y.begin(), back_inserter(v),
 
 
 
-</p><div class="table"><p><a name="table:constructor_destructor_fos"></a><b>Table 1. Construction and destruction related function objects.</b></p><table summary="Construction and destruction related function objects." border="1"><colgroup><col><col></colgroup><thead><tr><th>Function object call</th><th>Wrapped expression</th></tr></thead><tbody><tr><td><tt>constructor&lt;T&gt;()(<i><tt>arg_list</tt></i>)</tt></td><td>T(<i><tt>arg_list</tt></i>)</td></tr><tr><td><tt>destructor()(a)</tt></td><td><tt>a.~A()</tt>, where <tt>a</tt> is of type <tt>A</tt></td></tr><tr><td><tt>destructor()(pa)</tt></td><td><tt>pa.-&gt;A()</tt>, where <tt>pa</tt> is of type <tt>A*</tt></td></tr><tr><td><tt>new_ptr&lt;T&gt;()(<i><tt>arg_list</tt></i>)</tt></td><td><tt>new T(<i><tt>arg_list</tt></i>)</tt></td></tr><tr><td><tt>new_array&lt;T&gt;()(sz)</tt></td><td><tt>new T[sz]</tt></td></tr><tr><td><tt>delete_ptr()(p)</tt></td><td><tt>delete p</tt></td></tr><tr><td><tt>delete_array()(p)</tt></td><td><tt>delete p[]</tt></td></tr></tbody></table></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2794558"></a>5.9. Special lambda expressions</h3></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2794565"></a>5.9.1. Preventing argument substitution</h4></div></div><p>
+</p><div class="table"><p><a name="table:constructor_destructor_fos"></a><b>Table 1. Construction and destruction related function objects.</b></p><table summary="Construction and destruction related function objects." border="1"><colgroup><col><col></colgroup><thead><tr><th>Function object call</th><th>Wrapped expression</th></tr></thead><tbody><tr><td><tt>constructor&lt;T&gt;()(<i><tt>arg_list</tt></i>)</tt></td><td>T(<i><tt>arg_list</tt></i>)</td></tr><tr><td><tt>destructor()(a)</tt></td><td><tt>a.~A()</tt>, where <tt>a</tt> is of type <tt>A</tt></td></tr><tr><td><tt>destructor()(pa)</tt></td><td><tt>pa.-&gt;A()</tt>, where <tt>pa</tt> is of type <tt>A*</tt></td></tr><tr><td><tt>new_ptr&lt;T&gt;()(<i><tt>arg_list</tt></i>)</tt></td><td><tt>new T(<i><tt>arg_list</tt></i>)</tt></td></tr><tr><td><tt>new_array&lt;T&gt;()(sz)</tt></td><td><tt>new T[sz]</tt></td></tr><tr><td><tt>delete_ptr()(p)</tt></td><td><tt>delete p</tt></td></tr><tr><td><tt>delete_array()(p)</tt></td><td><tt>delete p[]</tt></td></tr></tbody></table></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2794557"></a>5.9. Special lambda expressions</h3></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2794565"></a>5.9.1. Preventing argument substitution</h4></div></div><p>
 When a lambda functor is called, the default behavior is to substitute the actual arguments for the placeholders within all subexpressions.
 This section describes the tools to prevent the substitution and evaluation of a subexpression, and explains when these tools should be used.
 </p><p>
@@ -1434,17 +1434,62 @@ This can make the error messages very long and difficult to interpret, particula
 The C++ Standard suggests a template nesting level of 17 to help detect infinite recursion. 
 Complex lambda templates can easily exceed this limit. 
 Most compilers allow a greater number of nested templates, but commonly require the limit explicitly increased with a command line argument.
-</p></li></ul></div></p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2796820"></a>7.3. Portability</h3></div></div><p>
+</p></li></ul></div></p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2796819"></a>7.3. Portability</h3></div></div><p>
 The BLL works with the following compilers, that is, the compilers are capable of compiling the test cases that are included with the BLL:
 
       <div class="itemizedlist"><ul type="disc"><li>GCC 3.0.2
 	</li><li>KCC 4.0f with EDG 2.43.1
-	</li><li>GCC 2.96 (fails with two test cases)
+	</li><li>GCC 2.96 (fails with one test case, the <tt>exception_test.cpp</tt> results in an internal compiler error.
+)
 
 	</li></ul></div>
-</p><p>
-Compiling with GCC 2.96 the <tt>exception_test.cpp</tt> results in an internal compiler, and function references cannot be used as target functions in bind expressions (the <tt>bind_tests_simple_function_references.cpp</tt> fails).
-</p></div></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2796875"></a>8. Relation to other Boost libraries</h2></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2796882"></a>8.1. Boost Function</h3></div></div><p>Sometimes it is convenient to store lambda functors in variables.
+</p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2796859"></a>7.3.1. Test coverage</h4></div></div><p>The following list describes the test files included and the features that each file covers:
+
+<div class="itemizedlist"><ul type="disc"><li><p>
+<tt>bind_tests_simple.cpp</tt> : Bind expressions of different arities and types of target functions: function pointers, function objects and member functions.
+Function composition with bind expressions.</p></li><li><p><tt>bind_tests_simple_function_references.cpp</tt> :
+Repeats all tests from <tt>bind_tests_simple.cpp</tt> where the target function is a function pointer, but uses function references instead.
+</p></li><li><p><tt>bind_tests_advanced.cpp</tt> : Contains tests for nested bind expressions, <tt>unlambda</tt>, <tt>protect</tt>, <tt>const_parameters</tt> and <tt>break_const</tt>.
+Tests passing lambda functors as actual arguments to other lambda functors, currying, and using the <tt>sig</tt> template to specify the return type of a function object.
+</p></li><li><p>
+<tt>operator_tests_simple.cpp</tt> :
+Tests using all operators that are overloaded for lambda expressions, that is, unary and binary arithmetic, 
+bitwise, 
+comparison, 
+logical,
+increment and decrement, 
+compound, 
+assignment,
+subscrict, 
+address of,
+dereference, and comma operators.
+The streaming nature of shift operators is tested, as well as pointer arithmetic with plus and minus operators.
+</p></li><li><p><tt>member_pointer_test.cpp</tt> : The pointer to member operator is complex enough to warrant a separate test file.
+</p></li><li><p>
+<tt>control_structures.cpp</tt> :
+Tests for the looping and if constructs.
+</p></li><li><p>
+<tt>switch_construct.cpp</tt> :
+Includes tests for all supported arities of the switch statement, both with and without the default case.
+</p></li><li><p>
+<tt>exception_test.cpp</tt> :
+Includes tests for throwing exceptions and for try/catch constructs with varying number of catch blocks.
+</p></li><li><p>
+<tt>constructor_tests.cpp</tt> :
+Contains tests for <tt>constructor</tt>, <tt>destructor</tt>, <tt>new_ptr</tt>, <tt>delete_ptr</tt>, <tt>new_array</tt> and <tt>delete_array</tt>.
+</p></li><li><p>
+<tt>cast_test.cpp</tt> : Tests for the four cast expressions, as well as <tt>typeid</tt> and <tt>sizeof</tt>.
+</p></li><li><p>
+<tt>extending_return_type_traits.cpp</tt> : Tests extending the return type deduction system for user defined types.
+Contains several user defined operators and the corresponding specializations for the return type deduction templates.
+</p></li><li><p>
+<tt>is_instance_of_test.cpp</tt> : Includes tests for an internally used traits template, which can detect whether a given type is an instance of a certain template or not. 
+</p></li><li><p>
+<tt>bll_and_function.cpp</tt> :
+Contains tests for using <tt>boost::function</tt> together with lambda functors.
+</p></li></ul></div>
+
+</p></div></div></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2797204"></a>8. Relation to other Boost libraries</h2></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2797211"></a>8.1. Boost Function</h3></div></div><p>Sometimes it is convenient to store lambda functors in variables.
 However, the types of even the simplest lambda functors are long and unwieldy, and it is in general unfeasible to declare variables with lambda functor types.
 <span class="emphasis"><i>The Boost Function library</i></span> [<a href="#cit:boost::function" title="[function]">function</a>] defines wrappers for (almost) arbitrary function objects; and these wrappers have types that are easy to type out.
 For example:
@@ -1493,7 +1538,7 @@ delete sum;
 counter(3); // error, *sum does not exist anymore
 </pre>
 
-</p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2797046"></a>8.2. Boost Bind</h3></div></div><p>
+</p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2797374"></a>8.2. Boost Bind</h3></div></div><p>
 <span class="emphasis"><i>The Boost Bind</i></span> [<a href="#cit:boost::bind" title="[bind]">bind</a>] library has partially overlapping functionality with the BLL. 
 Basically, the Boost Bind library (BB in the sequel) implements the bind expression part of BLL.
 There are, however, some semantical differerences.
@@ -1507,7 +1552,7 @@ the names of the BB library are in <tt>boost</tt> namespace, whereas the BLL nam
 The BLL requires a compiler that is reasonably conformant to the C++ standard, whereas the BB library is more portable, and works witha a larger set of compilers. 
 </p><p>
 The following two sections describe what are the semantic differences between the bind expressions in BB and BLL.
-</p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2797111"></a>8.2.1. First argument of bind expression</h4></div></div>
+</p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2797440"></a>8.2.1. First argument of bind expression</h4></div></div>
 In BB the first argument of the bind expression, the target function, is treated differently from the other arguments, 
 as no argument substitution takes place within that argument.
 In BLL the first argument is not a special case in this respect.
@@ -1547,7 +1592,7 @@ bind(unlambda(f), _1)(x);
 </pre>
 as explained in <a href="#sect:unlambda" title="5.9.1.1. Unlambda">Section 5.9.1.1</a>. 
 
-</div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2797202"></a>8.2.2. 
+</div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2797531"></a>8.2.2. 
 Arity of function objects
 </h4></div></div><p>
 In both libraries, the highest placeholder index in a bind expression determines the arity of the resulting function object.
@@ -1579,12 +1624,12 @@ The left-hand argument of the comma operator does nothing, and as comma returns 
 <tt>g(x, x, x)</tt>.
 
 
-</p></div></div></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2797278"></a>9. Contributors</h2></div></div>
+</p></div></div></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2797606"></a>9. Contributors</h2></div></div>
 
 The main body of the library was written by Jaakko Järvi and Gary Powell.
 We've got outside help, suggestions and ideas from Jeremy Siek, Peter Higley, Peter Dimov, Valentin Bonnard, William Kempf.
 
-</div><div id="id2797294" class="bibliography"><div class="titlepage"><div><h2 class="title"><a name="id2797294"></a>Bibliography</h2></div></div><div class="biblioentry"><a name="cit:stepanov:94"></a><p>[STL94] <span class="authorgroup">A. A. Stepanov and M. Lee. </span><span class="title"><I>The Standard Template Library</I>. </span><span class="orgname">Hewlett-Packard Laboratories. </span><span class="pubdate">1994. </span><span class="bibliomisc">
+</div><div id="id2797623" class="bibliography"><div class="titlepage"><div><h2 class="title"><a name="id2797623"></a>Bibliography</h2></div></div><div class="biblioentry"><a name="cit:stepanov:94"></a><p>[STL94] <span class="authorgroup">A. A. Stepanov and M. Lee. </span><span class="title"><I>The Standard Template Library</I>. </span><span class="orgname">Hewlett-Packard Laboratories. </span><span class="pubdate">1994. </span><span class="bibliomisc">
 <a href="http://www.hpl.hp.com/techreports" target="_top">www.hpl.hp.com/techreports</a>
 . </span></p></div><div class="biblioentry"><a name="cit:sgi:02"></a><p>[SGI02] <span class="title"><I>The SGI Standard Template Library</I>. </span><span class="pubdate">2002. </span><span class="bibliomisc"><a href="http://www.sgi.com/tech/stl/" target="_top">www.sgi.com/tech/stl/</a>. </span></p></div><div class="biblioentry"><a name="cit:c++:98"></a><p>[C++98] <span class="title"><I>International Standard, Programming Languages &#8211; C++</I>. </span><span class="subtitle">ISO/IEC:14882. </span><span class="pubdate">1998. </span></p></div><div class="biblioentry"><a name="cit:jarvi:99"></a><p>[Jär99] <span class="articleinfo">
 <span class="author">Jaakko Järvi. </span>
@@ -1594,7 +1639,7 @@ We've got outside help, suggestions and ideas from Jeremy Siek, Peter Higley, Pe
 . </span><span class="pubdate">2002. </span></p></div><div class="biblioentry"><a name="cit:boost::ref"></a><p>[ref] <span class="title"><I>Boost ref</I>. </span><span class="bibliomisc"><a href="http://www.boost.org/libs/bind/ref.html" target="_top">www.boost.org/libs/bind/ref.html</a>
 . </span><span class="pubdate">2002. </span></p></div><div class="biblioentry"><a name="cit:boost::bind"></a><p>[bind] <span class="title"><I>Boost Bind Library</I>. </span><span class="bibliomisc"><a href="http://www.boost.org/libs/bind/bind.html" target="_top">www.boost.org/libs/bind/bind.html</a>
 . </span><span class="pubdate">2002. </span></p></div><div class="biblioentry"><a name="cit:boost::function"></a><p>[function] <span class="title"><I>Boost Function Library</I>. </span><span class="bibliomisc"><a href="http://www.boost.org/libs/function/" target="_top">www.boost.org/libs/function/</a>
-. </span><span class="pubdate">2002. </span></p></div></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.id2729083" href="#id2729083">1</a>] </sup>
+. </span><span class="pubdate">2002. </span></p></div></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.id2728964" href="#id2728964">1</a>] </sup>
 Strictly taken, the C++ standard defines <tt>for_each</tt> as a <span class="emphasis"><i>non-modifying sequence operation</i></span>, and the function object passed to <tt>for_each</tt> should not modify its argument. 
 The requirements for the arguments of <tt>for_each</tt> are unnecessary strict, since as long as the iterators are <span class="emphasis"><i>mutable</i></span>, <tt>for_each</tt> accepts a function object that can have side-effects on their argument.
 Nevertheless, it is straightforward to provide another function template with the functionality of<tt>std::for_each</tt> but more fine-grained requirements for its arguments.

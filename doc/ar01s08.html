@@ -5,7 +5,7 @@
       The Boost Lambda Library"><link rel="up" href="index.html" title="
       C++ BOOST
 
-      The Boost Lambda Library"><link rel="previous" href="ar01s07.html" title="7. Practical considerations"><link rel="next" href="ar01s09.html" title="9. Contributors"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">8. Relation to other Boost libraries</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s07.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ar01s09.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2807551"></a>8. Relation to other Boost libraries</h2></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2807558"></a>8.1. Boost Function</h3></div></div><p>Sometimes it is convenient to store lambda functors in variables.
+      The Boost Lambda Library"><link rel="previous" href="ar01s07.html" title="7. Practical considerations"><link rel="next" href="ar01s09.html" title="9. Contributors"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">8. Relation to other Boost libraries</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s07.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ar01s09.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2807880"></a>8. Relation to other Boost libraries</h2></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2807887"></a>8.1. Boost Function</h3></div></div><p>Sometimes it is convenient to store lambda functors in variables.
 However, the types of even the simplest lambda functors are long and unwieldy, and it is in general unfeasible to declare variables with lambda functor types.
 <span class="emphasis"><i>The Boost Function library</i></span> [<a href="bi01.html#cit:boost::function" title="[function]">function</a>] defines wrappers for (almost) arbitrary function objects; and these wrappers have types that are easy to type out.
 For example:
@@ -54,7 +54,7 @@ delete sum;
 counter(3); // error, *sum does not exist anymore
 </pre>
 
-</p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2807721"></a>8.2. Boost Bind</h3></div></div><p>
+</p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2808050"></a>8.2. Boost Bind</h3></div></div><p>
 <span class="emphasis"><i>The Boost Bind</i></span> [<a href="bi01.html#cit:boost::bind" title="[bind]">bind</a>] library has partially overlapping functionality with the BLL. 
 Basically, the Boost Bind library (BB in the sequel) implements the bind expression part of BLL.
 There are, however, some semantical differerences.
@@ -68,7 +68,7 @@ the names of the BB library are in <tt>boost</tt> namespace, whereas the BLL nam
 The BLL requires a compiler that is reasonably conformant to the C++ standard, whereas the BB library is more portable, and works witha a larger set of compilers. 
 </p><p>
 The following two sections describe what are the semantic differences between the bind expressions in BB and BLL.
-</p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2807787"></a>8.2.1. First argument of bind expression</h4></div></div>
+</p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2808116"></a>8.2.1. First argument of bind expression</h4></div></div>
 In BB the first argument of the bind expression, the target function, is treated differently from the other arguments, 
 as no argument substitution takes place within that argument.
 In BLL the first argument is not a special case in this respect.
@@ -108,7 +108,7 @@ bind(unlambda(f), _1)(x);
 </pre>
 as explained in <a href="ar01s05.html#sect:unlambda" title="5.9.1.1. Unlambda">Section 5.9.1.1</a>. 
 
-</div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2807878"></a>8.2.2. 
+</div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2808206"></a>8.2.2. 
 Arity of function objects
 </h4></div></div><p>
 In both libraries, the highest placeholder index in a bind expression determines the arity of the resulting function object.

@@ -32,9 +32,54 @@ The BLL works with the following compilers, that is, the compilers are capable o
 
       <div class="itemizedlist"><ul type="disc"><li>GCC 3.0.2
 	</li><li>KCC 4.0f with EDG 2.43.1
-	</li><li>GCC 2.96 (fails with two test cases)
+	</li><li>GCC 2.96 (fails with one test case, the <tt>exception_test.cpp</tt> results in an internal compiler error.
+)
 
 	</li></ul></div>
-</p><p>
-Compiling with GCC 2.96 the <tt>exception_test.cpp</tt> results in an internal compiler, and function references cannot be used as target functions in bind expressions (the <tt>bind_tests_simple_function_references.cpp</tt> fails).
-</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s06.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="index.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ar01s08.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">6. Extending return type deduction system </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> 8. Relation to other Boost libraries</td></tr></table></div></body></html>
+</p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2807535"></a>7.3.1. Test coverage</h4></div></div><p>The following list describes the test files included and the features that each file covers:
+
+<div class="itemizedlist"><ul type="disc"><li><p>
+<tt>bind_tests_simple.cpp</tt> : Bind expressions of different arities and types of target functions: function pointers, function objects and member functions.
+Function composition with bind expressions.</p></li><li><p><tt>bind_tests_simple_function_references.cpp</tt> :
+Repeats all tests from <tt>bind_tests_simple.cpp</tt> where the target function is a function pointer, but uses function references instead.
+</p></li><li><p><tt>bind_tests_advanced.cpp</tt> : Contains tests for nested bind expressions, <tt>unlambda</tt>, <tt>protect</tt>, <tt>const_parameters</tt> and <tt>break_const</tt>.
+Tests passing lambda functors as actual arguments to other lambda functors, currying, and using the <tt>sig</tt> template to specify the return type of a function object.
+</p></li><li><p>
+<tt>operator_tests_simple.cpp</tt> :
+Tests using all operators that are overloaded for lambda expressions, that is, unary and binary arithmetic, 
+bitwise, 
+comparison, 
+logical,
+increment and decrement, 
+compound, 
+assignment,
+subscrict, 
+address of,
+dereference, and comma operators.
+The streaming nature of shift operators is tested, as well as pointer arithmetic with plus and minus operators.
+</p></li><li><p><tt>member_pointer_test.cpp</tt> : The pointer to member operator is complex enough to warrant a separate test file.
+</p></li><li><p>
+<tt>control_structures.cpp</tt> :
+Tests for the looping and if constructs.
+</p></li><li><p>
+<tt>switch_construct.cpp</tt> :
+Includes tests for all supported arities of the switch statement, both with and without the default case.
+</p></li><li><p>
+<tt>exception_test.cpp</tt> :
+Includes tests for throwing exceptions and for try/catch constructs with varying number of catch blocks.
+</p></li><li><p>
+<tt>constructor_tests.cpp</tt> :
+Contains tests for <tt>constructor</tt>, <tt>destructor</tt>, <tt>new_ptr</tt>, <tt>delete_ptr</tt>, <tt>new_array</tt> and <tt>delete_array</tt>.
+</p></li><li><p>
+<tt>cast_test.cpp</tt> : Tests for the four cast expressions, as well as <tt>typeid</tt> and <tt>sizeof</tt>.
+</p></li><li><p>
+<tt>extending_return_type_traits.cpp</tt> : Tests extending the return type deduction system for user defined types.
+Contains several user defined operators and the corresponding specializations for the return type deduction templates.
+</p></li><li><p>
+<tt>is_instance_of_test.cpp</tt> : Includes tests for an internally used traits template, which can detect whether a given type is an instance of a certain template or not. 
+</p></li><li><p>
+<tt>bll_and_function.cpp</tt> :
+Contains tests for using <tt>boost::function</tt> together with lambda functors.
+</p></li></ul></div>
+
+</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s06.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="index.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ar01s08.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">6. Extending return type deduction system </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> 8. Relation to other Boost libraries</td></tr></table></div></body></html>
