@@ -18,6 +18,8 @@
 #ifndef BOOST_LAMBDA_IS_INSTANCE_OF
 #define BOOST_LAMBDA_IS_INSTANCE_OF
 
+#include "boost/config.hpp" // for BOOST_STATIC_CONSTANT
+#include "boost/type_traits/conversion_traits.hpp" // for is_convertible
 #include "boost/preprocessor/enum_shifted_params.hpp"
 #include "boost/preprocessor/repeat_2nd.hpp"
 
@@ -32,75 +34,54 @@
 // Example:
 // is_instance_of_2<std::istream, basic_stream>::value == true
 
-// Vesa Karvonen's preprocessor library is not part of boost (yet), so 
-// the relevant headers are under boost/lambda/detail
+// The original implementation was somewhat different, with different versions
+// for different compilers. However, there was still a problem
+// with gcc.3.0.2 and 3.0.3 compilers, which didn't think regard
+// is_instance_of_N<...>::value was a constant.
+// John Maddock suggested the way around this problem by building 
+// is_instance_of templates using boost::is_convertible.
+// Now we only have one version of is_instance_of templates, which delagate
+// all the nasty compiler tricks to is_convertible. 
 
 #define BOOST_LAMBDA_CLASS(N,A) BOOST_PP_COMMA_IF(N) class
-#define BOOST_LAMBDA_CLASS_ARG(N,A) BOOST_PP_COMMA_IF(N) class T##N 
-#define BOOST_LAMBDA_ARG(N,A) BOOST_PP_COMMA_IF(N) T##N 
+#define BOOST_LAMBDA_CLASS_ARG(N,A) BOOST_PP_COMMA_IF(N) class A##N 
+#define BOOST_LAMBDA_ARG(N,A) BOOST_PP_COMMA_IF(N) A##N 
 
-#define BOOST_LAMBDA_CLASS_LIST(n) BOOST_PP_REPEAT(n, BOOST_LAMBDA_CLASS, FOO)
+#define BOOST_LAMBDA_CLASS_LIST(n, NAME) BOOST_PP_REPEAT(n, BOOST_LAMBDA_CLASS, NAME)
 
-#define BOOST_LAMBDA_CLASS_ARG_LIST(n) BOOST_PP_REPEAT(n, BOOST_LAMBDA_CLASS_ARG, FOO)
+#define BOOST_LAMBDA_CLASS_ARG_LIST(n, NAME) BOOST_PP_REPEAT(n, BOOST_LAMBDA_CLASS_ARG, NAME)
 
-#define BOOST_LAMBDA_ARG_LIST(n) BOOST_PP_REPEAT(n, BOOST_LAMBDA_ARG, FOO)
+#define BOOST_LAMBDA_ARG_LIST(n, NAME) BOOST_PP_REPEAT(n, BOOST_LAMBDA_ARG, NAME)
 
 namespace boost {
 namespace lambda {
-namespace detail {
 
-typedef char yes_type;
-typedef double no_type;
-
-#ifndef __GNUC__
-
-  // store a pointer, as passing non-PODs through ellipsis results in	
-  // warnings in some compilers						
-
-#define BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE(INDEX)				\
-template <class From, template <BOOST_LAMBDA_CLASS_LIST(INDEX)> class To>	\
-struct BOOST_PP_CAT(is_instance_of_,INDEX)		\
-{										\
-private:									\
-   static no_type _m_check(...);						\
-										\
-   template <BOOST_LAMBDA_CLASS_ARG_LIST(INDEX)>				\
-   static yes_type _m_check(const To<BOOST_LAMBDA_ARG_LIST(INDEX)>*);		\
-										\
-   static From* _m_from;							\
-										\
-public:										\
-   static const bool value = sizeof( _m_check(_m_from) ) == sizeof(yes_type);	\
-   void foo();									\
+#define BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE(INDEX)			    \
+									    \
+namespace detail {							    \
+									    \
+template <template<BOOST_LAMBDA_CLASS_LIST(INDEX,T)> class F>		    \
+struct BOOST_PP_CAT(conversion_tester_,INDEX) {				    \
+  template<BOOST_LAMBDA_CLASS_ARG_LIST(INDEX,A)>			    \
+  BOOST_PP_CAT(conversion_tester_,INDEX)				    \
+    (const F<BOOST_LAMBDA_ARG_LIST(INDEX,A)>&);				    \
+};									    \
+									    \
+} /* end detail */							    \
+									    \
+template <class From, template <BOOST_LAMBDA_CLASS_LIST(INDEX,T)> class To> \
+struct BOOST_PP_CAT(is_instance_of_,INDEX)				    \
+{									    \
+ private:								    \
+   typedef ::boost::is_convertible<					    \
+     From,								    \
+     BOOST_PP_CAT(detail::conversion_tester_,INDEX)<To>			    \
+   > helper_type;							    \
+									    \
+public:									    \
+  BOOST_STATIC_CONSTANT(bool, value = helper_type::value);		    \
 };
 
-
-#else
-  // GCC version
-
-#define BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE(INDEX)				\
-template <class From, template <BOOST_LAMBDA_CLASS_LIST(INDEX)> class To>	\
-struct BOOST_PP_CAT(is_instance_of_,INDEX)		\
-{										\
-private:									\
-   static no_type _m_check(...);						\
-										\
-   template <BOOST_LAMBDA_CLASS_ARG_LIST(INDEX)>				\
-   static yes_type _m_check(const To<BOOST_LAMBDA_ARG_LIST(INDEX)>*);		\
-										\
-   static From* _m_from;							\
-										\
-public:										\
-   static const bool value;							\
-   void foo();									\
-};										\
-										\
-template <class From, template <BOOST_LAMBDA_CLASS_LIST(INDEX)> class To>	\
-const bool									\
-BOOST_PP_CAT(is_instance_of_,INDEX)<From, To>::value	\
-  = sizeof( _m_check(_m_from) ) == sizeof(yes_type);  
-
-#endif 
 
 #define BOOST_LAMBDA_HELPER(N, A) BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE( BOOST_PP_INC(N) )
 
@@ -117,9 +98,12 @@ BOOST_PP_REPEAT_2ND(4,BOOST_LAMBDA_HELPER,FOO)
 #undef BOOST_LAMBDA_ARG_LIST
 #undef BOOST_LAMBDA_CLASS_ARG_LIST
 
-} // detail
 } // lambda
 } // boost
 
 #endif
+
+
+
+
 
