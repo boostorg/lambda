@@ -39,10 +39,13 @@ void test_member_functions()
   A a(10);
   int i = 1;
 
-  BOOST_TEST(bind(&A::add, ref(a), _1)(i) == 11);
-  BOOST_TEST(bind(&A::add, &a, _1)(i) == 11);
-  BOOST_TEST(bind(&A::add, _1, 1)(a) == 11);
-  BOOST_TEST(bind(&A::add, _1, 1)(make_const(&a)) == 11);
+
+
+
+    BOOST_TEST(bind(&A::add, ref(a), _1)(i) == 11);
+    BOOST_TEST(bind(&A::add, &a, _1)(i) == 11);
+    BOOST_TEST(bind(&A::add, _1, 1)(a) == 11);
+    BOOST_TEST(bind(&A::add, _1, 1)(make_const(&a)) == 11);
 
   // This should fail, as lambda functors store arguments as const
   // bind(&A::add, a, _1); 
