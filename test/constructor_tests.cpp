@@ -178,6 +178,11 @@ void test_destructor ()
   BOOST_TEST(flag == false);
   bind(destructor(), _1)(idc);
   BOOST_TEST(flag == true);
+
+  idc = new(space) is_destructor_called(flag);
+  BOOST_TEST(flag == false);
+  bind(destructor(), _1)(*idc);
+  BOOST_TEST(flag == true);
 }
 
 

@@ -9,7 +9,6 @@
 #include <map>
 #include <set>
 #include <string>
-#include <deque>
 
 
 using namespace boost::lambda;

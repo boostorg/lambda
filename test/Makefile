@@ -1,0 +1,88 @@
+BOOST 		= ../../..
+ 
+CXX		= gcc 
+EXTRAFLAGS 	= -pedantic -Wno-long-long -ftemplate-depth-50 
+ LIBS		= -lstdc++
+
+#CXX		= KCC 
+#EXTRAFLAGS 	= --strict --display_error_number --diag_suppress 450 --max_pending_instantiations 50
+#LIBS		=
+
+INCLUDES	= -I$(BOOST)
+
+
+
+CXXFLAGS	= $(INCLUDES) $(EXTRAFLAGS)
+
+LIBFLAGS	= $(LIBS)
+
+
+AR		= ar
+
+.SUFFIXES: .cpp .o
+
+SOURCES = \
+is_instance_of_test.cpp \
+member_pointer_test.cpp \
+control_structures.cpp \
+switch_construct.cpp \
+extending_return_type_traits.cpp \
+constructor_tests.cpp \
+cast_test.cpp \
+operator_tests_simple.cpp \
+bind_tests_simple.cpp \
+bind_tests_advanced.cpp \
+bind_tests_simple_function_references.cpp \
+exception_test.cpp \
+
+
+# Create lists of object files from the source file lists.
+
+OBJECTS = ${SOURCES:.cpp=.o}     
+
+TARGETS = ${SOURCES:.cpp=.exe}     
+
+all: 	$(TARGETS)
+
+%.exe: %.o
+	$(CXX) $(LIBFLAGS) $(CXXFLAGS) -o $@ $<
+
+%.o: %.cpp 
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+%.dep:  %.cpp
+	set -e; $(CXX) -M $(INCLUDES) -c $< \
+		| sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; \
+	[ -s $@ ] || rm -f $@
+
+DEP_FILES = $(SOURCES:.cpp=.dep)
+
+include $(DEP_FILES)
+
+clean:	
+	/bin/rm -rf $(TARGETS) $(OBJECTS) $(DEP_FILES)
+
+run:	
+	./is_instance_of_test.exe
+	./is_instance_of_test.exe
+	./member_pointer_test.exe
+	./exception_test.exe
+	./operator_tests_simple.exe 
+	./bind_tests_simple.exe 
+	./exception_test.exe 
+	./control_structures.exe 
+	./switch_construct.exe 
+	./bind_tests_advanced.exe 
+	./extending_return_type_traits.exe 
+	./constructor_tests.exe 
+	./cast_test.exe 
+	./bind_tests_simple_function_references.exe
+
+
+
+
+
+
+
+
+

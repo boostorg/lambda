@@ -14,6 +14,7 @@
 
 #include <algorithm>
 
+
 using namespace boost::lambda; 
 
 int sum_0() { return 0; }
@@ -43,17 +44,19 @@ void test_nested_binds()
 // The interpretation is, that the innermost lambda functor returns something
 // that is bindable (another lambda functor, function pointer ...)
   bool condition;
-  
+
   condition = true;
-  BOOST_TEST(bind(bind(sum_or_product, _1), 1, 2)(condition)==3);
-  BOOST_TEST(bind(bind(sum_or_product, _1), _2, _3)(condition, j, k)==5);
+  BOOST_TEST(bind(bind(&sum_or_product, _1), 1, 2)(condition)==3);
+  BOOST_TEST(bind(bind(&sum_or_product, _1), _2, _3)(condition, j, k)==5);
 
   condition = false;   
-  BOOST_TEST(bind(bind(sum_or_product, _1), 1, 2)(condition)==2);
-  BOOST_TEST(bind(bind(sum_or_product, _1), _2, _3)(condition, j, k)==6);
+  BOOST_TEST(bind(bind(&sum_or_product, _1), 1, 2)(condition)==2);
+  BOOST_TEST(bind(bind(&sum_or_product, _1), _2, _3)(condition, j, k)==6);
+
 
   which_one wo; 
   BOOST_TEST(bind(bind(bind(wo), _1), _2, _3)(condition, j, k)==6);   
+
 
   return;
 }
@@ -251,12 +254,12 @@ void test_lambda_functors_as_arguments_to_lambda_functors() {
 
   // Note however, that the argument/type substitution is not entered again.
   // This means, that something like this will not work:
-  (_1 + _2)(bind(sum_0), make_const(7)); 
+  (_1 + _2)(bind(&sum_0), make_const(7)); 
     // or it does work, but the effect is not to call
     // sum_0() + 7, but rather
     // bind(sum_0) + 7, which results in another lambda functor
     // (lambda functor + int) and can be called again
-  BOOST_TEST((_1 + _2)(bind(sum_0), make_const(7))() == 7); 
+  BOOST_TEST((_1 + _2)(bind(&sum_0), make_const(7))() == 7); 
    
 
   // also, note that lambda functor are no special case for bind if received
