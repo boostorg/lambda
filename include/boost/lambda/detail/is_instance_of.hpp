@@ -18,8 +18,8 @@
 #ifndef BOOST_LAMBDA_IS_INSTANCE_OF
 #define BOOST_LAMBDA_IS_INSTANCE_OF
 
-#include "boost/lambda/detail/preprocessor/enum_shifted_params.hpp"
-#include "boost/lambda/detail/preprocessor/2nd_repeat.hpp"
+#include "boost/preprocessor/enum_shifted_params.hpp"
+#include "boost/preprocessor/repeat_2nd.hpp"
 
 // is_instance_of --------------------------------
 // 
@@ -35,15 +35,15 @@
 // Vesa Karvonen's preprocessor library is not part of boost (yet), so 
 // the relevant headers are under boost/lambda/detail
 
-#define BOOST_LAMBDA_CLASS(N,A,B) BOOST_PREPROCESSOR_COMMA_IF(N) class
-#define BOOST_LAMBDA_CLASS_ARG(N,A,B) BOOST_PREPROCESSOR_COMMA_IF(N) class T##N 
-#define BOOST_LAMBDA_ARG(N,A,B) BOOST_PREPROCESSOR_COMMA_IF(N) T##N 
+#define BOOST_LAMBDA_CLASS(N,A) BOOST_PP_COMMA_IF(N) class
+#define BOOST_LAMBDA_CLASS_ARG(N,A) BOOST_PP_COMMA_IF(N) class T##N 
+#define BOOST_LAMBDA_ARG(N,A) BOOST_PP_COMMA_IF(N) T##N 
 
-#define BOOST_LAMBDA_CLASS_LIST(n) BOOST_PREPROCESSOR_REPEAT(n, BOOST_LAMBDA_CLASS, FOO, FOO)
+#define BOOST_LAMBDA_CLASS_LIST(n) BOOST_PP_REPEAT(n, BOOST_LAMBDA_CLASS, FOO)
 
-#define BOOST_LAMBDA_CLASS_ARG_LIST(n) BOOST_PREPROCESSOR_REPEAT(n, BOOST_LAMBDA_CLASS_ARG, FOO, FOO)
+#define BOOST_LAMBDA_CLASS_ARG_LIST(n) BOOST_PP_REPEAT(n, BOOST_LAMBDA_CLASS_ARG, FOO)
 
-#define BOOST_LAMBDA_ARG_LIST(n) BOOST_PREPROCESSOR_REPEAT(n, BOOST_LAMBDA_ARG, FOO, FOO)
+#define BOOST_LAMBDA_ARG_LIST(n) BOOST_PP_REPEAT(n, BOOST_LAMBDA_ARG, FOO)
 
 namespace boost {
 namespace lambda {
@@ -59,7 +59,7 @@ typedef double no_type;
 
 #define BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE(INDEX)				\
 template <class From, template <BOOST_LAMBDA_CLASS_LIST(INDEX)> class To>	\
-struct BOOST_PREPROCESSOR_CAT(is_instance_of_,INDEX)		\
+struct BOOST_PP_CAT(is_instance_of_,INDEX)		\
 {										\
 private:									\
    static no_type _m_check(...);						\
@@ -80,7 +80,7 @@ public:										\
 
 #define BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE(INDEX)				\
 template <class From, template <BOOST_LAMBDA_CLASS_LIST(INDEX)> class To>	\
-struct BOOST_PREPROCESSOR_CAT(is_instance_of_,INDEX)		\
+struct BOOST_PP_CAT(is_instance_of_,INDEX)		\
 {										\
 private:									\
    static no_type _m_check(...);						\
@@ -97,16 +97,16 @@ public:										\
 										\
 template <class From, template <BOOST_LAMBDA_CLASS_LIST(INDEX)> class To>	\
 const bool									\
-BOOST_PREPROCESSOR_CAT(is_instance_of_,INDEX)<From, To>::value	\
+BOOST_PP_CAT(is_instance_of_,INDEX)<From, To>::value	\
   = sizeof( _m_check(_m_from) ) == sizeof(yes_type);  
 
 #endif 
 
-#define BOOST_LAMBDA_HELPER(N, A, B) BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE( BOOST_PREPROCESSOR_INC(N) )
+#define BOOST_LAMBDA_HELPER(N, A) BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE( BOOST_PP_INC(N) )
 
 // Generate the traits for 1-4 argument templates
 
-BOOST_PREPROCESSOR_2ND_REPEAT(4,BOOST_LAMBDA_HELPER,FOO,FOO)
+BOOST_PP_REPEAT_2ND(4,BOOST_LAMBDA_HELPER,FOO)
 
 #undef BOOST_LAMBDA_HELPER
 #undef BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE

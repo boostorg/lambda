@@ -19,8 +19,9 @@
 #if !defined(BOOST_LAMBDA_SWITCH_HPP)
 #define BOOST_LAMBDA_SWITCH_HPP
 
-#include "boost/lambda/detail/preprocessor/enum_shifted_params.hpp"
-#include "boost/lambda/detail/preprocessor/2nd_repeat.hpp"
+#include "boost/preprocessor/enum_shifted_params.hpp"
+#include "boost/preprocessor/repeat_2nd.hpp"
+#include "boost/preprocessor/tuple.hpp"
 
 namespace boost { 
 namespace lambda {
@@ -292,41 +293,41 @@ public:
 // BOOST_LAMBDA_A_I_B_LIST(N, X, Y) is a list of form X0 Y, X1 Y, ..., XN Y
 // BOOST_LAMBDA_A_I_B_LIST(N, X, Y) is a list of form X0 Y0, X1 Y1, ..., XN YN
 
-#define BOOST_LAMBDA_A_I(i, A, FOO) 		\
-BOOST_PREPROCESSOR_COMMA_IF(i) BOOST_PREPROCESSOR_CAT(A,i)
+#define BOOST_LAMBDA_A_I(i, A) 		\
+BOOST_PP_COMMA_IF(i) BOOST_PP_CAT(A,i)
 
-#define BOOST_LAMBDA_A_I_B(i, A, B) 		\
-BOOST_PREPROCESSOR_COMMA_IF(i) BOOST_PREPROCESSOR_CAT(A,i) B
+#define BOOST_LAMBDA_A_I_B(i, T) 		\
+BOOST_PP_COMMA_IF(i) BOOST_PP_CAT(BOOST_PP_TUPLE_ELEM(2,0,T),i) BOOST_PP_TUPLE_ELEM(2,1,T)
 
 #define BOOST_LAMBDA_A_I_B_I(i, A, B)		\
-BOOST_PREPROCESSOR_COMMA_IF(i) 			\
-BOOST_PREPROCESSOR_CAT(A,i) 			\
-BOOST_PREPROCESSOR_CAT(B,i)
+BOOST_PP_COMMA_IF(i) 			\
+BOOST_PP_CAT(A,i) 			\
+BOOST_PP_CAT(B,i)
 
 #define BOOST_LAMBDA_A_I_LIST(i, A) 				\
-BOOST_PREPROCESSOR_REPEAT(i,BOOST_LAMBDA_A_I, A, FOO) 		
+BOOST_PP_REPEAT(i,BOOST_LAMBDA_A_I, A) 		
 
 #define BOOST_LAMBDA_A_I_B_LIST(i, A, B) 			\
-BOOST_PREPROCESSOR_REPEAT(i,BOOST_LAMBDA_A_I_B, A, B) 		
+BOOST_PP_REPEAT(i,BOOST_LAMBDA_A_I_B, (A,B)) 		
 
-#define BOOST_LAMBDA_A_I_B_I_LIST(i, A, B) 			\
-BOOST_PREPROCESSOR_REPEAT(i, BOOST_LAMBDA_A_I_B_I, A, B) 
+  //#define BOOST_LAMBDA_A_I_B_I_LIST(i, A, B) 			\
+//BOOST_PP_REPEAT(i, BOOST_LAMBDA_A_I_B_I, A) 
 
 // Switch related macros -------------------------------------------
-#define BOOST_LAMBDA_SWITCH_CASE_BLOCK(N, A, B)				  \
+#define BOOST_LAMBDA_SWITCH_CASE_BLOCK(N, A)				  \
   case Case##N:								  \
-  detail::select(::boost::tuples::get<BOOST_PREPROCESSOR_INC(N)>(args), a, b, c); \
+  detail::select(::boost::tuples::get<BOOST_PP_INC(N)>(args), a, b, c); \
   break;
 
 #define BOOST_LAMBDA_SWITCH_CASE_BLOCK_LIST(N) 			\
-BOOST_PREPROCESSOR_REPEAT(N, BOOST_LAMBDA_SWITCH_CASE_BLOCK, FOO, FOO)
+BOOST_PP_REPEAT(N, BOOST_LAMBDA_SWITCH_CASE_BLOCK, FOO)
 // 2 case type:
 
 #define BOOST_LAMBDA_SWITCH_NO_DEFAULT_CASE(N)				\
 template<class Args, BOOST_LAMBDA_A_I_LIST(N, int Case)>	\
 class									\
 lambda_functor_base<							\
-  action<BOOST_PREPROCESSOR_INC(N),					\
+  action<BOOST_PP_INC(N),					\
     return_void_action<							\
       switch_action<							\
         BOOST_LAMBDA_A_I_B_LIST(N, detail::case_label<Case,>)		\
@@ -354,17 +355,17 @@ public:									\
 
 #define BOOST_LAMBDA_SWITCH_WITH_DEFAULT_CASE(N)			\
 template<								\
-  class Args BOOST_PREPROCESSOR_COMMA_IF(BOOST_PREPROCESSOR_DEC(N))	\
-  BOOST_LAMBDA_A_I_LIST(BOOST_PREPROCESSOR_DEC(N), int Case)		\
+  class Args BOOST_PP_COMMA_IF(BOOST_PP_DEC(N))	\
+  BOOST_LAMBDA_A_I_LIST(BOOST_PP_DEC(N), int Case)		\
 >									\
 class									\
 lambda_functor_base<							\
-  action<BOOST_PREPROCESSOR_INC(N),					\
+  action<BOOST_PP_INC(N),					\
     return_void_action<							\
       switch_action<							\
-        BOOST_LAMBDA_A_I_B_LIST(BOOST_PREPROCESSOR_DEC(N),		\
+        BOOST_LAMBDA_A_I_B_LIST(BOOST_PP_DEC(N),		\
                                 detail::case_label<Case, >)		\
-        BOOST_PREPROCESSOR_COMMA_IF(BOOST_PREPROCESSOR_DEC(N))		\
+        BOOST_PP_COMMA_IF(BOOST_PP_DEC(N))		\
         detail::default_label						\
       >									\
     >									\
@@ -381,7 +382,7 @@ public:									\
   RET call(A& a, B& b, C& c) const {					\
     switch( detail::select(::boost::tuples::get<0>(args), a, b, c) )	\
     {									\
-        BOOST_LAMBDA_SWITCH_CASE_BLOCK_LIST(BOOST_PREPROCESSOR_DEC(N))	\
+        BOOST_LAMBDA_SWITCH_CASE_BLOCK_LIST(BOOST_PP_DEC(N))	\
       default:								\
         detail::select(::boost::tuples::get<N>(args), a, b, c);		\
         break;								\
@@ -440,14 +441,14 @@ switch_statement(const lambda_functor<TestArg>& a1) {
 }
 
 
-#define HELPER(N, FOO, BAR)					\
-BOOST_PREPROCESSOR_COMMA_IF(N)					\
-BOOST_PREPROCESSOR_CAT(						\
+#define HELPER(N, FOO)					\
+BOOST_PP_COMMA_IF(N)					\
+BOOST_PP_CAT(						\
   const tagged_lambda_functor<detail::switch_case_tag<TagData,	\
   N>)								\
-BOOST_PREPROCESSOR_COMMA() Arg##N>& a##N
+BOOST_PP_COMMA() Arg##N>& a##N
 
-#define HELPER_LIST(N) BOOST_PREPROCESSOR_REPEAT(N, HELPER, FOO, FOO)
+#define HELPER_LIST(N) BOOST_PP_REPEAT(N, HELPER, FOO)
 
 
 #define BOOST_LAMBDA_SWITCH_STATEMENT(N)				\
@@ -457,7 +458,7 @@ template <class TestArg,						\
 inline const								\
 lambda_functor<								\
   lambda_functor_args<							\
-    action<BOOST_PREPROCESSOR_INC(N),					\
+    action<BOOST_PP_INC(N),					\
       return_void_action<						\
         switch_action<							\
           BOOST_LAMBDA_A_I_LIST(N, TagData)				\
@@ -476,7 +477,7 @@ switch_statement(							\
   return								\
     lambda_functor<							\
       lambda_functor_args<						\
-        action<BOOST_PREPROCESSOR_INC(N),				\
+        action<BOOST_PP_INC(N),				\
           return_void_action<						\
             switch_action<						\
               BOOST_LAMBDA_A_I_LIST(N, TagData)				\
@@ -501,18 +502,18 @@ BOOST_LAMBDA_SWITCH_NO_DEFAULT_CASE(N)		\
 BOOST_LAMBDA_SWITCH_WITH_DEFAULT_CASE(N)        
 
 // Use this to avoid case 0, these macros work only from case 1 upwards
-#define BOOST_LAMBDA_SWITCH_HELPER(N, A, B)		\
-BOOST_LAMBDA_SWITCH( BOOST_PREPROCESSOR_INC(N) )
+#define BOOST_LAMBDA_SWITCH_HELPER(N, A)		\
+BOOST_LAMBDA_SWITCH( BOOST_PP_INC(N) )
 
 // Use this to avoid cases 0 and 1, these macros work only from case 2 upwards
-#define BOOST_LAMBDA_SWITCH_STATEMENT_HELPER(N, A, B)			     \
-BOOST_LAMBDA_SWITCH_STATEMENT(BOOST_PREPROCESSOR_INC(N))
+#define BOOST_LAMBDA_SWITCH_STATEMENT_HELPER(N, A)			     \
+BOOST_LAMBDA_SWITCH_STATEMENT(BOOST_PP_INC(N))
 
 
 
   // up to 9 cases supported (counting default:)
-BOOST_PREPROCESSOR_2ND_REPEAT(9,BOOST_LAMBDA_SWITCH_HELPER,FOO,FOO)
-BOOST_PREPROCESSOR_2ND_REPEAT(9,BOOST_LAMBDA_SWITCH_STATEMENT_HELPER,FOO,FOO)
+BOOST_PP_REPEAT_2ND(9,BOOST_LAMBDA_SWITCH_HELPER,FOO)
+BOOST_PP_REPEAT_2ND(9,BOOST_LAMBDA_SWITCH_STATEMENT_HELPER,FOO)
 
 
 } // namespace lambda 
