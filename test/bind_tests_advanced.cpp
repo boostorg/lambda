@@ -317,6 +317,12 @@ void test_currying() {
 
 }
 
+void test_break_const() 
+{
+  break_const(_1 + _2)(1, 2);
+  
+}
+
 int test_main(int, char *[]) {
 
   test_nested_binds();
@@ -324,6 +330,7 @@ int test_main(int, char *[]) {
   test_protect();
   test_lambda_functors_as_arguments_to_lambda_functors();
   test_currying(); 
+  test_break_const(); 
   return 0;
 }
 
