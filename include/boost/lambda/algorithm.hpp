@@ -142,7 +142,7 @@ struct transform : public has_sig {
     typedef typename boost::remove_const<
       typename boost::remove_reference<
         typename boost::tuples::element<
-          boost::tuples::length<Args>::value - 1, 
+          boost::tuples::length<Args>::value - 2, 
           Args
         >::type 
       >::type
