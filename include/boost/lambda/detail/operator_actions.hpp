@@ -126,6 +126,9 @@ BOOST_LAMBDA_BINARY_ACTION(^=,bitwise_assignment_action,xor_action)
 
 // && and || are defined directly in specializations for lambda_functor_base
 // to achieve short circuiting
+  // Still we define some empty action classes for them, as they are instantiated:
+  template<> class logical_action<or_action> : public protectable {};
+  template<> class logical_action<and_action> : public protectable {};
 
 
 BOOST_LAMBDA_BINARY_ACTION(=,other_action, assignment_action)

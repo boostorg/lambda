@@ -20,11 +20,14 @@
 
 // add to boost/config.hpp
 // for now
+
+
 # if defined __GNUC__
-#   if (__GNUC__ == 2 && __GNUC_MINOR__ <= 97) || __GNUC__ == 3 
+#   if (__GNUC__ == 2 && __GNUC_MINOR__ <= 97) 
 #define BOOST_NO_TEMPLATED_STREAMS
 #endif
 #endif  // __GNUC__
+
 
 # if defined __KCC
 
