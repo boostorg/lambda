@@ -259,7 +259,7 @@ for_each(v.begin(), v.end(), _1 = 1);</pre>
 	Next, we create a container of pointers and make them point to the elements in the first container <tt>v</tt>:
 
 	<pre class="programlisting">
-list&lt;int*&gt; vp(10); 
+vector&lt;int*&gt; vp(10); 
 transform(v.begin(), v.end(), vp.begin(), &amp;_1);</pre>
 
 The expression <tt>&amp;_1</tt> creates a function object for getting the address of each element in <tt>v</tt>.
@@ -997,7 +997,7 @@ Here is an example of naming a delayed constant:
 constant_type&lt;char&gt;::type space(constant(' '));
 for_each(a.begin(),a.end(), cout &lt;&lt; space &lt;&lt; _1);
 </pre>
-</p></div><div class="simplesect"><div class="titlepage"><div><h4 class="title"><a name="id2793531"></a>About assignment and subscript operators</h4></div></div><p>
+</p></div><div class="simplesect"><div class="titlepage"><div><h4 class="title"><a name="id2793532"></a>About assignment and subscript operators</h4></div></div><p>
 As described in <a href="#sect:assignment_and_subscript" title="5.2.2. Assignment and subscript operators">Section 5.2.2</a>, assignment and subscripting operators are always defined as member functions.
 This means, that for expressions of the form
 <tt>x = y</tt> or <tt>x[y]</tt> to be interpreted as lambda expressions, the left-hand operand <tt>x</tt> must be a lambda expression. 
@@ -1070,13 +1070,7 @@ for_each(a, a+5,
 The BLL supports an alternative syntax for control expressions, suggested
 by Joel de Guzmann. 
 By overloading the <tt>operator[]</tt> we can
-get a closer resemblance with the built-in control structures. 
-For example, using this syntax the <tt>if_then</tt> example above
-can be written as:
-<pre class="programlisting">
-for_each(a.begin(), a.end(), 
-         if(_1 % 2 == 0)[ cout &lt;&lt; _1 ])  
-</pre>
+get a closer resemblance with the built-in control structures:
 
 <pre class="programlisting">
 if_(condition)[then_part]
@@ -1084,6 +1078,13 @@ if_(condition)[then_part].else_[else_part]
 while_(condition)[body]
 do_[body].while_(condition)
 for_(init, condition, increment)[body]
+</pre>
+
+For example, using this syntax the <tt>if_then</tt> example above
+can be written as:
+<pre class="programlisting">
+for_each(a.begin(), a.end(), 
+         if(_1 % 2 == 0)[ cout &lt;&lt; _1 ])  
 </pre>
 
 As more experience is gained, we may end up deprecating one or the other 
@@ -1284,7 +1285,7 @@ objects related to creating and destroying objects,
  showing the expression to create and call the function object, 
 and the effect of evaluating that expression.
 
-</p><div class="table"><p><a name="table:constructor_destructor_fos"></a><b>Table 1. Construction and destruction related function objects.</b></p><table summary="Construction and destruction related function objects." border="1"><colgroup><col><col></colgroup><thead><tr><th>Function object call</th><th>Wrapped expression</th></tr></thead><tbody><tr><td><tt>constructor&lt;T&gt;()(<i><tt>arg_list</tt></i>)</tt></td><td>T(<i><tt>arg_list</tt></i>)</td></tr><tr><td><tt>destructor()(a)</tt></td><td><tt>a.~A()</tt>, where <tt>a</tt> is of type <tt>A</tt></td></tr><tr><td><tt>destructor()(pa)</tt></td><td><tt>pa.-&gt;A()</tt>, where <tt>pa</tt> is of type <tt>A*</tt></td></tr><tr><td><tt>new_ptr&lt;T&gt;()(<i><tt>arg_list</tt></i>)</tt></td><td><tt>new T(<i><tt>arg_list</tt></i>)</tt></td></tr><tr><td><tt>new_array&lt;T&gt;()(sz)</tt></td><td><tt>new T[sz]</tt></td></tr><tr><td><tt>delete_ptr()(p)</tt></td><td><tt>delete p</tt></td></tr><tr><td><tt>delete_array()(p)</tt></td><td><tt>delete p[]</tt></td></tr></tbody></table></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2794800"></a>5.9. Special lambda expressions</h3></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2794808"></a>5.9.1. Preventing argument substitution</h4></div></div><p>
+</p><div class="table"><p><a name="table:constructor_destructor_fos"></a><b>Table 1. Construction and destruction related function objects.</b></p><table summary="Construction and destruction related function objects." border="1"><colgroup><col><col></colgroup><thead><tr><th>Function object call</th><th>Wrapped expression</th></tr></thead><tbody><tr><td><tt>constructor&lt;T&gt;()(<i><tt>arg_list</tt></i>)</tt></td><td>T(<i><tt>arg_list</tt></i>)</td></tr><tr><td><tt>destructor()(a)</tt></td><td><tt>a.~A()</tt>, where <tt>a</tt> is of type <tt>A</tt></td></tr><tr><td><tt>destructor()(pa)</tt></td><td><tt>pa.-&gt;A()</tt>, where <tt>pa</tt> is of type <tt>A*</tt></td></tr><tr><td><tt>new_ptr&lt;T&gt;()(<i><tt>arg_list</tt></i>)</tt></td><td><tt>new T(<i><tt>arg_list</tt></i>)</tt></td></tr><tr><td><tt>new_array&lt;T&gt;()(sz)</tt></td><td><tt>new T[sz]</tt></td></tr><tr><td><tt>delete_ptr()(p)</tt></td><td><tt>delete p</tt></td></tr><tr><td><tt>delete_array()(p)</tt></td><td><tt>delete p[]</tt></td></tr></tbody></table></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2794800"></a>5.9. Special lambda expressions</h3></div></div><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2794807"></a>5.9.1. Preventing argument substitution</h4></div></div><p>
 When a lambda functor is called, the default behavior is to substitute 
 the actual arguments for the placeholders within all subexpressions.
 
@@ -1932,7 +1933,7 @@ The BLL works with the following compilers, that is, the compilers are capable o
 )
 
 	</li></ul></div>
-</p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2797482"></a>7.3.1. Test coverage</h4></div></div><p>The following list describes the test files included and the features that each file covers:
+</p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2797481"></a>7.3.1. Test coverage</h4></div></div><p>The following list describes the test files included and the features that each file covers:
 
 <div class="itemizedlist"><ul type="disc"><li><p>
 <tt>bind_tests_simple.cpp</tt> : Bind expressions of different arities and types of target functions: function pointers, function objects and member functions.
@@ -1986,14 +1987,14 @@ lambda functors; and these wrappers have types that are easy to type out.
 For example:
 
 <pre class="programlisting">
-boost::function&lt;int, int, int&gt; f = _1 + _2;
-boost::function&lt;int&amp;, int&amp;&gt; g = unlambda(_1 += 10);
+boost::function&lt;int(int, int)&gt; f = _1 + _2;
+boost::function&lt;int&amp;(int&amp;)&gt; g = (_1 += 10);
 int i = 1, j = 2;
 f(i); // returns 3
 g(i); // sets i to = 11;
 </pre>
 
-The return and parameter types of the wrapped function object must be written explicilty as template arguments to the wrapper template <tt>boost::function</tt>; even when lambda functors, which otherwise have generic parameters, are wrapped.
+The return and parameter types of the wrapped function object must be written explicilty as the template argument to the wrapper template <tt>boost::function</tt>; even when lambda functors, which otherwise have generic parameters, are wrapped.
 Wrapping a function object with <tt>boost::function</tt> introduces a performance cost comparable to virtual function dispatch, though virtual functions are not actually used.
 
 Note that storing lambda functors inside <tt>boost::function</tt> 
@@ -2011,7 +2012,7 @@ For example:
 <pre class="programlisting">
 int* sum = new int();
 *sum = 0;
-boost::function&lt;int&amp;, int&gt; counter = *sum += _1;
+boost::function&lt;int&amp;(int)&gt; counter = *sum += _1;
 counter(5); // ok, *sum = 5;
 delete sum; 
 counter(3); // error, *sum does not exist anymore
@@ -2036,7 +2037,7 @@ a larger set of compilers.
 </p><p>
 The following two sections describe what are the semantic differences 
 between the bind expressions in BB and BLL.
-</p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2798003"></a>8.2.1. First argument of bind expression</h4></div></div>
+</p><div class="section"><div class="titlepage"><div><h4 class="title"><a name="id2798002"></a>8.2.1. First argument of bind expression</h4></div></div>
 
 In BB the first argument of the bind expression, the target function, 
 is treated differently from the other arguments, 
