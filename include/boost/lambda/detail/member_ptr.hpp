@@ -28,6 +28,9 @@ namespace detail {
 // need to know more details.
 template<class T>
 struct member_pointer {
+  typedef typename boost::add_reference<T>::type type;
+  typedef detail::unspecified class_type;
+  typedef detail::unspecified qualified_class_type;
   BOOST_STATIC_CONSTANT(bool, is_data_member = false);
   BOOST_STATIC_CONSTANT(bool, is_function_member = false);
 };
@@ -499,6 +502,8 @@ struct member_pointer_action_helper;
   // cannot be both, no body provided
 
   // data member case
+  // this means, that B is a data member and A is a pointer type,
+  // so either built-in ->* should be called, or there is an error
 template <>
 struct member_pointer_action_helper<true, false> {
 public:
@@ -548,8 +553,7 @@ public:
   // the return type
   template<class A, class B>
   struct return_type {
-    typedef typename 
-      detail::generate_error<A>::return_type_not_specified type; 
+    typedef detail::unspecified type; 
   };
   
 };
@@ -558,6 +562,8 @@ public:
 // member pointer function case
 // This is a built in ->* call for a member function, 
 // the only thing that you can do with that, is to give it some arguments
+// note, it is guaranteed that A is a pointer type, and thus it cannot
+// be a call to overloaded ->*
 template <>
 struct member_pointer_action_helper<false, true> {
   public:
@@ -593,8 +599,10 @@ public:
 
     return 
       detail::member_pointer_action_helper<
-        detail::member_pointer<plainB>::is_data_member,
-        detail::member_pointer<plainB>::is_function_member
+        boost::is_pointer<A>::value && 
+          detail::member_pointer<plainB>::is_data_member,
+        boost::is_pointer<A>::value && 
+          detail::member_pointer<plainB>::is_function_member
       >::template apply<RET>(a, b); 
     }
 };
