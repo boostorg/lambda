@@ -28,5 +28,6 @@
 #endif
 
 #include "boost/lambda/detail/operators.hpp"
+#include "boost/lambda/detail/member_ptr.hpp"
 
 #endif
