@@ -146,15 +146,6 @@ public:
 // This is to handle void arguments (built-in comma operator can take void
 // arguments whereas a user-defined function can't) (JJ)
 
-// member_pointer_action is a special case.
-template<> class other_action<member_pointer_action> {
-public:
-  template<class RET, class A, class T, class B>
-  static RET apply(A& a, T B::* b) { return a->*b; }    
-  // Type A must be convertable to type B.
-};
-
-
 #if defined BOOST_LAMBDA_PREFIX_UNARY_ACTION
 #error "Multiple defines of BOOST_LAMBDA_PREFIX_UNARY_ACTION"
 #endif
