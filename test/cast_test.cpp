@@ -31,7 +31,7 @@ public:
 
 
 
-int do_test() {
+void do_test() {
 
   derived *p_derived = new derived;
   base *p_base = new base;

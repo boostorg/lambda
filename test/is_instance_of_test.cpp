@@ -64,5 +64,5 @@ BOOST_TEST((is_instance_of_4<C4, A4>::value == false));
 
 return 0;
 
-};
+}
 

@@ -304,8 +304,9 @@ void pointer_arithmetic() {
   BOOST_TEST((*(_1 - 1))(cia_last) == 3);
  
   // pointer arithmetic should not make non-consts const
-  (*(_1 + 2))(ia) = 0;
-  (*(_1 + 3))(ip) = 0;
+    (*(_1 + 2))(ia) = 0;
+    (*(_1 + 3))(ip) = 0;
+
   BOOST_TEST(ia[2] == 0);
   BOOST_TEST(ia[3] == 0);
 
@@ -316,7 +317,7 @@ void pointer_arithmetic() {
   BOOST_TEST((cia_last - _1)(cia) == 3);
   BOOST_TEST((cia_last - _1)(cip) == 3);
 
-};
+}
 
 int test_main(int, char *[]) {
 

@@ -54,9 +54,9 @@ class A7 {};
 class A8 {};
 class A9 {};
 
-void throw_AX(int i) {
-  switch(i)
-  {
+void throw_AX(int j) {
+  int i = j;
+  switch(i) {
     case 1: throw A1();
     case 2: throw A2();
     case 3: throw A3();

@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <vector>
 
 using namespace boost::lambda;
 using namespace std;

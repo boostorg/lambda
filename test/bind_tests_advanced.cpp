@@ -187,18 +187,20 @@ void test_protect()
   //               );
 
   int sum = 0;
+  
   std::for_each(a, a+3, 
 	   bind(ll::for_each(), _1, _1 + 5, 
                 protect(sum += _1))
                );
-  BOOST_TEST(sum = 16*16-1);
+  BOOST_TEST(sum == (1+15)*15/2);
 
   sum = 0;
+
   std::for_each(a, a+3, 
 	   bind(ll::for_each(), _1, _1 + 5, 
                 sum += 1 + protect(_1)) // add element count 
                );
-  BOOST_TEST(sum = 16*16-1 + 15);
+  BOOST_TEST(sum == (1+15)*15/2 + 15);
 
 
   int k = 0; 
@@ -265,7 +267,7 @@ void test_lambda_functors_as_arguments_to_lambda_functors() {
   // covers the case, there is no need to specify the return type 
   // explicitly.
 
-  int a = 5, b = 6, c = 7;
+  int a = 5, b = 6;
 
   // Let type deduction take find out the return type
   BOOST_TEST(bind(_1, _2, _3)(_1 + _2, a, b) == 11);
@@ -329,7 +331,7 @@ void test_const_parameters() {
 
 
 
-};
+}
 
 void test_break_const() 
 {
