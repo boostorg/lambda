@@ -521,9 +521,6 @@ public:
     // we remove the reference now, as we may have to add cv:s 
     typedef typename boost::remove_reference<type0>::type type1;
 
-    typedef typename 
-      detail::remove_reference_and_cv<B>::type plainB;
-
     // A is a reference to pointer
     // remove the top level cv qualifiers and reference
     typedef typename 
