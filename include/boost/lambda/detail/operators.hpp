@@ -172,7 +172,7 @@ template<class T> struct convert_istream_to_ref_others_to_c_plain_by_default {
 
 template<class T> struct convert_ostream_to_ref_others_to_c_plain_by_default {
   typedef typename detail::IF<
-                       detail::is_instance_of_2<
+                       is_instance_of_2<
                          T, std::basic_ostream
                        >::value,
                        T&,
@@ -182,7 +182,7 @@ template<class T> struct convert_ostream_to_ref_others_to_c_plain_by_default {
 
 template<class T> struct convert_istream_to_ref_others_to_c_plain_by_default {
   typedef typename detail::IF<
-                       detail::is_instance_of_2<
+                       is_instance_of_2<
                          T, std::basic_istream
                        >::value,
                        T&,
