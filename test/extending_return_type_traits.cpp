@@ -188,19 +188,19 @@ struct plain_return_type_2<arithmetic_action<multiply_action>, X, Y> {
   // if you want to make a distinction between differently cv-qualified
   // types, you need to specialize on a different level:
 template<> 
-struct return_type_2<arithmetic_action<multiply_action>, XX&, YY&> {
+struct return_type_2<arithmetic_action<multiply_action>, XX, YY> {
   typedef YY type;
 };
 template<> 
-struct return_type_2<arithmetic_action<multiply_action>, const XX&, const YY&> {
+struct return_type_2<arithmetic_action<multiply_action>, const XX, const YY> {
   typedef ZZ type;
 };
 template<> 
-struct return_type_2<arithmetic_action<multiply_action>, volatile XX&, volatile YY&> {
+struct return_type_2<arithmetic_action<multiply_action>, volatile XX, volatile YY> {
   typedef XX type;
 };
 template<> 
-struct return_type_2<arithmetic_action<multiply_action>, volatile const XX&, const volatile YY&> {
+struct return_type_2<arithmetic_action<multiply_action>, volatile const XX, const volatile YY> {
   typedef VV type;
 };
 

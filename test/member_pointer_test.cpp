@@ -117,29 +117,32 @@ bool operator->*(B b, A a) {
 
 // let's provide specializations to take care of the return type deduction.
 // Note, that you need to provide all four cases for non-const and const
-// references :(  
+// or use the plain_return_type_2 template.
 namespace boost {
 namespace lambda {
 
 template <>
-struct return_type_2<other_action<member_pointer_action>, B&, A&> {
+struct return_type_2<other_action<member_pointer_action>, B, A> {
   typedef bool type;
 };
 
 template<>
-struct return_type_2<other_action<member_pointer_action>, const B&, A&> {
+struct return_type_2<other_action<member_pointer_action>, const B, A> {
   typedef bool type;
 };
 
 template<>
-struct return_type_2<other_action<member_pointer_action>, B&, const A&> {
+struct return_type_2<other_action<member_pointer_action>, B, const A> {
   typedef bool type;
 };
 
 template<>
-struct return_type_2<other_action<member_pointer_action>, const B&, const A&> {
+struct return_type_2<other_action<member_pointer_action>, const B, const A> {
   typedef bool type;
 };
+
+
+
 
 } // lambda
 } // boost
