@@ -7,8 +7,6 @@
 #include "boost/lambda/lambda.hpp"
 #include "boost/lambda/bind.hpp"
 
-#include "boost/lambda/detail/member_ptr.hpp"
-
 #include <string>
 
 using namespace boost::lambda;
