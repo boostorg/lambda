@@ -84,9 +84,9 @@ namespace {
 template <int I>
 class lambda_functor<placeholder<I> > {
 public:
-
-	lambda_functor() {}		// default constructor (do nothing)
-			      // bug in gcc 2.95.2 for const template objects.
+  lambda_functor() {}
+  // default constructor (do nothing)
+  // bug in gcc 2.95.2 for const template objects.
 
 BOOST_LAMBDA_LAMBDA_FUNCTOR_ASSIGNMENT
 BOOST_LAMBDA_LAMBDA_FUNCTOR_SUBSCRIPT
