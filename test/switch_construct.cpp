@@ -5,7 +5,8 @@
 
 
 #include "boost/lambda/lambda.hpp"
-#include "boost/lambda/control_structures.hpp"
+#include "boost/lambda/if.hpp"
+#include "boost/lambda/switch.hpp"
 
 #include <iostream>
 #include <algorithm>
