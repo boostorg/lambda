@@ -128,5 +128,8 @@ int test_main(int, char *[]) {
 	    4)
      )(i, j, k);
    BOOST_TEST(result == 12);
+
+  test_member_functions();
+
   return 0;
 }
