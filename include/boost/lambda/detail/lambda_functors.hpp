@@ -112,12 +112,15 @@ typedef const lambda_functor<placeholder<THIRD> >  placeholder3_type;
 template <int I>
 class lambda_functor<placeholder<I> > {
 public:
+  lambda_functor() {}
   BOOST_LAMBDA_LAMBDA_FUNCTOR_ASSIGNMENT
   BOOST_LAMBDA_LAMBDA_FUNCTOR_SUBSCRIPT
 };
 
+template<>
 class lambda_functor<placeholder<FIRST> > {
 public:
+  lambda_functor() {}
   template <class A>
   A& operator()(A& a) const { return a; }
 
@@ -125,8 +128,10 @@ BOOST_LAMBDA_LAMBDA_FUNCTOR_ASSIGNMENT
 BOOST_LAMBDA_LAMBDA_FUNCTOR_SUBSCRIPT
 };
 
+template<>
 class lambda_functor<placeholder<SECOND> > {
 public:
+  lambda_functor() {}
   template <class A, class B>
   B& operator()(A&, B& b) const { return b; }
 
@@ -139,8 +144,10 @@ BOOST_LAMBDA_LAMBDA_FUNCTOR_ASSIGNMENT
 BOOST_LAMBDA_LAMBDA_FUNCTOR_SUBSCRIPT
 };
 
+template<>
 class lambda_functor<placeholder<THIRD> > {
 public:
+  lambda_functor() {}
   template <class A, class B, class C>
   C& operator()(A&, B&, C& c) const { return c; }
 
