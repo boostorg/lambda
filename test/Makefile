@@ -1,6 +1,6 @@
 BOOST 		= ../../..
  
-CXX		= gcc 
+CXX		= gcc
 EXTRAFLAGS 	= -pedantic -Wno-long-long -ftemplate-depth-50 
 LIBS		= -lstdc++
 
