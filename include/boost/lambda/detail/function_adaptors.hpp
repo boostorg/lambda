@@ -530,7 +530,7 @@ template <class Args> class get_sig_result_type {
   typedef typename detail::remove_reference_and_cv<Func>::type plainF;
 public:
   // To sig we pass a cons list, where the head is the function object type
-  // itself (potentially cv-qualified, but not a reference type)
+  // itself (potentially cv-qualified, always a reference type)
   // and the tail contains the types of the actual arguments to be passed
   // to the function object. The arguments are reference types
   typedef typename plainF::template sig<Args>::type type;
@@ -540,15 +540,16 @@ public:
 // check for a member typedef return_type or an member class template sig
 template <class Args> class get_functor_result_type { 
   typedef typename Args::head_type Func; 
-  typedef typename boost::remove_cv<Func>::type plain_F;
+  typedef typename detail::remove_reference_and_cv<Func>::type plain_F;
+
 public:
   // if the function object inherits from has_sig, we check for sig
   // otherwise for result_type typedef
-  typedef  
+  typedef typename
     detail::IF_type<
       boost::is_base_and_derived<has_sig, plain_F>::value,
       detail::get_sig_result_type<Args>,
-      detail::get_result_type<Func>
+      detail::get_result_type<plain_F>
     >::type type;
 };
 
@@ -557,14 +558,10 @@ public:
 
 
 template <class Args> 
-class function_adaptor_with_actuals //: public 
-//  function_adaptor<typename detail::remove_reference_and_cv<
-//    typename Args::head_type
-//  >::type>
+class function_adaptor_with_actuals 
 {
   typedef typename Args::head_type Func;
-  typedef typename boost::remove_reference<Func>::type non_ref_Func;
-  typedef typename boost::remove_cv<non_ref_Func>::type plain_Func; 
+  typedef typename detail::remove_reference_and_cv<Func>::type plain_Func;
   typedef typename function_adaptor<plain_Func>::type type1;
 
 public: 
@@ -573,7 +570,7 @@ public:
     detail::IF_type<
       boost::is_same<type1, detail::unspecified>::value,
       detail::get_functor_result_type<
-        boost::tuples::cons<non_ref_Func, typename Args::tail_type>
+        Args // old code: boost::tuples::cons<Func, typename Args::tail_type>
       >, // it's ok to try this (an arbitrary func. object)
       function_adaptor<plain_Func> 
          // Here we know Func's ret type 
@@ -587,6 +584,16 @@ public:
 } // namespace boost
 
 #endif
+
+
+
+
+
+
+
+
+
+
 
 
 

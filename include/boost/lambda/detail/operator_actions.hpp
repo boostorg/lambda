@@ -34,11 +34,6 @@ class leftshift_action {};
 class rightshift_action {};
 class xor_action {};
 
-// these are used in return type deduction, when it is sure that
-// the lefthand argument is not a reference to a stream
-// For user defined operators, specialize return_type_2 using these actions
-class leftshift_action_no_stream {};
-class rightshift_action_no_stream {};
 
 // -- bitwise/logical -------------------
 

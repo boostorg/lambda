@@ -101,18 +101,40 @@ template <> struct promote_to_int<unsigned short int>
 // Unary actions ----------------------------
 // ------------------------------------------ 
 
+template<class Act, class A>
+struct plain_return_type_1 {
+  typedef detail::unspecified type;
+};
+
+
+
+template<class Act, class A>
+struct plain_return_type_1<unary_arithmetic_action<Act>, A> {
+  typedef A type;
+};
+
 template<class Act, class A> 
 struct return_type_1<unary_arithmetic_action<Act>, A> { 
-  typedef typename boost::remove_const<
-    typename boost::remove_reference<A>::type
-  >::type type; 
+  typedef 
+    typename plain_return_type_1<
+      unary_arithmetic_action<Act>,
+      typename detail::remove_reference_and_cv<A>::type
+    >::type type;
+};
+
+
+template<class A>
+struct plain_return_type_1<bitwise_action<not_action>, A> {
+  typedef A type;
 };
 
 // bitwise not, operator~()
-template<class A> struct return_type_1<bitwise_action<not_action>, A> { 
-  typedef typename boost::remove_const<
-    typename boost::remove_reference<A>::type
-  >::type type; 
+template<class A> struct return_type_1<bitwise_action<not_action>, A> {
+  typedef 
+    typename plain_return_type_1<
+      bitwise_action<not_action>,
+      typename detail::remove_reference_and_cv<A>::type
+    >::type type;
 };
 
 // identity_action
@@ -121,43 +143,71 @@ template<class A> struct return_type_1<other_action<identity_action>, A> {
 };
 
 
-// prefix increment and decrement operators return their operand type as such
-// it should be a reference
+// prefix increment and decrement operators return the default is 
+// a non-const reference
+template<class Act, class A> 
+struct plain_return_type_1<pre_increment_decrement_action<Act>, A> {
+  typedef A& type;
+};
+
 template<class Act, class A> 
 struct return_type_1<pre_increment_decrement_action<Act>, A> {
-  //  BOOST_STATIC_ASSERT(boost::is_reference<A>::value);
-  // test that A is a reference
-  typedef typename detail::IF<
-    boost::is_reference<A>::value, 
-    A, 
-    detail::return_type_deduction_failure<return_type_1>
-  >::RET type;
-
+  typedef 
+    typename plain_return_type_1<
+      pre_increment_decrement_action<Act>,
+      typename detail::remove_reference_and_cv<A>::type
+    >::type type;
 };
 
 // post decrement just returns the same plain type.
+template<class Act, class A>
+struct plain_return_type_1<post_increment_decrement_action<Act>, A> {
+  typedef A type;
+};
+
 template<class Act, class A> 
 struct return_type_1<post_increment_decrement_action<Act>, A> 
 { 
   typedef 
-    typename boost::remove_const<
-      typename boost::remove_reference<A>::type
-    >::type type; 
+    typename plain_return_type_1<
+      post_increment_decrement_action<Act>,
+      typename detail::remove_reference_and_cv<A>::type
+    >::type type;
 };
 
 // logical not, operator!()
-template<class A>
-struct return_type_1<logical_action<not_action>, A> {
+template<class A> 
+struct plain_return_type_1<logical_action<not_action>, A> {
   typedef bool type;
 };
 
+template<class A>
+struct return_type_1<logical_action<not_action>, A> {
+  typedef 
+    typename plain_return_type_1<
+      logical_action<not_action>,
+      typename detail::remove_reference_and_cv<A>::type
+    >::type type;
+};
+
 // address of action ---------------------------------------
-// Note that this applies to all types. 
-// A special user defined operator& may need to define its own
-// specializations
+
+
 template<class A> 
 struct return_type_1<other_action<addressof_action>, A> { 
-  typedef typename boost::remove_reference<A>::type*  type; 
+  typedef 
+    typename plain_return_type_1<
+      other_action<addressof_action>, 
+      typename detail::remove_reference_and_cv<A>::type
+    >::type type1;
+
+  // If no user defined specialization for A, then return the
+  // cv qualified pointer to A
+  typedef typename detail::IF<
+    boost::is_same<type1, detail::unspecified>::value, 
+    typename boost::remove_reference<A>::type*,
+    type1
+  >::RET type;
 };
 
 // contentsof action ------------------------------------
@@ -167,61 +217,115 @@ struct return_type_1<other_action<addressof_action>, A> {
 // typedef A::reference.
 // There is no easy way around this, cause there doesn't seem to be a way
 // to test whether a class is an iterator or not.
-// (it ain't easy to provide pecializations for just iterator types?)
  
 // The default works with std::iterators.
 
-template<class A> 
-struct return_type_1<other_action<contentsof_action>, A> { 
+namespace detail {
+
+  // A is a nonreference type
+template <class A> struct contentsof_type {
   typedef typename std::iterator_traits<A>::reference type; 
 };
 
-// strip reference
-template<class A>
-struct return_type_1<other_action<contentsof_action>, A&> {
-  typedef typename 
-    return_type_1<other_action<contentsof_action>, A>::type type;
-};
-
-// strip constness, but preserve it 
-template<class A> 
-struct return_type_1<other_action<contentsof_action>, const A> { 
-  // get the (potentially non-const) reference type
-  typedef typename 
-    return_type_1<other_action<contentsof_action>, A>::type type1;
+template <class A> struct contentsof_type<const A> {
+  typedef typename contentsof_type<A>::type type1;
   // return a reference to the underlying const type
   // the IF is because the A::reference in the primary template could
-  // (in theory) be some class type rather than a real reference, hence
+  // be some class type rather than a real reference, hence
   // we do not want to make it a reference here either
-  typename detail::IF<
-    is_reference<type1>::value, 
-    const typename boost::remove_reference<type1>::type &,
-    const type1
+    typedef typename detail::IF<
+      is_reference<type1>::value, 
+      const typename boost::remove_reference<type1>::type &,
+      const type1
   >::RET type;
 };
 
-// not needed really (base case should take care of this as well)
-template<class A> 
-struct return_type_1<other_action<contentsof_action>, A*> { typedef A& type; };
-
-// the pointers itself can be const, this const may safely be dropped
-// not needed really (base case should take care of this as well)
-template<class A> 
-struct return_type_1<other_action<contentsof_action>, A* const> { 
-  typedef A& type; 
+template <class A> struct contentsof_type<volatile A> {
+  typedef typename contentsof_type<A>::type type1;
+  typedef typename detail::IF<
+    is_reference<type1>::value, 
+    volatile typename boost::remove_reference<type1>::type &,
+    volatile type1
+  >::RET type;
 };
 
-// for arrays, no need to specialise for const, if A is const, 
-// the general const strips const away and puts it back (as it should)
-template<class A, int N> 
-struct return_type_1<other_action<contentsof_action>, A[N]> { 
+template <class A> struct contentsof_type<const volatile A> {
+  typedef typename contentsof_type<A>::type type1;
+  typedef typename detail::IF<
+    is_reference<type1>::value, 
+    const volatile typename boost::remove_reference<type1>::type &,
+    const volatile type1
+  >::RET type;
+};
+
+  // standard iterator traits should take care of the pointer types 
+  // but just to be on the safe side, we have the specializations here:
+  // these work even if A is cv-qualified.
+template <class A> struct contentsof_type<A*> {
+  typedef A& type;
+};
+template <class A> struct contentsof_type<A* const> {
+  typedef A& type;
+};
+template <class A> struct contentsof_type<A* volatile> {
+  typedef A& type;
+};
+template <class A> struct contentsof_type<A* const volatile> {
+  typedef A& type;
+};
+
+template<class A, int N> struct contentsof_type<A[N]> { 
   typedef A& type; 
+};
+template<class A, int N> struct contentsof_type<const A[N]> { 
+  typedef const A& type; 
+};
+template<class A, int N> struct contentsof_type<volatile A[N]> { 
+  typedef volatile A& type; 
+};
+template<class A, int N> struct contentsof_type<const volatile A[N]> { 
+  typedef const volatile A& type; 
+};
+
+
+
+
+
+} // end detail
+
+template<class A> 
+struct return_type_1<other_action<contentsof_action>, A> { 
+  typedef 
+    typename plain_return_type_1<
+      other_action<contentsof_action>, 
+      typename detail::remove_reference_and_cv<A>::type
+    >::type type1;
+
+  // If no user defined specialization for A, then return the
+  // cv qualified pointer to A
+  typedef typename 
+  detail::IF_type<
+    boost::is_same<type1, detail::unspecified>::value, 
+    detail::contentsof_type<
+      typename boost::remove_reference<A>::type
+    >,
+    plain_return_type_1<
+      other_action<contentsof_action>, 
+      typename detail::remove_reference_and_cv<A>::type
+    >
+  >::type type;
 };
 
 
 // ------------------------------------------------------------------
 // binary actions ---------------------------------------------------
 // ------------------------------------------------------------------
+
+// here the default case is: no user defined versions:
+template <class Act, class A, class B>
+struct plain_return_type_2 {
+  typedef detail::unspecified type; 
+};
 
 namespace detail {
 
@@ -261,7 +365,7 @@ struct pointer_arithmetic_traits<plus_action, A, B> {
       detail::return_type_deduction_failure<
         detail::illegal_pointer_arithmetic
       >,
-      typename detail::IF<is_pointer_A, const AP, const BP>::RET
+      typename detail::IF<is_pointer_A, AP, BP>::RET
   >::RET type; 
 
 };
@@ -303,7 +407,7 @@ struct pointer_arithmetic_traits<minus_action, A, B> {
     same_pointer_type, const std::ptrdiff_t,
     typename detail::IF<
       is_pointer_A, 
-      const AP, 
+      AP, 
       detail::return_type_deduction_failure<detail::illegal_pointer_arithmetic>
     >::RET
   >::RET type; 
@@ -322,15 +426,27 @@ template<class A, class B> struct return_type_2_arithmetic_phase_2;
 template<class A, class B> struct return_type_2_arithmetic_phase_3;
 
 } // namespace detail
-   
+  
+
 // drop any qualifiers from the argument types within arithmetic_action
 template<class A, class B, class Act> 
 struct return_type_2<arithmetic_action<Act>, A, B>
 {
-    typedef typename
+  typedef typename detail::remove_reference_and_cv<A>::type plain_A;
+  typedef typename detail::remove_reference_and_cv<B>::type plain_B;
+
+  typedef typename 
+    plain_return_type_2<arithmetic_action<Act>, plain_A, plain_B>::type type1;
+  
+  // if user defined return type, do not enter the whole arithmetic deductions
+  typedef typename 
+    detail::IF_type<
+      boost::is_same<type1, detail::unspecified>::value, 
       detail::return_type_2_arithmetic_phase_1<
          detail::pointer_arithmetic_traits<Act, A, B>::value, Act, A, B
-      >::type type;
+      >,
+      plain_return_type_2<arithmetic_action<Act>, plain_A, plain_B>
+    >::type type;
 };
 
 namespace detail {
@@ -417,132 +533,214 @@ template<class A, class B, class Act>
 struct return_type_2<bitwise_action<Act>, A, B>
 {
 
+  typedef typename detail::remove_reference_and_cv<A>::type plain_A;
+  typedef typename detail::remove_reference_and_cv<B>::type plain_B;
+
+  typedef typename 
+    plain_return_type_2<bitwise_action<Act>, plain_A, plain_B>::type type1;
+  
+  // if user defined return type, do not enter type deductions
+  typedef typename 
+    detail::IF_type<
+      boost::is_same<type1, detail::unspecified>::value, 
+      return_type_2<arithmetic_action<plus_action>, A, B>,
+      plain_return_type_2<bitwise_action<Act>, plain_A, plain_B>
+    >::type type;
+
+  // plus_action is just a random pick, has to be a concrete instance
+
   // TODO: This check is only valid for built-in types, overloaded types might
   // accept floating point operators
 
   // bitwise operators not defined for floating point types
-  BOOST_STATIC_ASSERT(boost::is_integral<typename boost::remove_reference<A>::type>::value && boost::is_integral<typename boost::remove_reference<B>::type>::value);
-  typedef typename return_type_2<arithmetic_action<plus_action>, A, B >::type type; 
-  // plus_action is just a random pick, has to be a concrete instance
+  // these test are not strictly needed here, since the error will be caught in
+  // the apply function
+  BOOST_STATIC_ASSERT(!(boost::is_float<plain_A>::value && boost::is_float<plain_B>::value));
+
 };
 
-// leftshift_action case takes care of stream references,
-// and if A is not a stream, it delegates the work to this specialization
-template<class A, class B>
-struct return_type_2<bitwise_action<leftshift_action_no_stream>, A, B>
-{
-  // the default is the type of the left argument (as non-reference type)
-  typedef 
-    typename boost::remove_const<
-      typename boost::remove_reference<A>::type
-    >::type type;
-};
+namespace detail {
 
 template<class A, class B>
-struct return_type_2<bitwise_action<rightshift_action_no_stream>, A, B>
-{
-  typedef 
-    typename boost::remove_const<
-      typename boost::remove_reference<A>::type
-    >::type type;
-};
+struct leftshift_type {
 
-#ifdef BOOST_NO_TEMPLATED_STREAMS
-template<class A, class B> 
-struct return_type_2<bitwise_action<leftshift_action>, A, B>
-{
   typedef typename detail::IF<
-    boost::is_convertible< 
+#ifdef BOOST_NO_TEMPLATED_STREAMS
+    boost::is_convertible<
       typename boost::remove_reference<A>::type*,
       std::ostream*
     >::value, 
-    A, //reference to the stream 
-    typename 
-      return_type_2<bitwise_action<leftshift_action_no_stream>, A, B>::type
-  >::RET type;
-};
-
-// istream
-template<class A, class B> 
-struct return_type_2<bitwise_action<rightshift_action>, A, B>
-{
-  typedef typename detail::IF<
-    boost::is_convertible< 
-      typename boost::remove_reference<A>::type*,
-      std::istream*
-    >::value,
-    A, // the stream type (A should be ref)
-    typename 
-      return_type_2<bitwise_action<rightshift_action_no_stream>, A, B>::type
-  >::RET type;
-};
-
 #else
-// ostream
-template<class A, class B> 
-struct return_type_2<bitwise_action<leftshift_action>, A, B>
-{
-  typedef typename detail::IF<
     is_instance_of_2< 
       typename boost::remove_reference<A>::type,
       std::basic_ostream
     >::value, 
+#endif
     A, //reference to the stream 
-    typename 
-      return_type_2<bitwise_action<leftshift_action_no_stream>, A, B>::type
+    typename detail::remove_reference_and_cv<A>::type
   >::RET type;
+};
+
+template<class A, class B>
+struct rightshift_type {
+
+  typedef typename detail::IF<
+#ifdef BOOST_NO_TEMPLATED_STREAMS
+    boost::is_convertible<
+      typename boost::remove_reference<A>::type*,
+      std::istream*
+    >::value, 
+#else
+    is_instance_of_2< 
+      typename boost::remove_reference<A>::type,
+      std::basic_istream
+    >::value, 
+#endif
+    A, //reference to the stream 
+    typename detail::remove_reference_and_cv<A>::type
+  >::RET type;
+};
+
+} // end detail
+
+// ostream
+template<class A, class B> 
+struct return_type_2<bitwise_action<leftshift_action>, A, B>
+{
+  typedef typename detail::remove_reference_and_cv<A>::type plain_A;
+  typedef typename detail::remove_reference_and_cv<B>::type plain_B;
+
+  typedef typename 
+    plain_return_type_2<bitwise_action<leftshift_action>, plain_A, plain_B>::type type1;
+  
+  // if user defined return type, do not enter type deductions
+  typedef typename 
+    detail::IF_type<
+      boost::is_same<type1, detail::unspecified>::value, 
+      detail::leftshift_type<A, B>,
+      plain_return_type_2<bitwise_action<leftshift_action>, plain_A, plain_B>
+    >::type type;
 };
 
 // istream
 template<class A, class B> 
 struct return_type_2<bitwise_action<rightshift_action>, A, B>
 {
-  typedef typename detail::IF<
-    is_instance_of_2< 
-      typename boost::remove_reference<A>::type,
-      std::basic_istream
-    >::value, 
-    A, // the stream type (A should be ref)
-    typename 
-      return_type_2<bitwise_action<rightshift_action_no_stream>, A, B>::type
-  >::RET type;
+  typedef typename detail::remove_reference_and_cv<A>::type plain_A;
+  typedef typename detail::remove_reference_and_cv<B>::type plain_B;
+
+  typedef typename 
+    plain_return_type_2<bitwise_action<rightshift_action>, plain_A, plain_B>::type type1;
+  
+  // if user defined return type, do not enter type deductions
+  typedef typename 
+    detail::IF_type<
+      boost::is_same<type1, detail::unspecified>::value, 
+      detail::rightshift_type<A, B>,
+      plain_return_type_2<bitwise_action<rightshift_action>, plain_A, plain_B>
+    >::type type;
 };
-#endif
 
 // -- logical actions ----------------------------------------
 // always bool
 // NOTE: this may not be true for some weird user-defined types,
+template<class A, class B, class Act> 
+struct plain_return_type_2<logical_action<Act>, A, B> { 
+  typedef bool type; 
+};
 
 template<class A, class B, class Act> 
-struct return_type_2<logical_action<Act>, A, B> { typedef bool type; };
+struct return_type_2<logical_action<Act>, A, B> { 
+
+  typedef typename detail::remove_reference_and_cv<A>::type plain_A;
+  typedef typename detail::remove_reference_and_cv<B>::type plain_B;
+
+  typedef typename 
+    plain_return_type_2<logical_action<Act>, plain_A, plain_B>::type type;
+  
+};
+
 
 // -- relational actions ----------------------------------------
 // always bool
 // NOTE: this may not be true for some weird user-defined types,
 template<class A, class B, class Act> 
-struct return_type_2<relational_action<Act>, A, B> { 
+struct plain_return_type_2<relational_action<Act>, A, B> { 
   typedef bool type; 
+};
+
+template<class A, class B, class Act> 
+struct return_type_2<relational_action<Act>, A, B> { 
+
+  typedef typename detail::remove_reference_and_cv<A>::type plain_A;
+  typedef typename detail::remove_reference_and_cv<B>::type plain_B;
+
+  typedef typename 
+    plain_return_type_2<relational_action<Act>, plain_A, plain_B>::type type; 
 };
 
 // Assingment actions -----------------------------------------------
 // return type is the type of the first argument 
-// (note: it must be a reference).
+// (note: other templates guarantee that it is a referece).
+// note that cv-qualifiers are preserved.
+// Yes, assignment operator can be const!
 
 // NOTE: this may not be true for some weird user-defined types,
 
 template<class A, class B, class Act> 
-struct return_type_2<arithmetic_assignment_action<Act>, A&, B> { 
-  typedef A& type; 
+struct return_type_2<arithmetic_assignment_action<Act>, A, B> { 
+
+  typedef typename detail::remove_reference_and_cv<A>::type plain_A;
+  typedef typename detail::remove_reference_and_cv<B>::type plain_B;
+
+  typedef typename 
+    plain_return_type_2<
+      arithmetic_assignment_action<Act>, plain_A, plain_B
+    >::type type1;
+  
+  typedef typename 
+    detail::IF<
+      boost::is_same<type1, detail::unspecified>::value, 
+      A,
+      type1
+    >::RET type;
 };
 
 template<class A, class B, class Act> 
-struct return_type_2<bitwise_assignment_action<Act>, A&, B> { 
-  typedef A& type; 
+struct return_type_2<bitwise_assignment_action<Act>, A, B> { 
+
+  typedef typename detail::remove_reference_and_cv<A>::type plain_A;
+  typedef typename detail::remove_reference_and_cv<B>::type plain_B;
+
+  typedef typename 
+    plain_return_type_2<
+      bitwise_assignment_action<Act>, plain_A, plain_B
+    >::type type1;
+  
+  typedef typename 
+    detail::IF<
+      boost::is_same<type1, detail::unspecified>::value, 
+      A,
+      type1
+    >::RET type;
 };
 
 template<class A, class B> 
-struct return_type_2<other_action<assignment_action>, A&, B> { 
-  typedef A& type; 
+struct return_type_2<other_action<assignment_action>, A, B> { 
+  typedef typename detail::remove_reference_and_cv<A>::type plain_A;
+  typedef typename detail::remove_reference_and_cv<B>::type plain_B;
+
+  typedef typename 
+    plain_return_type_2<
+      other_action<assignment_action>, plain_A, plain_B
+    >::type type1;
+  
+  typedef typename 
+    detail::IF<
+      boost::is_same<type1, detail::unspecified>::value, 
+      A,
+      type1
+    >::RET type;
 };
 
 // -- other actions ----------------------------------------
@@ -550,55 +748,88 @@ struct return_type_2<other_action<assignment_action>, A&, B> {
 // comma action ----------------------------------
 // Note: this may not be true for some weird user-defined types,
 
+// NOTE! A and B in comma_action can be non-reference types too!!!
+// (The built in operator, can return a l- or rvalue).
 template<class A, class B> 
-struct return_type_2<other_action<comma_action>, A, B> { typedef B type; };
+struct return_type_2<other_action<comma_action>, A, B> { 
+  typedef typename detail::remove_reference_and_cv<A>::type plain_A;
+  typedef typename detail::remove_reference_and_cv<B>::type plain_B;
+
+  typedef typename 
+    plain_return_type_2<
+      other_action<comma_action>, plain_A, plain_B
+    >::type type1;
+  
+  typedef typename 
+    detail::IF<
+      boost::is_same<type1, detail::unspecified>::value, 
+      B,
+      type1
+    >::RET type;
+
+};
 
 // subscript action -----------------------------------------------
 
-// strip reference
+
+namespace detail {
+  // A and B are nonreference types
+template <class A, class B> struct subscript_type {
+  typedef detail::unspecified type; 
+};
+
+template <class A, class B> struct subscript_type<A*, B> {
+  typedef A& type;
+};
+template <class A, class B> struct subscript_type<A* const, B> {
+  typedef A& type;
+};
+template <class A, class B> struct subscript_type<A* volatile, B> {
+  typedef A& type;
+};
+template <class A, class B> struct subscript_type<A* const volatile, B> {
+  typedef A& type;
+};
+
+
+template<class A, class B, int N> struct subscript_type<A[N], B> { 
+  typedef A& type; 
+};
+
+  // these 3 specializations are needed to make gcc <3 happy
+template<class A, class B, int N> struct subscript_type<const A[N], B> { 
+  typedef const A& type; 
+};
+template<class A, class B, int N> struct subscript_type<volatile A[N], B> { 
+  typedef volatile A& type; 
+};
+template<class A, class B, int N> struct subscript_type<const volatile A[N], B> { 
+  typedef const volatile A& type; 
+};
+
+} // end detail
+
 template<class A, class B>
-struct return_type_2<other_action<subscript_action>, A&, B> {
+struct return_type_2<other_action<subscript_action>, A, B> {
+
+  typedef typename detail::remove_reference_and_cv<A>::type plain_A;
+  typedef typename detail::remove_reference_and_cv<B>::type plain_B;
+
+  typedef typename boost::remove_reference<A>::type nonref_A;
+  typedef typename boost::remove_reference<B>::type nonref_B;
+
   typedef typename 
-    return_type_2<other_action<subscript_action>, A, B>::type type;
-};
-
-// strip constness, but preserve it 
-template<class A, class B> 
-struct return_type_2<other_action<subscript_action>, const A, B> { 
-  // get the (potentially non-const) reference type
+    plain_return_type_2<
+      other_action<subscript_action>, plain_A, plain_B
+    >::type type1;
+  
   typedef typename 
-     return_type_2<other_action<subscript_action>, A, B>::type type1;
-  // return a const reference to the underlying type
-  typedef const typename boost::remove_reference<type1>::type & type;
-};
+    detail::IF_type<
+      boost::is_same<type1, detail::unspecified>::value, 
+      detail::subscript_type<nonref_A, nonref_B>,
+      plain_return_type_2<other_action<subscript_action>, plain_A, plain_B>
+    >::type type;
 
-
-// The general case used to check if this a typedef value_type was defined
-// That could fail so, it got changed and there are specializations
-// for vector etc.
-template<class A, class B> 
-struct return_type_2<other_action<subscript_action>, A, B> { 
-  //  typedef typename A::value_type& type;
-  typedef detail::unspecified type;
-};
-
-
-template<class A, class B> 
-struct return_type_2<other_action<subscript_action>, A*, B> { typedef A& type; };
-
-// this is needed, because the general const stripping would otherwise add
-// const to A as well, here the ptr itself is const not necessarily A. 
-// This const may be safely dropped.
-template<class A, class B> 
-struct return_type_2<other_action<subscript_action>, A* const, B> { 
-  typedef A& type; 
-};
-
-// for arrays, no need to specialise for const. If A is const, 
-// the general const strips const away and puts it back (as it should)
-template<class A, class B, const int N> 
-struct return_type_2<other_action<subscript_action>, A[N], B> { 
-  typedef A& type; 
 };
 
 
@@ -619,74 +850,46 @@ namespace boost {
 namespace lambda {
 
 template<class Key, class T, class Cmp, class Allocator, class B> 
-struct return_type_2<other_action<subscript_action>, std::map<Key, T, Cmp, Allocator>, B> { 
+struct plain_return_type_2<other_action<subscript_action>, std::map<Key, T, Cmp, Allocator>, B> { 
   typedef T& type;
   // T == std::map<Key, T, Cmp, Allocator>::mapped_type; 
 };
 
 template<class Key, class T, class Cmp, class Allocator, class B> 
-struct return_type_2<other_action<subscript_action>, std::multimap<Key, T, Cmp, Allocator>, B> { 
+struct plain_return_type_2<other_action<subscript_action>, std::multimap<Key, T, Cmp, Allocator>, B> { 
   typedef T& type;
   // T == std::map<Key, T, Cmp, Allocator>::mapped_type; 
 };
 
   // deque
 template<class T, class Allocator, class B> 
-struct return_type_2<other_action<subscript_action>, std::deque<T, Allocator>, B> { 
+struct plain_return_type_2<other_action<subscript_action>, std::deque<T, Allocator>, B> { 
   typedef typename std::deque<T, Allocator>::reference type;
 };
 template<class T, class Allocator, class B> 
-struct return_type_2<other_action<subscript_action>, const std::deque<T, Allocator>, B> { 
+struct plain_return_type_2<other_action<subscript_action>, const std::deque<T, Allocator>, B> { 
   typedef typename std::deque<T, Allocator>::const_reference type;
 };
 
   // vector
 template<class T, class Allocator, class B> 
-struct return_type_2<other_action<subscript_action>, std::vector<T, Allocator>, B> { 
+struct plain_return_type_2<other_action<subscript_action>, std::vector<T, Allocator>, B> { 
   typedef typename std::vector<T, Allocator>::reference type;
 };
 template<class T, class Allocator, class B> 
-struct return_type_2<other_action<subscript_action>, const std::vector<T, Allocator>, B> { 
+struct plain_return_type_2<other_action<subscript_action>, const std::vector<T, Allocator>, B> { 
   typedef typename std::vector<T, Allocator>::const_reference type;
 };
 
   // basic_string
 template<class Char, class Traits, class Allocator, class B> 
-struct return_type_2<other_action<subscript_action>, std::basic_string<Char, Traits, Allocator>, B> { 
+struct plain_return_type_2<other_action<subscript_action>, std::basic_string<Char, Traits, Allocator>, B> { 
   typedef typename std::basic_string<Char, Traits, Allocator>::reference type;
 };
 template<class Char, class Traits, class Allocator, class B> 
-struct return_type_2<other_action<subscript_action>, const std::basic_string<Char, Traits, Allocator>, B> { 
+struct plain_return_type_2<other_action<subscript_action>, const std::basic_string<Char, Traits, Allocator>, B> { 
   typedef typename std::basic_string<Char, Traits, Allocator>::const_reference type;
 };
-
-
-
-
-#if defined __SGI_STL_PORT
-// do the same as map for sgi's hash_map, and hash_multimap.
-// The SGI STL Port is included because it is so commonly used.
-
-namespace __STLPORT_NAMESPACE {
-template <class _Key, class _Tp, class _HashFcn, class _EqualKey,
-          class _Alloc> class hash_map;
-template <class _Key, class _Tp, class _HashFcn, class _EqualKey, 
-          class _Alloc> class hash_multimap;
-}
-
-
-template <class _Key, class _Tp, class _HashFcn, class _EqualKey, class _Alloc, class B>
-struct return_type_2<other_action<subscript_action>, ::__STLPORT_NAMESPACE::hash_map<_Key, _Tp, _HashFcn, _EqualKey, _Alloc>, B> { 
-  typedef _Tp& type;
-  // T == stlport::hash_map<_Key, _Tp, _HashFcn, _EqualKey, _Alloc>::mapped_type; 
-};
-
-template <class _Key, class _Tp, class _HashFcn, class _EqualKey, class _Alloc, class B>
-struct return_type_2<other_action<subscript_action>, ::__STLPORT_NAMESPACE::hash_multimap<_Key, _Tp, _HashFcn, _EqualKey, _Alloc>, B> { 
-  typedef _Tp& type;
-  // T == stlport::hash_multimap<_Key, _Tp, _HashFcn, _EqualKey, _Alloc>::mapped_type; 
-};
-#endif
 
 
 } // namespace lambda

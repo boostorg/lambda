@@ -128,17 +128,15 @@ struct element_or_null_type {
 
     // currying is only supported for 2- and 3-ary lambda functors, and
     // must be called by 1 or 2 arguments.
-    //    BOOST_STATIC_ASSERT(acount == 1 || acount == 2);
-    //    BOOST_STATIC_ASSERT(dig_arity<LF>::value == SECOND || dig_arity<LF>::value == THIRD);
+    // acount 1 or 2, dig_arity<LF>::value SECOND or THIRD
  
-
     typedef typename detail::element_or_null_type<1, SigArgs>::type el_1;
     typedef typename detail::element_or_null_type<2, SigArgs>::type el_2;
 
     typedef lambda_functor<
       lambda_functor_args<
         action<Args_expected + 1, curry_action<acount> >,
-        // remoce_const_refernce takes care that const null_type will 
+        // remove_const_refernce takes care that const null_type will 
         // be null_type, that arrays are always stored as const refs,
         // that nonconst refs remain nonconst refs, and everything else goes
         // to const copy.
@@ -161,9 +159,9 @@ struct element_or_null_type {
       return_type<
         LF,
         open_args<
-          detail::element_or_null_type<1, SigArgs>::type,
-          detail::element_or_null_type<2, SigArgs>::type,
-          detail::element_or_null_type<3, SigArgs>::type
+          typename detail::element_or_null_type<1, SigArgs>::type,
+          typename detail::element_or_null_type<2, SigArgs>::type,
+          typename detail::element_or_null_type<3, SigArgs>::type
 	> 
       >::type type;
   };
@@ -194,7 +192,7 @@ public:
     : inherited(args) {} 
 
   // lambda functors can be copied, if arity and action are the same
-  // and Args tuples copyable
+  // and Args tuples are copyable
   template <class Args2> lambda_functor
     (const lambda_functor<lambda_functor_args<Action, Args2, NONE> >& f)
       : inherited(f.args) {}
@@ -204,7 +202,7 @@ public:
       detail::lambda_functor_sig<lambda_functor, 0, SigArgs>::type type;
   };
 
-    return_type<
+    typename return_type<
       lambda_functor, 
       open_args<null_type, null_type, null_type> 
     >::type
@@ -309,25 +307,11 @@ public:
 
   // currying call: creates another lambda functor
   template<class A>
-  sig<tuple<lambda_functor, A&> >::type
-//    lambda_functor<
-//      lambda_functor_args<
-//        action<3, curry_action<1> >,
-//        detail::bind_tuple_mapper<lambda_functor, const A>::type,
-//        FIRST
-//      > 
-//    >
+  typename sig<tuple<const lambda_functor&, A&> >::type
   operator()(A& a) const 
   {
   return 
-  typename sig<tuple<lambda_functor, A&> >::type
-//    lambda_functor<
-//      lambda_functor_args<
-//        action<3, curry_action<1> >,
-//        detail::bind_tuple_mapper<lambda_functor, const A>::type,
-//        FIRST
-//      >
-//    > 
+  typename sig<tuple<const lambda_functor&, A&> >::type
   ( 
       tuple<lambda_functor, 
             typename detail::remove_const_reference<A&>::type>(*this, a)
@@ -381,25 +365,11 @@ public:
 
   // currying call, one argument still missing
   template<class A, class B>
-  sig<tuple<lambda_functor, A&, B&> >::type
-//    lambda_functor<
-//      lambda_functor_args<
-//        action<4, curry_action<2> >,
-//        detail::bind_tuple_mapper<lambda_functor, const A, const B>::type,
-//        FIRST
-//      > 
-//    >
+  typename sig<tuple<const lambda_functor&, A&, B&> >::type
   operator()(A& a, B& b) const 
   {
     return 
-    typename sig<tuple<lambda_functor, A&, B&> >::type
-//      lambda_functor<
-//        lambda_functor_args<
-//          action<4, curry_action<2> >,
-//          detail::bind_tuple_mapper<lambda_functor, const A, const B>::type,
-//          FIRST
-//        > 
-//      >
+    typename sig<tuple<const lambda_functor&, A&, B&> >::type
     (   tuple<
           lambda_functor, 
           typename detail::remove_const_reference<A&>::type,
@@ -409,8 +379,8 @@ public:
   }
 
   // currying call, two arguments still missing
-  template<class A>
-  sig<tuple<lambda_functor, A&> >::type
+
+// The return type is:
 //    lambda_functor<
 //      lambda_functor_args<
 //        action<4, curry_action<1> >,
@@ -418,17 +388,13 @@ public:
 //        SECOND
 //      > 
 //  >
+
+  template<class A>
+  typename sig<tuple<const lambda_functor&, A&> >::type
   operator()(A& a) const 
   {
   return 
-    typename sig<tuple<lambda_functor, A&> >::type
-//    lambda_functor<
-//      lambda_functor_args<
-//        action<4, curry_action<1> >,
-//        detail::bind_tuple_mapper<lambda_functor, const A>::type,
-//        SECOND
-//      > 
-//    > 
+    typename sig<tuple<const lambda_functor&, A&> >::type
   ( 
         tuple<lambda_functor, typename detail::remove_const_reference<A&>::type>(*this, a)
     );
@@ -497,30 +463,30 @@ public:
 
   template <class SigArgs> struct sig {
     typedef typename 
-      lambda_functor<Arg>::template sig<SigArgs>::type type;
+      ::boost::lambda::lambda_functor<Arg>::template sig<SigArgs>::type type;
   };
 
-  sig<tuple<lambda_functor<Arg> > >::type  
+  typename sig<tuple<const lambda_functor<Arg>& > >::type  
   operator()() const {
-    return inherited::template ret_call<typename sig<tuple<lambda_functor<Arg> > >::type>(); 
+    return inherited::template ret_call<typename sig<tuple<const lambda_functor<Arg>& > >::type>(); 
   }
 
   template<class A>
-  sig<tuple<lambda_functor<Arg>, A&> >::type 
+  typename sig<tuple<const lambda_functor<Arg>&, A&> >::type 
   operator()(const A& a) const {
-    return inherited::template ret_call<typename sig<tuple<lambda_functor<Arg>, A&> >::type >(const_cast<A&>(a)); 
+    return inherited::template ret_call<typename sig<tuple<const lambda_functor<Arg>&, A&> >::type >(const_cast<A&>(a)); 
   }
 
   template<class A, class B>
-  sig<tuple<lambda_functor<Arg>, A&, B&> >::type 
+  typename sig<tuple<const lambda_functor<Arg>&, A&, B&> >::type 
   operator()(const A& a, const B& b) const {
-    return inherited::template ret_call<typename sig<tuple<lambda_functor<Arg>, A&, B&> >::type >(const_cast<A&>(a), const_cast<B&>(b)); 
+    return inherited::template ret_call<typename sig<tuple<const lambda_functor<Arg>&, A&, B&> >::type >(const_cast<A&>(a), const_cast<B&>(b)); 
   }
 
   template<class A, class B, class C>
-  sig<tuple<lambda_functor<Arg>, A&, B&, C&> >::type 
+  typename sig<tuple<const lambda_functor<Arg>&, A&, B&, C&> >::type 
   operator()(const A& a, const B& b, const C& c) const {
-    return inherited::template ret_call<typename sig<tuple<lambda_functor<Arg>, A&, B&, C&> >::type>(const_cast<A&>(a), const_cast<B&>(b), const_cast<C&>(c)); 
+    return inherited::template ret_call<typename sig<tuple<const lambda_functor<Arg>&, A&, B&, C&> >::type>(const_cast<A&>(a), const_cast<B&>(b), const_cast<C&>(c)); 
   }
 };
 
@@ -546,33 +512,33 @@ public:
 
   template <class SigArgs> struct sig {
     typedef typename 
-      lambda_functor<Arg>::template sig<SigArgs>::type type;
+      ::boost::lambda::lambda_functor<Arg>::template sig<SigArgs>::type type;
   };
 
   // This is provided just for completeness; no arguments, no constness
   // problems. 
 
-  sig<tuple<lambda_functor<Arg> > >::type  
+  typename sig<tuple<const lambda_functor<Arg>& > >::type  
   operator()() const {
-    return inherited::template ret_call<typename sig<tuple<lambda_functor<Arg> > >::type>(); 
+    return inherited::template ret_call<typename sig<tuple<const lambda_functor<Arg>& > >::type>(); 
   }
 
   template<class A>
-  sig<tuple<lambda_functor<Arg>, const A&> >::type 
+  typename sig<tuple<const lambda_functor<Arg>&, const A&> >::type 
   operator()(const A& a) const {
-    return inherited::template ret_call<typename sig<tuple<lambda_functor<Arg>, const A&> >::type >(a); 
+    return inherited::template ret_call<typename sig<tuple<const lambda_functor<Arg>&, const A&> >::type >(a); 
   }
 
   template<class A, class B>
-  sig<tuple<lambda_functor<Arg>, const A&, const B&> >::type 
+  typename sig<tuple<const lambda_functor<Arg>&, const A&, const B&> >::type 
   operator()(const A& a, const B& b) const {
-    return inherited::template ret_call<typename sig<tuple<lambda_functor<Arg>, const A&, const B&> >::type >(a, b); 
+    return inherited::template ret_call<typename sig<tuple<const lambda_functor<Arg>&, const A&, const B&> >::type >(a, b); 
   }
 
   template<class A, class B, class C>
-  sig<tuple<lambda_functor<Arg>, const A&, const B&, const C&> >::type 
+  typename sig<tuple<const lambda_functor<Arg>&, const A&, const B&, const C&> >::type 
   operator()(const A& a, const B& b, const C& c) const {
-    return inherited::template ret_call<typename sig<tuple<lambda_functor<Arg>, const A&, const B&, const C&> >::type>(a, b, c); 
+    return inherited::template ret_call<typename sig<tuple<const lambda_functor<Arg>&, const A&, const B&, const C&> >::type>(a, b, c); 
   }
 };
 

@@ -99,12 +99,14 @@ class protect_conversion {
   // function reference types are function reference types 
   typedef typename boost::remove_reference<A>::type A1;
 
+public:
+
   typedef typename detail::IF<
     boost::is_reference<A>::value 
     && !boost::is_const<A1>::value
     && !is_lambda_functor<A1>::value,
     A,  
-    const_copy_argument<A1>::type // handles funtion and array type correctly
+    typename const_copy_argument<A1>::type // handles funtion and array type correctly
   >::RET type;
 };
 
@@ -284,7 +286,7 @@ struct return_type_1<function_action<1, detail::unspecified>, A > {
 };
 template<class A, class B> 
 struct return_type_2<function_action<2, detail::unspecified>, A, B > { 
-  typedef typename function_adaptor_with_actuals<tuple<A, B>::inherited>::type type;
+  typedef typename function_adaptor_with_actuals<typename tuple<A, B>::inherited>::type type;
 };
 template<int I, class Args> 
 struct return_type_N<function_action<I, detail::unspecified>, Args > { 

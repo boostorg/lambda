@@ -199,25 +199,25 @@ public:
 
   non_lambda_functor(const lambda_functor<Arg>& a) : lf(a) {}
 
-  sig<tuple<lambda_functor<Arg> > >::type  
+  typename sig<tuple<lambda_functor<Arg> > >::type  
   operator()() const {
     return lf.template ret_call<typename sig<tuple<lambda_functor<Arg> > >::type>(); 
   }
 
   template<class A>
-  sig<tuple<lambda_functor<Arg>, A&> >::type 
+  typename sig<tuple<lambda_functor<Arg>, A&> >::type 
   operator()(A& a) const {
     return lf.template ret_call<typename sig<tuple<lambda_functor<Arg>, A&> >::type >(a); 
   }
 
   template<class A, class B>
-  sig<tuple<lambda_functor<Arg>, A&, B&> >::type 
+  typename sig<tuple<lambda_functor<Arg>, A&, B&> >::type 
   operator()(A& a, B& b) const {
     return lf.template ret_call<typename sig<tuple<lambda_functor<Arg>, A&, B&> >::type >(a, b); 
   }
 
   template<class A, class B, class C>
-  sig<tuple<lambda_functor<Arg>, A&, B&, C&> >::type 
+  typename sig<tuple<lambda_functor<Arg>, A&, B&, C&> >::type 
   operator()(A& a, B& b, C& c) const {
     return lf.template ret_call<typename sig<tuple<lambda_functor<Arg>, A&, B&, C&> >::type>(a, b, c); 
   }
@@ -230,7 +230,7 @@ template <class Arg>
 inline const non_lambda_functor<Arg> unlambda(const lambda_functor<Arg>& a)
 {
   return non_lambda_functor<Arg>(a);
-};
+}
 
   // Due to a language restriction, lambda functors cannot be made to
   // accept non-const rvalue arguments. Usually iterators do not return 
@@ -250,10 +250,16 @@ inline const const_parameter_lambda_functor<Arg>
 const_parameters(const lambda_functor<Arg>& lf)
 {
   return const_parameter_lambda_functor<Arg>(lf);
-};
+}
  
 } // namespace lambda 
 } // namespace boost
 
 #endif
+
+
+
+
+
+
 

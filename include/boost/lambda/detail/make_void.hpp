@@ -28,7 +28,7 @@ namespace lambda {
 
 template<> struct return_void_action<other_action<identity_action> > {
   template<class RET, class A>
-  static RET apply(A& a) { a; }
+  static RET apply(A& a) {}
 };
 
 
@@ -103,3 +103,15 @@ make_void(const lambda_functor<lambda_functor_args<action<N, return_void_action<
 
 
 #endif
+
+
+
+
+
+
+
+
+
+
+
+

@@ -79,6 +79,19 @@ struct IF_value
 
 // --------------------------------------------------------------
 
+// removes reference from other than function types:
+template<class T> class remove_reference_if_valid
+{
+
+  typedef typename boost::remove_reference<T>::type plainT;
+public:
+  typedef typename IF<
+    boost::is_function<plainT>::value,
+    T,
+    plainT
+  >::RET type;
+
+};
 
 
 template<class T> struct remove_reference_and_cv {
