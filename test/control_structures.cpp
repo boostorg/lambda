@@ -2,7 +2,8 @@
 #include <boost/test/test_tools.hpp>    // see "Header Implementation Option"
 
 #include "boost/lambda/lambda.hpp"
-#include "boost/lambda/control_structures.hpp"
+#include "boost/lambda/if.hpp"
+#include "boost/lambda/loops.hpp"
 
 #include <iostream>
 #include <algorithm>
