@@ -243,7 +243,15 @@ break_const(const lambda_functor<Arg>& lf)
 {
   return const_incorrect_lambda_functor<Arg>(lf);
 }  
-   
+  
+
+template <class Arg>
+inline const const_parameter_lambda_functor<Arg>
+const_parameters(const lambda_functor<Arg>& lf)
+{
+  return const_parameter_lambda_functor<Arg>(lf);
+};
+ 
 } // namespace lambda 
 } // namespace boost
 
