@@ -1,0 +1,21 @@
+The preprocessor library is not part of BOOST, but LL does use it.
+Hence, the library is under lambda subdirectory.
+This subdirectory will be removed if preprocessor becomes an official boost
+library.
+
+Note! The switch.hpp is the only LL file that uses preprocessor.
+The implementation requires almost similar template definitions for
+varying number of case statements.
+With preprocessor, a single definition is enough, and all 
+the template definitions are generated.
+
+Having said this, it's likely that I'll rewrite switch.hpp so that it does not
+use the preprocessor library, rather than expand the use of preprocessor lib
+to other similar parts of LL. 
+The preprocessor lib is really neat, but if error messages were bad prior 
+preprocessor, now they are _bad_.
+Also, the code is really hard to read, as there's a nested recursive
+looping going on (take a look at switch.hpp).
+
+So the purpose of this readme is to say, don't rely on this 
+directory being here for eternity.
