@@ -1235,8 +1235,8 @@ of one of the arguments, and how that dependency can be expressed with the
 <![CDATA[struct A {
 
   // the return type equals the third argument type:
-  template<class T1, T2, T3>
-  T3 operator()(const T1& t1, const T2& t2, const T3& t3);
+  template<class T1, class T2, class T3>
+  T3 operator()(const T1& t1, const T2& t2, const T3& t3) const;
 
   template <class Args> 
   class sig {
@@ -1246,7 +1246,7 @@ of one of the arguments, and how that dependency can be expressed with the
   public:
     typedef typename 
       boost::remove_cv<T3>::type type;
-  }
+  };
 };]]>
 </programlisting>
 
