@@ -61,8 +61,11 @@ struct open_args {
 // The primary template:
 // if we know nothing about Arg, it is not a lambda_functor. 
 // Hence the return type is Arg itself.
+
 template <class Arg, class Open> 
-struct return_type { typedef Arg type; };
+struct return_type { 
+  typedef Arg type;
+};
 
 // Unary actions (result from unary operators)
 // do not have a default return type.
@@ -86,7 +89,7 @@ typedef typename boost::remove_reference<A>::type A1;
 typedef typename 
   detail::IF<
   is_lambda_functor<A>::value, 
-    lambda_functor_sub<
+    lambda_functor<
       lambda_functor_args< 
         action<1, Act>, 
         tuple<A2>, 
@@ -140,7 +143,7 @@ template <class Act, class A, class B> struct return_type_2_0 {
 typedef typename 
   detail::IF<
     is_lambda_functor<A>::value || is_lambda_functor<B>::value,
-    lambda_functor_sub<
+    lambda_functor<
       lambda_functor_args< 
         action<2, Act>, 
         tuple<A2, B2>, 
@@ -188,7 +191,7 @@ typedef typename
 //    detail::IF<
 //      is_lambda_functor<A>::value || is_lambda_functor<B>::value ||
 //      is_lambda_functor<C>::value,
-//      lambda_functor_sub<
+//      lambda_functor<
 //        lambda_functor_args< 
 //          action<3, Act>, 
 //          tuple<A2, B2, C2>, 

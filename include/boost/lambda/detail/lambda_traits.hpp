@@ -147,12 +147,6 @@ template <class T> struct is_lambda_functor_ {
 template <class Arg> struct is_lambda_functor_<lambda_functor<Arg> > {
   BOOST_STATIC_CONSTANT(bool, value = true);
 };
-
-// lambda_functor_sub goes for lambda functor as well
-template <class Arg> struct is_lambda_functor_<lambda_functor_sub<Arg> > {
-  BOOST_STATIC_CONSTANT(bool, value = true);
-};
-
    
 } // end detail
 
