@@ -33,6 +33,8 @@ template<class T> class reinterpret_cast_action;
 
 class typeid_action;
 
+class sizeof_action;
+
 // Cast actions
 template<class T> class cast_action<static_cast_action<T> > 
 {
@@ -67,11 +69,22 @@ public:
   }
 };
 
+  // typedid action
 class typeid_action {
 public:
   template<class RET, class Arg1>
   static RET apply(Arg1 &a1) {
     return typeid(a1);
+  }
+};
+
+// sizeof action
+class sizeof_action
+{
+public:
+  template<class RET, class Arg1>
+  static RET apply(Arg1 &a1) {
+    return sizeof(a1);
   }
 };
 
@@ -91,21 +104,23 @@ template<class Args, int Code, class Open>
 struct return_type<lambda_functor_args<action<1, typeid_action >, Args, Code>,
  Open>
 { 
-	typedef std::type_info const & type;
+  typedef std::type_info const & type;
+};
+
+// return type of sizeof_action
+
+template<class Args, int Code, class Open>
+struct return_type<lambda_functor_args<action<1, sizeof_action >, Args, Code>,
+ Open >
+{ 
+  typedef std::size_t const type;
 };
 
 
-
-
-
-
-
-
-
-
 // the four cast & typeid overloads.
+// casts can take ordinary variables (not just lambda functors)
 
-// static_cast
+// static_cast 
 template <class T, class Arg1>
 inline const lambda_functor<
   lambda_functor_args<
@@ -190,6 +205,8 @@ ll_reinterpret_cast(const Arg1& a1) {
 }
 
 // typeid
+// can be applied to a normal variable as well (can refer to a polymorphic
+// class object)
 template <class Arg1>
 inline const lambda_functor<
   lambda_functor_args<
@@ -201,7 +218,7 @@ inline const lambda_functor<
   > 
 >
 ll_typeid(const Arg1& a1) { 
-  return lambda_functor< lambda_functor_args<
+  return lambda_functor<lambda_functor_args<
 			action<1, 
 			typeid_action
 		>, 
@@ -210,6 +227,27 @@ ll_typeid(const Arg1& a1) {
     ( tuple<typename const_copy_argument <const Arg1>::type>(a1));
 }
 
+// sizeof(expression)
+// Always takes a lambda expression (if not, built in sizeof will do)
+template <class Arg1>
+inline const lambda_functor<
+  lambda_functor_args<
+    action<1, sizeof_action>, 
+    tuple<lambda_functor<Arg1> >, 
+    dig_arity<Arg1>::value
+  > 
+>
+ll_sizeof(const lambda_functor<Arg1>& a1) { 
+  return 
+    lambda_functor< 
+      lambda_functor_args<
+        action<1, sizeof_action>, 
+	tuple<lambda_functor<Arg1> >, 
+	dig_arity<Arg1>::value
+      > 
+    >
+    ( tuple<lambda_functor<Arg1> >(a1));
+}
 
 } // namespace lambda 
 } // namespace boost
