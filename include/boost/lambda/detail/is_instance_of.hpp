@@ -57,7 +57,7 @@ typedef double no_type;
   // store a pointer, as passing non-PODs through ellipsis results in	
   // warnings in some compilers						
 
-#define BOOST_LAMBDA_IS_INSTANCE_OF(INDEX)				\
+#define BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE(INDEX)				\
 template <class From, template <BOOST_LAMBDA_CLASS_LIST(INDEX)> class To>	\
 struct BOOST_PREPROCESSOR_CAT(is_instance_of_,INDEX)		\
 {										\
@@ -78,7 +78,7 @@ public:										\
 #else
   // GCC version
 
-#define BOOST_LAMBDA_IS_INSTANCE_OF(INDEX)				\
+#define BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE(INDEX)				\
 template <class From, template <BOOST_LAMBDA_CLASS_LIST(INDEX)> class To>	\
 struct BOOST_PREPROCESSOR_CAT(is_instance_of_,INDEX)		\
 {										\
@@ -102,14 +102,14 @@ BOOST_PREPROCESSOR_CAT(is_instance_of_,INDEX)<From, To>::value	\
 
 #endif 
 
-#define BOOST_LAMBDA_HELPER(N, A, B) BOOST_LAMBDA_IS_INSTANCE_OF( BOOST_PREPROCESSOR_INC(N) )
+#define BOOST_LAMBDA_HELPER(N, A, B) BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE( BOOST_PREPROCESSOR_INC(N) )
 
 // Generate the traits for 1-4 argument templates
 
 BOOST_PREPROCESSOR_2ND_REPEAT(4,BOOST_LAMBDA_HELPER,FOO,FOO)
 
 #undef BOOST_LAMBDA_HELPER
-#undef BOOST_LAMBDA_IS_INSTANCE_OF
+#undef BOOST_LAMBDA_IS_INSTANCE_OF_TEMPLATE
 #undef BOOST_LAMBDA_CLASS
 #undef BOOST_LAMBDA_ARG
 #undef BOOST_LAMBDA_CLASS_ARG
