@@ -291,7 +291,6 @@ public:
 
 // BOOST_LAMBDA_A_I_LIST(N, X) is a list of form X0, X1, ..., XN
 // BOOST_LAMBDA_A_I_B_LIST(N, X, Y) is a list of form X0 Y, X1 Y, ..., XN Y
-// BOOST_LAMBDA_A_I_B_LIST(N, X, Y) is a list of form X0 Y0, X1 Y1, ..., XN YN
 
 #define BOOST_LAMBDA_A_I(i, A) 		\
 BOOST_PP_COMMA_IF(i) BOOST_PP_CAT(A,i)
@@ -299,19 +298,12 @@ BOOST_PP_COMMA_IF(i) BOOST_PP_CAT(A,i)
 #define BOOST_LAMBDA_A_I_B(i, T) 		\
 BOOST_PP_COMMA_IF(i) BOOST_PP_CAT(BOOST_PP_TUPLE_ELEM(2,0,T),i) BOOST_PP_TUPLE_ELEM(2,1,T)
 
-#define BOOST_LAMBDA_A_I_B_I(i, A, B)		\
-BOOST_PP_COMMA_IF(i) 			\
-BOOST_PP_CAT(A,i) 			\
-BOOST_PP_CAT(B,i)
-
 #define BOOST_LAMBDA_A_I_LIST(i, A) 				\
 BOOST_PP_REPEAT(i,BOOST_LAMBDA_A_I, A) 		
 
 #define BOOST_LAMBDA_A_I_B_LIST(i, A, B) 			\
 BOOST_PP_REPEAT(i,BOOST_LAMBDA_A_I_B, (A,B)) 		
 
-  //#define BOOST_LAMBDA_A_I_B_I_LIST(i, A, B) 			\
-//BOOST_PP_REPEAT(i, BOOST_LAMBDA_A_I_B_I, A) 
 
 // Switch related macros -------------------------------------------
 #define BOOST_LAMBDA_SWITCH_CASE_BLOCK(N, A)				  \
