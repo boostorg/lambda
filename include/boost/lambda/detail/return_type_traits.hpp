@@ -22,6 +22,27 @@
 namespace boost { 
 namespace lambda {
 
+  // In some cases return type deduction should fail (an invalid lambda 
+  // expression). Sometimes the lambda expression can be ok, the return type
+  // just is not deducible (user defined operators). Then return type deduction
+  // should never be entered at all, and the use of ret<> does this.
+  // However, for nullary lambda functors, return type deduction is always
+  // entered, and there seems to be no way around this.
+
+  // (the return type is part of the prototype of the non-template
+  // operator()(). The prototype is instantiated, even though the body 
+  // is not.) 
+ 
+  // So, in the case the return type deduction should fail, it should not
+  // fail directly, but rather result in a valid but wrong return type,
+  // causing a compile time error, if the function is really called.
+
+namespace detail {
+
+template<class> class return_type_deduction_failure {};
+
+}
+
 // Much of the type deduction code for standard arithmetic types 
 // from Gary Powell
 
@@ -47,8 +68,7 @@ struct return_type { typedef Arg type; };
 // do not have a default return type.
 template<class Act, class A> struct return_type_1 { 
    typedef typename 
-     detail::generate_error<return_type_1>::type_deduction_did_not_succeed 
-       type;
+     detail::return_type_deduction_failure<return_type_1> type;
 };
 
 // binary actions ---------------------------------------------------
@@ -57,8 +77,9 @@ template <class Act, class A, class B> struct return_type_2;
 // unary function action (it is binary action)
 // If a function object overloads operator(), the return type could depend
 // on the argument types. This is not taken into consideration.
-template<class A, class B> struct return_type_2<function_action<2>, A, B> {
-  typedef typename return_type_1<function_action<1>, A>::type type;
+template<class A, class B, class Ret> 
+struct return_type_2<function_action<2, Ret>, A, B> {
+  typedef typename return_type_1<function_action<1, Ret>, A>::type type;
 };
 
 // reduce to lambda_functor_args
@@ -124,10 +145,19 @@ struct return_type<placeholder<EXCEPTION>, Open> {
 // function action: this covers all arities:
 // If a function object overloads operator(), the return type could depend
 // on the argument types. This is not taken into consideration.
-template<int I, class A> struct return_type_1<function_action<I>, A > { 
-  typedef typename function_adaptor<
+
+  // use the return type given in the bind invocation as bind<Ret>(...)
+template<int I, class A, class Ret> 
+struct return_type_1<function_action<I, Ret>, A > { 
+  typedef Ret type;
+};
+
+  // Ret is detail::unspecified, so try to deduce return type
+template<int I, class A> 
+struct return_type_1<function_action<I, detail::unspecified>, A > { 
+  typedef typename function_adaptor_sub<
                      typename detail::remove_reference_and_cv<A>::type
-                   >::result_type type;
+                   >::type type;
 };
 
 
@@ -281,3 +311,6 @@ struct return_type<lambda_functor_args<action<I, return_void_action<Act> >, Args
 } // namespace boost
 
 #endif
+
+
+

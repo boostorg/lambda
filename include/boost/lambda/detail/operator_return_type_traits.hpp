@@ -120,8 +120,14 @@ template<class A> struct return_type_1<other_action<identity_action>, A> {
 // it should be a reference
 template<class Act, class A> 
 struct return_type_1<pre_increment_decrement_action<Act>, A> {
-  BOOST_STATIC_ASSERT(boost::is_reference<A>::value);
-  typedef A type;
+  //  BOOST_STATIC_ASSERT(boost::is_reference<A>::value);
+  // test that A is a reference
+  typedef typename detail::IF<
+    boost::is_reference<A>::value, 
+    A, 
+    detail::return_type_deduction_failure<return_type_1>
+  >::RET type;
+
 };
 
 // post decrement just returns the same plain stype.
@@ -148,6 +154,9 @@ struct return_type_1<other_action<addressof_action>, A> {
 
 // contentsof action ------------------------------------
 
+// TODO: this deduction may lead to fail directly, gotta find a way
+// around it. Specializations for standard iterator types?
+ 
 // default is to assume that a typedef reference exists.
 // This works with std::iterators.
 template<class A> 
@@ -159,7 +168,7 @@ struct return_type_1<other_action<contentsof_action>, A> {
 template<class A>
 struct return_type_1<other_action<contentsof_action>, A&> {
   typedef typename 
-   return_type_1<other_action<contentsof_action>, A>::type type;
+    return_type_1<other_action<contentsof_action>, A>::type type;
 };
 
 // strip constness, but preserve it 
@@ -191,18 +200,20 @@ struct return_type_1<other_action<contentsof_action>, A* const> {
 // for arrays, no need to specialise for const, if A is const, 
 // the general const strips const away and puts it back (as it should)
 template<class A, int N> 
-struct return_type_1<other_action<contentsof_action>, A[N]> { typedef A& type; };
+struct return_type_1<other_action<contentsof_action>, A[N]> { 
+  typedef A& type; 
+};
 
 
 // ------------------------------------------------------------------
 // binary actions ---------------------------------------------------
 // ------------------------------------------------------------------
 
+namespace detail {
+
 // error classes
 class illegal_pointer_arithmetic{};
-class type_deduction_did_not_succeed{};
 
-namespace detail {
 // pointer arithmetic type deductions ----------------------
 // value = false means that this is not a pointer arithmetic case
 // value = true means, that this can be a pointer arithmetic case, but not necessarily is
@@ -229,11 +240,14 @@ struct pointer_arithmetic_traits<plus_action, A, B> {
   // note, that we do not check wether the other type is valid for 
   // addition with a pointer.
   // the compiler will catch it in the apply function
-  // TODO: make the code fail immediately (use inner IF instead of the
-  // illegal_pointer_arithmetic class
+
   typedef typename 
-  detail::IF<is_pointer_A && is_pointer_B, illegal_pointer_arithmetic,
-    typename detail::IF<is_pointer_A, const AP, const BP>::RET
+  detail::IF<
+    is_pointer_A && is_pointer_B, 
+      detail::return_type_deduction_failure<
+        detail::illegal_pointer_arithmetic
+      >,
+      typename detail::IF<is_pointer_A, const AP, const BP>::RET
   >::RET type; 
 
 };
@@ -269,15 +283,14 @@ struct pointer_arithmetic_traits<minus_action, A, B> {
   // note, that we do not check if, in ptr - B, B is 
   // valid for subtraction with a pointer.
   // the compiler will catch it in the apply function
-  // TODO: make the inner IF's false part fail immediately, rather than using
-  // illegal_pointer_artithmetic type
+
   typedef typename 
   detail::IF<
     same_pointer_type, const std::ptrdiff_t,
     typename detail::IF<
       is_pointer_A, 
       const AP, 
-      illegal_pointer_arithmetic
+      detail::return_type_deduction_failure<detail::illegal_pointer_arithmetic>
     >::RET
   >::RET type; 
 };
@@ -371,7 +384,7 @@ template<class A, class B> struct return_type_2_arithmetic_phase_3 {
   typedef typename
     detail::IF<
       promote_code_A_value == -1 || promote_code_B_value == -1,
-      type_deduction_did_not_succeed,
+      detail::return_type_deduction_failure<return_type_2_arithmetic_phase_3>,
       typename detail::IF<
         ((int)promote_code_A_value > (int)promote_code_B_value), 
         A, 
@@ -389,6 +402,10 @@ template<class A, class B> struct return_type_2_arithmetic_phase_3 {
 template<class A, class B, class Act> 
 struct return_type_2<bitwise_action<Act>, A, B>
 {
+
+  // TODO: This check is only valid for built-in types, overloaded types might
+  // accept floating point operators
+
   // bitwise operators not defined for floating point types
   BOOST_STATIC_ASSERT(boost::is_integral<typename boost::remove_reference<A>::type>::value && boost::is_integral<typename boost::remove_reference<B>::type>::value);
   typedef typename return_type_2<arithmetic_action<plus_action>, A, B >::type type; 
@@ -430,15 +447,14 @@ struct return_type_2<bitwise_action<rightshift_action>, A, B>
 
 // -- logical actions ----------------------------------------
 // always bool
-// TODO: this may not be true for some weird user-defined types,
-// should this be a default, or should it fail for non-standard types ?
+// NOTE: this may not be true for some weird user-defined types,
+
 template<class A, class B, class Act> 
 struct return_type_2<logical_action<Act>, A, B> { typedef bool type; };
 
 // -- relational actions ----------------------------------------
 // always bool
-// TODO: this may not be true for some weird user-defined types,
-// should this be a default, or should it fail for non-standard types ?
+// NOTE: this may not be true for some weird user-defined types,
 template<class A, class B, class Act> 
 struct return_type_2<relational_action<Act>, A, B> { 
   typedef bool type; 
@@ -448,8 +464,8 @@ struct return_type_2<relational_action<Act>, A, B> {
 // return type is the type of the first argument 
 // (note: it must be a reference).
 
-// TODO: this may not be true for some weird user-defined types,
-// should this be a default, or should it fail for non-standard types ?
+// NOTE: this may not be true for some weird user-defined types,
+
 template<class A, class B, class Act> 
 struct return_type_2<arithmetic_assignment_action<Act>, A&, B> { 
   typedef A& type; 
@@ -468,8 +484,8 @@ struct return_type_2<other_action<assignment_action>, A&, B> {
 // -- other actions ----------------------------------------
 
 // comma action ----------------------------------
-// TODO: this may not be true for some weird user-defined types,
-// should this be a default, or should it fail for non-standard types ?
+// Note: this may not be true for some weird user-defined types,
+
 template<class A, class B> 
 struct return_type_2<other_action<comma_action>, A, B> { typedef B type; };
 
@@ -491,6 +507,9 @@ struct return_type_2<other_action<subscript_action>, const A, B> {
   // return a const reference to the underlying type
   typedef const typename boost::remove_reference<type1>::type & type;
 };
+
+
+// TODO: this may fail directly, find a way around it
 
 // The general case, matches all plain class types
 // this covers vectors and sets (or any other container that 
@@ -574,3 +593,5 @@ struct return_type_2<other_action<subscript_action>, ::__STLPORT_NAMESPACE::hash
 } // namespace boost
 
 #endif
+
+
