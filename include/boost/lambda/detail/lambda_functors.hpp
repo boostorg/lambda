@@ -36,6 +36,9 @@ namespace {
 
 #define const_null_type() detail::constant_null_type
 
+
+
+
 #if defined BOOST_LAMBDA_LAMBDA_FUNCTOR_ASSIGNMENT
 #error "Multiple defines of BOOST_LAMBDA_LAMBDA_FUNCTOR_ASSIGNMENT"
 #endif
@@ -81,19 +84,80 @@ namespace {
 \
 
 
+// -- free variables types -------------------------------------------------- 
+   
+template <int I> class placeholder {};
+   
+typedef const lambda_functor<placeholder<FIRST> >  placeholder1_type;
+typedef const lambda_functor<placeholder<SECOND> > placeholder2_type;
+typedef const lambda_functor<placeholder<THIRD> >  placeholder3_type;
+   
+// free variables are lambda_functors. This is to allow uniform handling with 
+// other lambda_functors.
+// -------------------------------------------------------------------
+
+
+//  template <int I>
+//  class lambda_functor<placeholder<I> > {
+//  public:
+//    lambda_functor() {}
+//    // (do nothing) bug in gcc 2.95.2 for const template objects.
+
+//  BOOST_LAMBDA_LAMBDA_FUNCTOR_ASSIGNMENT
+//  BOOST_LAMBDA_LAMBDA_FUNCTOR_SUBSCRIPT
+//  };
+
+// covers _E, does not define (), cause it will only be called
+// inside of other lambda functors.
 template <int I>
 class lambda_functor<placeholder<I> > {
 public:
-  lambda_functor() {}
-  // default constructor (do nothing)
-  // bug in gcc 2.95.2 for const template objects.
+  BOOST_LAMBDA_LAMBDA_FUNCTOR_ASSIGNMENT
+  BOOST_LAMBDA_LAMBDA_FUNCTOR_SUBSCRIPT
+};
 
-  
+class lambda_functor<placeholder<FIRST> > {
+public:
+  template <class A>
+  A& operator()(A& a) const { return a; }
+
 BOOST_LAMBDA_LAMBDA_FUNCTOR_ASSIGNMENT
 BOOST_LAMBDA_LAMBDA_FUNCTOR_SUBSCRIPT
-
-
 };
+
+class lambda_functor<placeholder<SECOND> > {
+public:
+  template <class A, class B>
+  B& operator()(A&, B& b) const { return b; }
+
+  // currying call: creates another lambda functor
+  template<class A>
+  placeholder1_type
+  operator()(A&) const { return _1; }
+
+BOOST_LAMBDA_LAMBDA_FUNCTOR_ASSIGNMENT
+BOOST_LAMBDA_LAMBDA_FUNCTOR_SUBSCRIPT
+};
+
+class lambda_functor<placeholder<THIRD> > {
+public:
+  template <class A, class B, class C>
+  C& operator()(A&, B&, C& c) const { return c; }
+
+  // currying calls: create another lambda functor
+  template<class A>
+  placeholder2_type
+  operator()(A&) const { return _2; }
+
+  template<class A, class B>
+  placeholder1_type
+  operator()(A&, B&) const { return _1; }
+
+
+BOOST_LAMBDA_LAMBDA_FUNCTOR_ASSIGNMENT
+BOOST_LAMBDA_LAMBDA_FUNCTOR_SUBSCRIPT
+};
+
 
 namespace detail {
 
@@ -543,17 +607,6 @@ public:
 };
 
 
-// -- free variables types -------------------------------------------------- 
-   
-template <int I> class placeholder {};
-   
-typedef const lambda_functor<placeholder<FIRST> >  placeholder1_type;
-typedef const lambda_functor<placeholder<SECOND> > placeholder2_type;
-typedef const lambda_functor<placeholder<THIRD> >  placeholder3_type;
-   
-// free variables are lambda_functors. This is to allow uniform handling with 
-// other lambda_functors.
-// -------------------------------------------------------------------
 	 
    
   // Tagged lambda_functor -------------
