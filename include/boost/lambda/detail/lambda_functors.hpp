@@ -476,11 +476,12 @@ public:
 
 
 // any lambda functor can be turned into a const_incorrect_lambda_functor
-// The opreator() takes arguments as consts and then casts constness
+// The operator() takes arguments as consts and then casts constness
 // away. So this breaks const correctness!!! but is a necessary workaround
 // in some cases due to language limitations.
 // Note, that this is not a lambda_functor anymore, so it can not be used
 // as a sub lambda expression.
+
 template <class Arg> 
 struct const_incorrect_lambda_functor 
   : private lambda_functor<Arg> {
@@ -494,45 +495,36 @@ public:
     : inherited(lf.args) {}
     
 
+  template <class SigArgs> struct sig {
+    typedef typename 
+      lambda_functor<Arg>::template sig<SigArgs>::type type;
+  };
+
   // This is provided just for completeness; no arguments, no constness
   // problems. 
-  typename return_type<inherited, 
-             open_args<null_type, null_type, null_type> >::type 
-  operator()() const
-  { 
-     return inherited::template ret_call<
-       typename return_type<
-                  inherited, 
-                  open_args<null_type, null_type, null_type> 
-                >::type>(); 
+
+  sig<tuple<lambda_functor<Arg> > >::type  
+  operator()() const {
+    return inherited::template ret_call<typename sig<tuple<lambda_functor<Arg> > >::type>(); 
   }
 
   template<class A>
-  typename return_type<inherited, open_args<A&, null_type, null_type> >::type 
-  operator()(const A& a) const
-  { 
-     return inherited::template ret_call<
-       typename return_type<inherited, open_args<A&, null_type, null_type> 
-     >::type>(const_cast<A&>(a)); 
+  sig<tuple<lambda_functor<Arg>, A&> >::type 
+  operator()(const A& a) const {
+    return inherited::template ret_call<typename sig<tuple<lambda_functor<Arg>, A&> >::type >(const_cast<A&>(a)); 
   }
+
   template<class A, class B>
-  typename return_type<inherited, open_args<A&, B&, null_type> >::type 
-  operator()(const A& a, const B& b) const
-  { 
-     return inherited::template ret_call<
-       typename return_type<inherited, open_args<A&, B&, null_type> 
-     >::type>(const_cast<A&>(a), const_cast<B&>(b)); 
+  sig<tuple<lambda_functor<Arg>, A&, B&> >::type 
+  operator()(const A& a, const B& b) const {
+    return inherited::template ret_call<typename sig<tuple<lambda_functor<Arg>, A&, B&> >::type >(const_cast<A&>(a), const_cast<B&>(b)); 
   }
+
   template<class A, class B, class C>
-  typename return_type<inherited, open_args<A&, B&, C&> >::type 
-  operator()(const A& a, const B& b, const C& c) const
-  { 
-     return inherited::template ret_call<
-       typename return_type<inherited, open_args<A&, B&, C&> 
-     >::type>(const_cast<A&>(a), const_cast<B&>(b), const_cast<C&>(c)); 
+  sig<tuple<lambda_functor<Arg>, A&, B&, C&> >::type 
+  operator()(const A& a, const B& b, const C& c) const {
+    return inherited::template ret_call<typename sig<tuple<lambda_functor<Arg>, A&, B&, C&> >::type>(const_cast<A&>(a), const_cast<B&>(b), const_cast<C&>(c)); 
   }
-
-
 };
 
 
