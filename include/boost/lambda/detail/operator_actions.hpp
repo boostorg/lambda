@@ -62,7 +62,7 @@ class do_nothing_action {};
 class addressof_action {};
 class comma_action {};
 class contentsof_action {};
-class member_pointer_action {};
+// class member_pointer_action {}; (defined in member_ptr.hpp)
 
 
 // -- actioun group templates --------------------
