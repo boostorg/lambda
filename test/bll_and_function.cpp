@@ -22,16 +22,12 @@ using namespace std;
 void test_function() {
 
   boost::function<int, int, int> f;
-  f = unlambda(_1 + _2);
-
-  // unlambda must be used, because boost::function tries to take the 
-  // address of the function object that is assigned. However, the
-  // operator& is overloaded for lambda functors, which creates a conflict
+  f = _1 + _2;
 
  BOOST_TEST(f(1, 2)== 3);
 
  int i=1; int j=2;
- boost::function<int&, int&, int> g = unlambda(_1 += _2);
+ boost::function<int&, int&, int> g = _1 += _2;
  g(i, j);
  BOOST_TEST(i==3);
 
@@ -39,7 +35,7 @@ void test_function() {
 
   int* sum = new int();
   *sum = 0;
-  boost::function<int&, int> counter = unlambda(*sum += _1);
+  boost::function<int&, int> counter = *sum += _1;
   counter(5); // ok, sum* = 5;
   BOOST_TEST(*sum == 5);
   delete sum; 
