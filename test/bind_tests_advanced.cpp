@@ -3,8 +3,9 @@
 #define BOOST_INCLUDE_MAIN  // for testing, include rather than link
 #include <boost/test/test_tools.hpp>    // see "Header Implementation Option"
 
-#include "boost/lambda/bind.hpp"
 #include "boost/lambda/lambda.hpp"
+#include "boost/lambda/bind.hpp"
+
 
 #include "boost/any.hpp"
 
@@ -33,6 +34,8 @@ fptr_type sum_or_product(bool x) {
 // returns a pointer to a binary function.
 struct which_one {
   typedef fptr_type (*result_type)(bool x);
+  template <class T> struct sig { typedef result_type type; };
+
   result_type operator()() const { return sum_or_product; }
 };
 
@@ -86,30 +89,31 @@ int call_with_100(const F& f) {
 template<class F>
 int call_with_101(const F& f) {
 
-  return bind(unlambda(ret<int>(f)), _1)(make_const(101));
+  return bind(unlambda(f), _1)(make_const(101));
 
-  // the ret must be inside of unlambda, since unlambda requires its argument
-  // to define result_type.
-  // if F is not a lambda functor ret<int>(f) fails at compile time!
 }
+
 
 void test_unlambda() {
 
-  BOOST_TEST(call_with_100(ret<int>(_1 + 1)) == 101);
-  // note, that the functor must define the result_type typedef, as the bind
-  // int the called function does not do that.
+  int i = 1;
+
+  BOOST_TEST(unlambda(_1 + _2)(i, i) == 2);
+  BOOST_TEST(unlambda(++var(i))() == 2); 
+  BOOST_TEST(call_with_100(_1 + 1) == 101);
+
 
   BOOST_TEST(call_with_101(_1 + 1) == 102);
-  // This one leaves the return type to be specified by the bind in the
-  // called function, and that makes things kind of hard in the called 
-  // function
-  
-  BOOST_TEST(call_with_100(std::bind1st(std::plus<int>(), 1)) == 101);
 
-  //  BOOST_TEST(call_with_101(std::bind1st(std::plus<int>(), 1)) == 102);
-  // this would fail, as it would lead to ret being called with other than
-  // a lambda functor	
+  BOOST_TEST(call_with_100(bind(std_functor(std::bind1st(std::plus<int>(), 1)), _1)) == 101);
+
+  // std_functor insturcts LL that the functor defines a result_type typedef
+  // rather than a sig template.
+  bind(std_functor(std::plus<int>()), _1, _2)(i, i);
 }
+
+
+
 
 // protect ------------------------------------------------------------
 
@@ -118,21 +122,14 @@ void test_unlambda() {
 
 namespace ll {
 
-struct for_each : public has_sig {
+struct for_each {
   
   // note, std::for_each returns it's last argument
   // We want the same behaviour from our ll::for_each.
   // However, the functor can be called with any arguments, and
   // the return type thus depends on the argument types.
-  // The basic mechanism (provide a result_type typedef) does not 
-  // work.
-  
-  // There is an alternative for this kind of situations, which LL 
-  // borrows from FC++ (by Yannis Smaragdakis and Brian McNamara).
 
-  // If you want to use this mechanism, your function object class needs to 
-  // 1. inhertit publicly from has_sig
-  // 2. Provide a sig class member template:
+  // 1. Provide a sig class member template:
  
   // The return type deduction system instantiate this class as:
   // sig<Args>::type, where Args is a boost::tuples::cons-list
@@ -148,17 +145,14 @@ struct for_each : public has_sig {
   // if the functor has several operator()'s, even if they have different 
   // number of arguments.
 
-  // Note, that the argument types in Args can be arbitrary types, particularly
-  // they can be reference types and can have qualifiers or both. 
-  // So some care will be needed in this respect.
- 
-  template <class Args>
+  // Note, that the argument types in Args are guaranteed to be non-reference
+  // types, but they can have cv-qualifiers.
+
+    template <class Args>
   struct sig { 
     typedef typename boost::remove_const<
-      typename boost::remove_reference<
-        typename boost::tuples::element<3, Args>::type 
-      >::type
-     >::type type; 
+          typename boost::tuples::element<3, Args>::type 
+       >::type type; 
   };
 
   template <class A, class B, class C>
@@ -205,6 +199,7 @@ void test_protect()
                );
   BOOST_TEST(sum == (1+15)*15/2 + 15);
 
+  (1 + protect(_1))(sum);
 
   int k = 0; 
   ((k += constant(1)) += protect(constant(2)))();
@@ -232,10 +227,15 @@ void test_protect()
   // something like this:
   // (protect(std::cout << _1), bind(ref, std::cout << _1))(i)(j); 
 
+
+  // the stuff below works, but we do not want extra output to 
+  // cout, must be changed to stringstreams but stringstreams do not
+  // work due to a bug in the type deduction. Will be fixed...
+#if 0
   // But for now, ref is not bindable. There are other ways around this:
 
-  //  int x = 1, y = 2;
-  //  (protect(std::cout << _1), (std::cout << _1, 0))(x)(y);
+    int x = 1, y = 2;
+    (protect(std::cout << _1), (std::cout << _1, 0))(x)(y);
 
   // added one dummy value to make the argument to comma an int 
   // instead of ostream& 
@@ -243,7 +243,10 @@ void test_protect()
   // Note, the same problem is more apparent without protect
   //   (std::cout << 1, std::cout << constant(2))(); // does not work
 
-  //  (boost::ref(std::cout << 1), std::cout << constant(2))(); // this does
+    (boost::ref(std::cout << 1), std::cout << constant(2))(); // this does
+
+#endif
+
 }
 
 
@@ -254,17 +257,22 @@ void test_lambda_functors_as_arguments_to_lambda_functors() {
 
   // Note however, that the argument/type substitution is not entered again.
   // This means, that something like this will not work:
-  (_1 + _2)(bind(&sum_0), make_const(7)); 
+
+    (_1 + _2)(_1, make_const(7));
+    (_1 + _2)(bind(&sum_0), make_const(7)); 
+
     // or it does work, but the effect is not to call
     // sum_0() + 7, but rather
     // bind(sum_0) + 7, which results in another lambda functor
     // (lambda functor + int) and can be called again
   BOOST_TEST((_1 + _2)(bind(&sum_0), make_const(7))() == 7); 
    
+  int i = 3, j = 12; 
+  BOOST_TEST((_1 - _2)(_2, _1)(i, j) == j - i);
 
   // also, note that lambda functor are no special case for bind if received
   // as a parameter. In oder to be bindable, the functor must
-  // either define the result_type typedef, have the sig template, or then
+  // defint the sig template, or then
   // the return type must be defined within the bind call. Lambda functors
   // do define the sig template, so if the return type deduction system
   // covers the case, there is no need to specify the return type 
@@ -272,55 +280,19 @@ void test_lambda_functors_as_arguments_to_lambda_functors() {
 
   int a = 5, b = 6;
 
-  // Let type deduction take find out the return type
-  BOOST_TEST(bind(_1, _2, _3)(_1 + _2, a, b) == 11);
+  // Let type deduction find out the return type
+  BOOST_TEST(bind(_1, _2, _3)(unlambda(_1 + _2), a, b) == 11);
 
   //specify it yourself:
   BOOST_TEST(bind(_1, _2, _3)(ret<int>(_1 + _2), a, b) == 11);
   BOOST_TEST(ret<int>(bind(_1, _2, _3))(_1 + _2, a, b) == 11);
   BOOST_TEST(bind<int>(_1, _2, _3)(_1 + _2, a, b) == 11);
 
-
+  bind(_1,1.0)(_1+_1);
   return; 
 
 }
 
-void test_currying() {
-
-  int a = 1, b = 2, c = 3;
-
-  // lambda functors support currying:
-  // binary functor can be called with just one argument, the result is
-  // a unary lambda functor. 
-  // 3-ary functor can be called with one or two arguments (and with 3 
-  // of course)
-
-  BOOST_TEST((_1 + _2)(a)(b) == 3);
-
-  BOOST_TEST((_1 + _2 + _3)(a, b)(c) == 6);
-  BOOST_TEST((_1 + _2 + _3)(a)(b, c) == 6);
-  BOOST_TEST((_1 + _2 + _3)(a)(b)(c) == 6);
-
-  // Also, lambda functors passed as arguments end up being curryable
-
-  BOOST_TEST(bind(_1, _2, _3)(_1 + _2 + _3, a, b)(c) == 6);
-  BOOST_TEST(bind(_1, _2)(_1 + _2 + _3, a)(b, c) == 6);
-  BOOST_TEST(bind(_1, _2)(_1 + _2 + _3, a)(b)(c) == 6);
-
-  bind(_1, _2)(_1 += (_2 + _3), a)(b)(c);
-  BOOST_TEST(a == 6);
-
-  bind(_1, _2)(a += (_1 + _2 + _3), c)(c)(c);
-  BOOST_TEST(a == 6+3*c);
-
-  a = 1, b = 2, c = 3;
-  // and protecting should work as well
-  BOOST_TEST(bind(_1, _2)(_1 + _2 + _3 + protect(_1), a)(b)(c)(a) == 7);
-  
-
-  return;
-
-}
 
 void test_const_parameters() {
 
@@ -357,7 +329,6 @@ int test_main(int, char *[]) {
   test_unlambda();
   test_protect();
   test_lambda_functors_as_arguments_to_lambda_functors();
-  test_currying(); 
   test_const_parameters();
   test_break_const(); 
   return 0;
