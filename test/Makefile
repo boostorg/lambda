@@ -2,7 +2,7 @@ BOOST 		= ../../..
  
 CXX		= gcc 
 EXTRAFLAGS 	= -pedantic -Wno-long-long -ftemplate-depth-50 
- LIBS		= -lstdc++
+LIBS		= -lstdc++
 
 #CXX		= KCC 
 #EXTRAFLAGS 	= --strict --display_error_number --diag_suppress 450 --max_pending_instantiations 50
@@ -26,12 +26,13 @@ is_instance_of_test.cpp \
 member_pointer_test.cpp \
 control_structures.cpp \
 switch_construct.cpp \
-extending_return_type_traits.cpp \
-constructor_tests.cpp \
 cast_test.cpp \
 operator_tests_simple.cpp \
 bind_tests_simple.cpp \
 bind_tests_advanced.cpp \
+bll_and_function.cpp \
+constructor_tests.cpp \
+extending_return_type_traits.cpp \
 bind_tests_simple_function_references.cpp \
 exception_test.cpp \
 
@@ -73,6 +74,7 @@ run:
 	./cast_test.exe 
 	./bind_tests_simple.exe 
 	./bind_tests_advanced.exe 
+	./bll_and_function.exe
 	./bind_tests_simple_function_references.exe
 	./exception_test.exe
 
