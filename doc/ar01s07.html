@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type"><title>7. Practical considerations</title><meta name="generator" content="DocBook XSL Stylesheets V1.48"><link rel="home" href="index.html" title="
+      C++ BOOST
+
+      The Boost Lambda Library"><link rel="up" href="index.html" title="
+      C++ BOOST
+
+      The Boost Lambda Library"><link rel="previous" href="ar01s06.html" title="6. Extending return type deduction system"><link rel="next" href="ar01s08.html" title="8. Relation to other Boost libraries"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">7. Practical considerations</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ar01s06.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ar01s08.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a name="id2807377"></a>7. Practical considerations</h2></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2807383"></a>7.1. Performance</h3></div></div><p>In theory, all overhead of using STL algorithms and lambda functors compared to hand written loops can be optimized away, just as the overhead from standard STL function objects and binders can.
+Depending on the compiler, this can also be true in practice.
+</p><p>We have only performed limited performance testing described in [<a href="bi01.html#cit:jarvi:00" title="[Jär00]">Jär00</a>], and 
+our tests suggest that the BLL does not introduce a loss of performance compared to STL function objects. 
+Hence, with a reasonable optimizing compiler, one should expect the performance characteristics be comparable to using classic STL. 
+Moreover, with a great optimizing compiler there may be no performance penalty at all.
+Note however, that evaluating a lambda functor consist of a sequence of calls to small functions that are declared inline. 
+If the compiler fails to actually expand these functions inline, the performance, compared to hand written loops, can suffer.
+</p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2807426"></a>7.2. About compiling</h3></div></div><p>The BLL uses templates rather heavily, performing numerous recursive instantiations of the same templates. 
+This has (at least) three implications:
+<div class="itemizedlist"><ul type="disc"><li><p>
+While it is possible to write incredibly complex lambda expressions, it probably isn't a good idea. 
+Compiling such expressions may end up requiring a lot of memory 
+at compile time, and being slow to compile.
+</p></li><li><p>
+The types of lambda functors that result from even the simplest lambda expressions are cryptic. 
+Usually the programmer doesn't need to deal with the lambda functor the types at all, but in the case of an error in a lambda expression, the compiler usually outputs the types of the lambda functors involved. 
+This can make the error messages very long and difficult to interpret, particularly if the compiler outputs the whole chain of template instantiations.
+</p></li><li><p>
+The C++ Standard suggests a template nesting level of 17 to help detect infinite recursion. 
+Complex lambda templates can easily exceed this limit. 
+Most compilers allow a greater number of nested templates, but commonly require the limit explicitly increased with a command line argument.
+</p></li></ul></div></p></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id2807495"></a>7.3. Portability</h3></div></div><p>
+The BLL works with the following compilers, that is, the compilers are capable of compiling the test cases that are included with the BLL:
+
+      <div class="itemizedlist"><ul type="disc"><li>GCC 3.0.2
+	</li><li>KCC 4.0f with EDG 2.43.1
+	</li><li>GCC 2.96 (fails with two test cases)
+
+	</li></ul></div>
+</p><p>
+Compiling with GCC 2.96 the <tt>exception_test.cpp</tt> results in an internal compiler, and function references cannot be used as target functions in bind expressions (the <tt>bind_tests_simple_function_references.cpp</tt> fails).
+</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ar01s06.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="index.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ar01s08.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">6. Extending return type deduction system </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> 8. Relation to other Boost libraries</td></tr></table></div></body></html>
