@@ -22,11 +22,11 @@
 namespace boost { 
 namespace lambda {
 
-typedef lambda_functor<placeholder<EXCEPTION> > freeE_type;
+typedef lambda_functor<placeholder<EXCEPTION> > placeholderE_type;
 
 namespace {
-  boost::lambda::freeE_type freeE;
-  boost::lambda::freeE_type& _E = freeE;        
+  boost::lambda::placeholderE_type freeE;
+  boost::lambda::placeholderE_type& _E = freeE;        
 }
 
 // -- try_catch arity_deduction --------------------------------

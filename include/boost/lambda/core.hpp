@@ -54,13 +54,13 @@ namespace lambda {
 
 namespace {
 
-	boost::lambda::free1_type free1;
-	boost::lambda::free2_type free2;
-	boost::lambda::free3_type free3;
+	boost::lambda::placeholder1_type free1;
+	boost::lambda::placeholder2_type free2;
+	boost::lambda::placeholder3_type free3;
 
-	boost::lambda::free1_type& _1 = free1;
-	boost::lambda::free2_type& _2 = free2;
-	boost::lambda::free3_type& _3 = free3;
+	boost::lambda::placeholder1_type& _1 = free1;
+	boost::lambda::placeholder2_type& _2 = free2;
+	boost::lambda::placeholder3_type& _3 = free3;
   // _1, _2, ... naming scheme by Peter Dimov
 } // unnamed
    
