@@ -1,4 +1,4 @@
-//  constructor_tests.cpp  --------------------------------
+//  cast_tests.cpp  --------------------------------
 
 #define BOOST_INCLUDE_MAIN  // for testing, include rather than link
 #include <boost/test/test_tools.hpp>    // see "Header Implementation Option"
@@ -22,6 +22,7 @@ public:
 };
 
 class derived : public base {
+  int y[100];
 public:
   virtual std::string class_name() const { return "const derived"; }
   virtual std::string class_name() { return "derived"; }
@@ -66,11 +67,25 @@ int do_test() {
   (var(ip) = ll_reinterpret_cast<int *>(cp))();
   BOOST_TEST(*ip == 10);
 
+
+  // typeid 
+
   BOOST_TEST(string(ll_typeid(d)().name()) == string(typeid(d).name()));
 
  
+  // sizeof
+
+  BOOST_TEST(ll_sizeof(_1)(p_derived) == sizeof(p_derived));
+  BOOST_TEST(ll_sizeof(_1)(*p_derived) == sizeof(*p_derived));
+  BOOST_TEST(ll_sizeof(_1)(p_base) == sizeof(p_base));
+  BOOST_TEST(ll_sizeof(_1)(*p_base) == sizeof(*p_base));
+
+  int an_array[100];
+  BOOST_TEST(ll_sizeof(_1)(an_array) == 100 * sizeof(int));
+
   delete p_derived;
   delete p_base;
+
 
 }
 
