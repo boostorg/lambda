@@ -519,12 +519,6 @@ struct return_type_2<other_action<subscript_action>, A[N], B> {
   typedef A& type; 
 };
 
-// member_pointer action -----------------------------------------------
- 
-template<class A, class T, class B>
-struct return_type_2<other_action<member_pointer_action>, A, T B::* const> {
-  typedef T& type;
-};
 
 } // namespace lambda
 } // namespace boost
