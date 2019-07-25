@@ -300,7 +300,8 @@ int test_main(int, char *[]) {
 
     // Check using result_of with lambda functors
     BOOST_CHECK(apply0(constant(0)) == 0);
-    BOOST_CHECK(apply1<int>(_1, one) == 1);
+    // returns local address and leads to undefined behavior
+    //~ BOOST_CHECK(apply1<int>(_1, one) == 1);
     BOOST_CHECK(apply1<int&>(_1, one) == 1);
     BOOST_CHECK(apply1<const int&>(_1, one) == 1);
     BOOST_CHECK((apply2<int, int>(_1 + _2, one, two) == 3));
