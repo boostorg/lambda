@@ -7,7 +7,7 @@
 <libraryinfo>
   <author>
     <firstname>Jaakko</firstname>
-    <surname>Järvi</surname>
+    <surname>JÃ¤rvi</surname>
      <email>jarvi at cs tamu edu</email>
   </author>
 
@@ -18,7 +18,7 @@
     <year>2002</year>
     <year>2003</year>
     <year>2004</year>
-    <holder>Jaakko Järvi</holder>
+    <holder>Jaakko JÃ¤rvi</holder>
     <holder>Gary Powell</holder>
   </copyright>
 
@@ -76,7 +76,7 @@ In explaining what the library is about, a line of code says more than a thousan
 	must be on the include path.
 	There are a number of include files that give different functionality:
 
-	<!-- TODO: tarkista vielä riippuvuudet-->
+	<!-- TODO: tarkista vielÃ¤ riippuvuudet-->
 	<itemizedlist>
 
 	  <listitem><para>
@@ -911,9 +911,9 @@ B* b = new B();
                         // a function argument list must follow
 (b ->* &B::foo)(1)      // ok, calls b->foo(1)
 
-(_1 ->* &B::foo)(b);    // returns a delayed call to b->foo, 
+(&_1 ->* &B::foo)(b);    // returns a delayed call to b->foo, 
                         // no effect as such
-(_1 ->* &B::foo)(b)(1); // calls b->foo(1)]]>
+(&_1 ->* &B::foo)(b)(1); // calls b->foo(1)]]>
 </programlisting>
 </para>
 </listitem>
@@ -3176,7 +3176,7 @@ but not compromise the performance of simple lambda functors.
 <section>
 <title>Contributors</title>
 
-The main body of the library was written by Jaakko Järvi and Gary Powell.
+The main body of the library was written by Jaakko JÃ¤rvi and Gary Powell.
 We've got outside help, suggestions and ideas from Jeremy Siek, Peter Higley, Peter Dimov, Valentin Bonnard, William Kempf.
 We would particularly like to mention Joel de Guzmann and his work with 
 Phoenix which has influenced BLL significantly, making it considerably simpler 
@@ -3294,11 +3294,11 @@ was dropped.
 
 
 <biblioentry id="cit:jarvi:99">
-<abbrev>Jär99</abbrev>
+<abbrev>JÃ¤r99</abbrev>
 
 <articleinfo>
 <author>
-<surname>Järvi</surname>
+<surname>JÃ¤rvi</surname>
 <firstname>Jaakko</firstname>
 </author>
 <title>C++ Function Object Binders Made Easy</title>
@@ -3314,9 +3314,9 @@ was dropped.
 
 
 <biblioentry id="cit:jarvi:00">
-<abbrev>Jär00</abbrev>
+<abbrev>JÃ¤r00</abbrev>
 <author>
-<surname>Järvi</surname>
+<surname>JÃ¤rvi</surname>
 <firstname>Jaakko</firstname>
 </author>
 <author>
@@ -3335,9 +3335,9 @@ was dropped.
 
 
 <biblioentry id="cit:jarvi:01">
-<abbrev>Jär01</abbrev>
+<abbrev>JÃ¤r01</abbrev>
 <author>
-<surname>Järvi</surname>
+<surname>JÃ¤rvi</surname>
 <firstname>Jaakko</firstname>
 </author>
 <author>
@@ -3354,12 +3354,12 @@ was dropped.
 </biblioentry>
 
 <biblioentry id="cit:jarvi:03">
-<abbrev>Jär03</abbrev>
+<abbrev>JÃ¤r03</abbrev>
 
 <articleinfo>
 
 <author>
-<surname>Järvi</surname>
+<surname>JÃ¤rvi</surname>
 <firstname>Jaakko</firstname>
 </author>
 
