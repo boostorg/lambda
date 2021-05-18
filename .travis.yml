@@ -138,6 +138,15 @@ matrix:
           packages:
             - libc++-dev
 
+    - os: linux
+      dist: focal
+      compiler: clang++-libc++
+      env: UBSAN=1 TOOLSET=clang CXXSTD=03,11,14,17,2a UBSAN_OPTIONS=print_stacktrace=1
+      addons:
+        apt:
+          packages:
+            - libc++-dev
+
     - os: osx
       compiler: clang++
       env: UBSAN=1 TOOLSET=clang CXXSTD=03,11,14,1z UBSAN_OPTIONS=print_stacktrace=1
