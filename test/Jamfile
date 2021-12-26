@@ -18,7 +18,9 @@ run bll_and_function.cpp ;
 run cast_test.cpp ;
 run constructor_tests.cpp ;
 run control_structures.cpp ;
-run exception_test.cpp ;
+run exception_test.cpp
+  : : : <toolset>msvc-14.0,<variant>release:<build>no # crash with 8 catch blocks
+  ;
 run extending_rt_traits.cpp ;
 run is_instance_of_test.cpp ;
 run istreambuf_test.cpp ;
