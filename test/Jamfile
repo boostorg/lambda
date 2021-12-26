@@ -31,3 +31,4 @@ run result_of_tests.cpp ;
 run ret_test.cpp ;
 run rvalue_test.cpp ;
 run switch_construct.cpp ;
+link issue24_test.cpp ;
