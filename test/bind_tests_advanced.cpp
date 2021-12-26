@@ -126,15 +126,29 @@ void test_unlambda() {
 
   BOOST_CHECK(call_with_100(bl::bind(std_functor(std::bind1st(std::plus<int>(), 1)), _1)) == 101);
 
+#elif BOOST_CXX_VERSION > 201703L
+
+  // In C++20, standard functors no longer have ::result_type
+  BOOST_CHECK(call_with_100(bl::bind(std::bind(std::plus<int>(), 1, std::placeholders::_1), _1)) == 101);
+
 #else
 
   BOOST_CHECK(call_with_100(bl::bind(std_functor(std::bind(std::plus<int>(), 1, std::placeholders::_1)), _1)) == 101);
 
 #endif
 
+#if BOOST_CXX_VERSION <= 201703L
+
   // std_functor insturcts LL that the functor defines a result_type typedef
   // rather than a sig template.
   bl::bind(std_functor(std::plus<int>()), _1, _2)(i, i);
+
+#else
+
+  // In C++20, standard functors no longer have ::result_type
+  bl::bind(std::plus<int>(), _1, _2)(i, i);
+
+#endif
 }
 
 
