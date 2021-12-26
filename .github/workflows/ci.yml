@@ -95,6 +95,11 @@ jobs:
             cxxstd: "03,11,14,17,2a"
             os: ubuntu-20.04
           - toolset: clang
+            compiler: clang++-12
+            stdlib: "libc++"
+            cxxstd: "03,11,14,17,2a"
+            os: ubuntu-20.04
+          - toolset: clang
             cxxstd: "03,11,14,17,2a"
             os: macos-10.15
 
@@ -137,7 +142,8 @@ jobs:
       - name: Run tests
         run: |
           cd ../boost-root
-          ./b2 -j3 libs/$LIBRARY/test toolset=${{matrix.toolset}} cxxstd=${{matrix.cxxstd}} variant=debug,release
+          STDLIB=${{matrix.stdlib}}
+          ./b2 -j3 libs/$LIBRARY/test toolset=${{matrix.toolset}} cxxstd=${{matrix.cxxstd}} variant=debug,release ${STDLIB:+stdlib=$STDLIB}
 
   windows:
     strategy:
