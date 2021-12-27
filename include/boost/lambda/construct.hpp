@@ -16,6 +16,7 @@
 
 #include "boost/type_traits/remove_cv.hpp"
 #include "boost/type_traits/is_pointer.hpp"
+#include "boost/config.hpp"
 
 #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) && !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
 #include <utility>
