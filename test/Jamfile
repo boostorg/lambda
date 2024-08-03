@@ -10,6 +10,8 @@
 
 import testing ;
 
+project : requirements <library>/boost/lambda//boost_lambda ;
+
 run algorithm_test.cpp ;
 run bind_tests_advanced.cpp : : : <library>/boost/any//boost_any ;
 run bind_tests_simple.cpp ;
